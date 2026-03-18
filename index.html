@@ -5,283 +5,305 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-```
-:root {
-  --bg:        #0a0a0f;
-  --panel:     rgba(255,255,255,0.05);
-  --border:    rgba(255,255,255,0.10);
-  --accent1:   #ff3f6c;   /* hot pink */
-  --accent2:   #00e5ff;   /* cyan */
-  --accent3:   #ffe135;   /* yellow */
-  --accent4:   #7c3aed;   /* violet */
-  --text:      #f0f0f0;
-  --muted:     rgba(240,240,240,0.45);
-  --font-display: 'Bebas Neue', sans-serif;
-  --font-body:    'DM Sans', sans-serif;
-  --radius:    18px;
-  --gap:       18px;
-}
+    :root {
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
+      --glass-bg:      rgba(255, 255, 255, 0.12);
+      --glass-border:  rgba(255, 255, 255, 0.28);
+      --glass-shine:   rgba(255, 255, 255, 0.55);
+      --glass-shadow:  rgba(0, 0, 0, 0.18);
+      --text:          rgba(255, 255, 255, 0.95);
+      --muted:         rgba(255, 255, 255, 0.50);
+      --radius:        26px;
+      --gap:           18px;
+    }
 
-html, body {
-  width: 100%; height: 100%;
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-body);
-  overflow: hidden;
-}
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      font-family: var(--font);
+      color: var(--text);
+    }
 
-/* ── Animated mesh background ── */
-body::before {
-  content: '';
-  position: fixed; inset: 0; z-index: 0;
-  background:
-    radial-gradient(ellipse 60% 50% at 10% 20%, rgba(255,63,108,0.18) 0%, transparent 70%),
-    radial-gradient(ellipse 50% 60% at 90% 80%, rgba(0,229,255,0.15) 0%, transparent 70%),
-    radial-gradient(ellipse 40% 40% at 50% 50%, rgba(124,58,237,0.12) 0%, transparent 70%),
-    radial-gradient(ellipse 70% 30% at 80% 10%, rgba(255,225,53,0.10) 0%, transparent 70%);
-  animation: bgShift 20s ease-in-out infinite alternate;
-}
-@keyframes bgShift {
-  0%   { opacity: 1; transform: scale(1) rotate(0deg); }
-  100% { opacity: 0.8; transform: scale(1.05) rotate(1deg); }
-}
+    /* ── Vivid gradient background (macOS Sequoia / visionOS style) ── */
+    body {
+      background:
+        radial-gradient(ellipse 80% 60% at 15% 15%,  #3b82f6 0%,   transparent 55%),
+        radial-gradient(ellipse 60% 70% at 85% 20%,  #a855f7 0%,   transparent 55%),
+        radial-gradient(ellipse 70% 50% at 80% 85%,  #f43f5e 0%,   transparent 55%),
+        radial-gradient(ellipse 60% 60% at 10% 80%,  #06b6d4 0%,   transparent 55%),
+        radial-gradient(ellipse 50% 50% at 50% 50%,  #6366f1 0%,   transparent 70%),
+        #0d0f1f;
+      animation: bgPulse 18s ease-in-out infinite alternate;
+    }
+    @keyframes bgPulse {
+      0%   { filter: hue-rotate(0deg) brightness(1); }
+      100% { filter: hue-rotate(20deg) brightness(1.08); }
+    }
 
-/* ── Noise grain overlay ── */
-body::after {
-  content: '';
-  position: fixed; inset: 0; z-index: 1;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  background-size: 200px 200px;
-  pointer-events: none;
-  opacity: 0.6;
-}
+    /* ── Subtle noise grain ── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      background-size: 180px 180px;
+      opacity: 0.5;
+    }
 
-/* ── Layout ── */
-.grid {
-  position: relative; z-index: 2;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: auto 1fr;
-  gap: var(--gap);
-  padding: var(--gap);
-  height: 100vh;
-  max-width: 1920px;
-  margin: 0 auto;
-}
+    /* ── Layout ── */
+    .grid {
+      position: relative; z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: auto 1fr;
+      gap: var(--gap);
+      padding: var(--gap);
+      height: 100vh;
+      max-width: 1920px;
+      margin: 0 auto;
+    }
 
-/* ── Panels ── */
-.panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  padding: 28px 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  animation: fadeUp 0.6s ease both;
-}
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.panel:nth-child(1) { animation-delay: 0.0s; }
-.panel:nth-child(2) { animation-delay: 0.1s; }
-.panel:nth-child(3) { animation-delay: 0.2s; }
-.panel:nth-child(4) { animation-delay: 0.3s; }
+    /* ── Liquid Glass panels ── */
+    .panel {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      backdrop-filter: blur(48px) saturate(1.8);
+      -webkit-backdrop-filter: blur(48px) saturate(1.8);
+      padding: 28px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+      box-shadow:
+        0 2px 0 0 var(--glass-shine) inset,
+        0 1px 2px 0 rgba(255,255,255,0.2) inset,
+        0 16px 48px var(--glass-shadow),
+        0 4px 12px rgba(0,0,0,0.1);
+      animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
 
-/* ── Accent top stripe ── */
-.panel--clock  { border-top: 3px solid var(--accent1); }
-.panel--date   { border-top: 3px solid var(--accent3); }
-.panel--weather{ border-top: 3px solid var(--accent2); }
-.panel--cal    {
-  border-top: 3px solid var(--accent4);
-  grid-column: 1 / -1;
-}
+    /* Specular highlight — top-left corner shimmer */
+    .panel::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255,255,255,0.7) 30%,
+        rgba(255,255,255,0.9) 50%,
+        rgba(255,255,255,0.7) 70%,
+        transparent 100%
+      );
+    }
 
-/* ── Labels ── */
-.label {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
+    /* Inner light shimmer */
+    .panel::after {
+      content: '';
+      position: absolute;
+      top: -60%; left: -30%;
+      width: 60%; height: 120%;
+      background: linear-gradient(135deg,
+        rgba(255,255,255,0.07) 0%,
+        transparent 60%
+      );
+      pointer-events: none;
+      border-radius: 50%;
+    }
 
-/* ── Clock ── */
-#clock {
-  font-family: var(--font-display);
-  font-size: clamp(4rem, 8vw, 7rem);
-  line-height: 1;
-  color: var(--accent1);
-  text-shadow: 0 0 40px rgba(255,63,108,0.5);
-  letter-spacing: 0.03em;
-}
-#ampm {
-  font-family: var(--font-display);
-  font-size: clamp(1.5rem, 2.5vw, 2.2rem);
-  color: var(--muted);
-  letter-spacing: 0.1em;
-  margin-top: -4px;
-}
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0)    scale(1); }
+    }
+    .panel:nth-child(1) { animation-delay: 0.0s; }
+    .panel:nth-child(2) { animation-delay: 0.08s; }
+    .panel:nth-child(3) { animation-delay: 0.16s; }
+    .panel:nth-child(4) { animation-delay: 0.24s; }
 
-/* ── Date ── */
-#day {
-  font-family: var(--font-display);
-  font-size: clamp(3rem, 6vw, 5.5rem);
-  line-height: 1;
-  color: var(--accent3);
-  text-shadow: 0 0 30px rgba(255,225,53,0.4);
-  letter-spacing: 0.03em;
-}
-#datestr {
-  font-size: clamp(0.9rem, 1.4vw, 1.2rem);
-  color: var(--muted);
-  font-weight: 500;
-}
+    /* ── Labels ── */
+    .label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
 
-/* ── Weather ── */
-.weather-main {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-#weather-icon {
-  font-size: clamp(2.5rem, 5vw, 4.5rem);
-  filter: drop-shadow(0 0 12px rgba(0,229,255,0.6));
-  animation: float 4s ease-in-out infinite;
-}
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-6px); }
-}
-#weather-temp {
-  font-family: var(--font-display);
-  font-size: clamp(3rem, 6vw, 5.5rem);
-  line-height: 1;
-  color: var(--accent2);
-  text-shadow: 0 0 30px rgba(0,229,255,0.45);
-}
-#weather-desc {
-  font-size: clamp(0.85rem, 1.2vw, 1rem);
-  color: var(--muted);
-  font-weight: 500;
-  text-transform: capitalize;
-  margin-top: 4px;
-}
-.weather-extras {
-  display: flex;
-  gap: 20px;
-  margin-top: 8px;
-  flex-wrap: wrap;
-}
-.weather-extra {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.weather-extra span:first-child {
-  font-size: 0.65rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--muted);
-  font-weight: 700;
-}
-.weather-extra span:last-child {
-  font-size: clamp(0.9rem, 1.3vw, 1.1rem);
-  font-weight: 600;
-  color: var(--accent2);
-}
+    /* ── Clock ── */
+    #clock {
+      font-size: clamp(4rem, 8vw, 7rem);
+      font-weight: 200;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      color: var(--text);
+      text-shadow: 0 0 60px rgba(255,255,255,0.25);
+    }
+    #ampm {
+      font-size: clamp(1rem, 2vw, 1.5rem);
+      font-weight: 300;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      margin-top: -4px;
+    }
 
-/* ── Calendar ── */
-.panel--cal {
-  padding: 0;
-  overflow: hidden;
-  min-height: 380px;
-}
-.cal-header {
-  padding: 18px 28px 14px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-bottom: 1px solid var(--border);
-}
-.cal-dot {
-  width: 10px; height: 10px;
-  border-radius: 50%;
-  background: var(--accent4);
-  box-shadow: 0 0 12px var(--accent4);
-}
-.cal-header .label { margin: 0; }
-#cal-frame-wrapper {
-  position: relative;
-  height: calc(100% - 60px);
-}
+    /* ── Date ── */
+    #day {
+      font-size: clamp(2.8rem, 5.5vw, 5rem);
+      font-weight: 200;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      text-shadow: 0 0 40px rgba(255,255,255,0.2);
+    }
+    #datestr {
+      font-size: clamp(0.9rem, 1.4vw, 1.15rem);
+      font-weight: 300;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
 
-/* Calendar iframe — Google embeds the whole calendar UI */
-#cal-frame {
-  width: 100%;
-  height: 100%;
-  border: none;
-  border-radius: 0 0 var(--radius) var(--radius);
-  filter: invert(1) hue-rotate(180deg) saturate(0.8) brightness(0.85);
-  opacity: 0;
-  transition: opacity 0.6s ease;
-}
-#cal-frame.loaded { opacity: 1; }
+    /* ── Weather ── */
+    .weather-main {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    #weather-icon {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      animation: float 5s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-6px); }
+    }
+    #weather-temp {
+      font-size: clamp(2.8rem, 5.5vw, 5rem);
+      font-weight: 200;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      color: var(--text);
+    }
+    #weather-desc {
+      font-size: clamp(0.85rem, 1.2vw, 1rem);
+      font-weight: 300;
+      color: var(--muted);
+      text-transform: capitalize;
+      margin-top: 4px;
+      letter-spacing: 0.03em;
+    }
+    .weather-extras {
+      display: flex;
+      gap: 16px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .weather-extra {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      padding: 8px 14px;
+      backdrop-filter: blur(8px);
+    }
+    .weather-extra span:first-child {
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .weather-extra span:last-child {
+      font-size: clamp(0.9rem, 1.3vw, 1.05rem);
+      font-weight: 400;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
 
-/* Placeholder shown until iframe loads or if not configured */
-#cal-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  gap: 14px;
-  color: var(--muted);
-  text-align: center;
-  padding: 28px;
-}
-#cal-placeholder .big-icon { font-size: 3rem; }
-#cal-placeholder p { font-size: 0.95rem; line-height: 1.6; max-width: 480px; }
-#cal-placeholder code {
-  background: rgba(255,255,255,0.08);
-  padding: 2px 8px;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  color: var(--accent2);
-}
-#cal-placeholder a {
-  color: var(--accent4);
-  text-decoration: underline;
-}
+    /* ── Calendar ── */
+    .panel--cal {
+      padding: 0;
+      overflow: hidden;
+      min-height: 380px;
+      grid-column: 1 / -1;
+    }
+    .cal-header {
+      padding: 18px 28px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .cal-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.6);
+      box-shadow: 0 0 10px rgba(255,255,255,0.5);
+    }
+    .cal-header .label { margin: 0; }
+    #cal-frame-wrapper {
+      position: relative;
+      height: calc(100% - 60px);
+    }
+    #cal-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 0 0 var(--radius) var(--radius);
+      filter: invert(1) hue-rotate(180deg) saturate(0.8) brightness(0.85);
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+    #cal-frame.loaded { opacity: 1; }
+    #cal-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 14px;
+      color: var(--muted);
+      text-align: center;
+      padding: 28px;
+    }
+    #cal-placeholder .big-icon { font-size: 3rem; }
+    #cal-placeholder p { font-size: 0.95rem; line-height: 1.6; max-width: 480px; font-weight: 300; }
+    #cal-placeholder code {
+      background: rgba(255,255,255,0.1);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.75);
+    }
+    #cal-placeholder a {
+      color: rgba(180,180,255,0.85);
+      text-decoration: underline;
+    }
 
-/* ── Weather error ── */
-#weather-error {
-  color: var(--muted);
-  font-size: 0.9rem;
-  display: none;
-}
+    /* ── Weather error ── */
+    #weather-error {
+      color: var(--muted);
+      font-size: 0.9rem;
+      display: none;
+    }
 
-/* ── Responsive: TV 1080p ── */
-@media (max-width: 900px) {
-  .grid {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto 1fr;
-  }
-  .panel--cal { grid-column: 1 / -1; }
-}
-@media (max-width: 550px) {
-  .grid { grid-template-columns: 1fr; }
-  .panel--cal { grid-column: 1; }
-}
-```
-
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto 1fr;
+      }
+      .panel--cal { grid-column: 1 / -1; }
+    }
+    @media (max-width: 550px) {
+      .grid { grid-template-columns: 1fr; }
+      .panel--cal { grid-column: 1; }
+    }
   </style>
 </head>
 <body>
@@ -289,7 +311,6 @@ body::after {
 <div class="grid">
 
   <!-- CLOCK -->
-
   <div class="panel panel--clock">
     <div class="label">Time</div>
     <div id="clock">00:00:00</div>
@@ -297,7 +318,6 @@ body::after {
   </div>
 
   <!-- DATE -->
-
   <div class="panel panel--date">
     <div class="label">Date</div>
     <div id="day">Monday</div>
@@ -305,7 +325,6 @@ body::after {
   </div>
 
   <!-- WEATHER -->
-
   <div class="panel panel--weather">
     <div class="label">Perth, WA · Weather</div>
     <div class="weather-main">
@@ -337,7 +356,6 @@ body::after {
   </div>
 
   <!-- CALENDAR -->
-
   <div class="panel panel--cal">
     <div class="cal-header">
       <div class="cal-dot"></div>
@@ -345,46 +363,43 @@ body::after {
     </div>
     <div id="cal-frame-wrapper">
 
-```
-  <!--
-    ════════════════════════════════════════════════════════
-    HOW TO ADD YOUR GOOGLE CALENDAR
-    ════════════════════════════════════════════════════════
-    1. Open Google Calendar on your computer
-    2. Click the ⚙ Settings icon → Settings
-    3. In the left sidebar, click your calendar name
-    4. Scroll down to "Integrate calendar"
-    5. Copy the "Public URL to this calendar" (or the embed HTML src URL)
-    6. Replace YOUR_CALENDAR_ID below with that URL
-    7. Also make sure your calendar is set to PUBLIC:
-       Settings → your calendar → Access permissions → "Make available to public"
-    ════════════════════════════════════════════════════════
-  -->
+      <!--
+        ════════════════════════════════════════════════════════
+        HOW TO ADD YOUR GOOGLE CALENDAR
+        ════════════════════════════════════════════════════════
+        1. Open Google Calendar on your computer
+        2. Click the ⚙ Settings icon → Settings
+        3. In the left sidebar, click your calendar name
+        4. Scroll down to "Integrate calendar"
+        5. Copy the "Public URL to this calendar" (or the embed HTML src URL)
+        6. Replace YOUR_CALENDAR_ID below with that URL
+        7. Also make sure your calendar is set to PUBLIC:
+           Settings → your calendar → Access permissions → "Make available to public"
+        ════════════════════════════════════════════════════════
+      -->
 
-  <iframe
-    id="cal-frame"
-    src=""
-    data-src="https://calendar.google.com/calendar/embed?src=YOUR_CALENDAR_ID&ctz=Australia%2FPerth&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&showTz=0&mode=AGENDA&bgcolor=%23000000"
-    title="Google Calendar"
-  ></iframe>
+      <iframe
+        id="cal-frame"
+        src=""
+        data-src="https://calendar.google.com/calendar/embed?src=YOUR_CALENDAR_ID&ctz=Australia%2FPerth&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&showTz=0&mode=AGENDA&bgcolor=%23000000"
+        title="Google Calendar"
+      ></iframe>
 
-  <div id="cal-placeholder">
-    <div class="big-icon">📅</div>
-    <p>
-      To connect your Google Calendar, open <code>index.html</code> in a text editor
-      and find the <code>YOUR_CALENDAR_ID</code> placeholder near line 220.
-      Replace it with your Google Calendar embed URL — instructions are in the comments just above it.
-      <br><br>
-      Need help? See
-      <a href="https://support.google.com/calendar/answer/41207" target="_blank">
-        Google's guide to sharing your calendar publicly.
-      </a>
-    </p>
-  </div>
+      <div id="cal-placeholder">
+        <div class="big-icon">📅</div>
+        <p>
+          To connect your Google Calendar, open <code>index.html</code> in a text editor
+          and find the <code>YOUR_CALENDAR_ID</code> placeholder near line 220.
+          Replace it with your Google Calendar embed URL — instructions are in the comments just above it.
+          <br><br>
+          Need help? See
+          <a href="https://support.google.com/calendar/answer/41207" target="_blank">
+            Google's guide to sharing your calendar publicly.
+          </a>
+        </p>
+      </div>
 
-</div>
-```
-
+    </div>
   </div>
 
 </div>
@@ -415,7 +430,6 @@ body::after {
   setInterval(updateClock, 1000);
 
   // ── Weather (Open-Meteo — no API key needed) ─────────────
-  // Perth, WA coordinates
   const LAT = -31.9505;
   const LON = 115.8605;
 
@@ -466,7 +480,7 @@ body::after {
     }
   }
   fetchWeather();
-  setInterval(fetchWeather, 10 * 60 * 1000); // refresh every 10 min
+  setInterval(fetchWeather, 10 * 60 * 1000);
 
   // ── Calendar iframe loader ───────────────────────────────
   const iframe = document.getElementById('cal-frame');
@@ -474,14 +488,12 @@ body::after {
   const dataSrc = iframe.getAttribute('data-src');
 
   if (dataSrc && !dataSrc.includes('YOUR_CALENDAR_ID')) {
-    // Calendar has been configured — load it
     iframe.src = dataSrc;
     iframe.addEventListener('load', () => {
       placeholder.style.display = 'none';
       iframe.classList.add('loaded');
     });
   }
-  // Otherwise leave placeholder visible with instructions
 </script>
 
 </body>
