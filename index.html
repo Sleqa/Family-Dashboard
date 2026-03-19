@@ -238,41 +238,57 @@
       color: var(--text);
     }
 
-    /* ── Family members ── */
-    .family-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .family-member {
+    /* ── Traffic widget ── */
+    .traffic-status {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 8px 12px;
+      padding: 10px 12px;
+      background: var(--bg);
       border-radius: 10px;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    .family-member:hover { background: #f5f5f5; }
-    .family-member.active { background: #f0f7ff; }
-    .member-dot {
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    .member-name {
-      font-size: 0.9rem;
+      margin-bottom: 10px;
+      font-size: 0.82rem;
       font-weight: 600;
       color: var(--text);
     }
-    .member-events {
-      margin-left: auto;
-      font-size: 0.75rem;
-      font-weight: 700;
+    .traffic-dot {
+      width: 11px; height: 11px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: var(--muted);
+    }
+    .traffic-dot.green  { background: #5cb85c; }
+    .traffic-dot.orange { background: #f5a623; }
+    .traffic-dot.red    { background: #e74c5e; }
+    .traffic-incident {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.78rem;
+      line-height: 1.4;
+    }
+    .traffic-incident:last-child { border-bottom: none; }
+    .traffic-incident-icon { font-size: 1rem; flex-shrink: 0; padding-top: 1px; }
+    .traffic-incident-road { font-weight: 700; color: var(--text); margin-bottom: 1px; }
+    .traffic-incident-desc { color: var(--muted); }
+    .traffic-clear {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #5cb85c;
+      padding: 4px 0;
+    }
+    .traffic-key-missing {
+      font-size: 0.78rem;
       color: var(--muted);
+      line-height: 1.5;
+    }
+    .traffic-key-missing code {
       background: #f0f0f0;
-      padding: 2px 8px;
-      border-radius: 10px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.75rem;
     }
 
     /* ── Calendar area (right side) ── */
@@ -634,15 +650,15 @@
       </div>
     </div>
 
-    <!-- Family Members -->
+    <!-- Traffic Widget -->
     <div>
-      <div class="card-title">Family</div>
-      <div class="family-list" id="family-list">
-        <!-- Populated dynamically from calendar data -->
-        <div class="family-member active">
-          <div class="member-dot" style="background: var(--blue)"></div>
-          <span class="member-name">Everyone</span>
+      <div class="card-title">Traffic</div>
+      <div id="traffic-widget">
+        <div class="traffic-status" id="traffic-status">
+          <span class="traffic-dot" id="traffic-dot"></span>
+          <span id="traffic-label">Loading...</span>
         </div>
+        <div id="traffic-incidents"></div>
       </div>
     </div>
 
@@ -731,8 +747,90 @@
     // { url: 'webcal://...', name: 'Person Name', color: '#hexcolor' },
   ];
 
-  // Event colors for family members
+  // Event colors for calendars
   const FAMILY_COLORS = ['#4a90d9', '#e74c5e', '#5cb85c', '#f5a623', '#8b5cf6', '#ec4899', '#14b8a6'];
+
+  // ── Traffic (TomTom) ────────────────────────────────────────────────────
+  // Free tier: https://developer.tomtom.com  →  My Apps → Create API Key
+  // 2,500 free requests/day — no credit card needed
+  const TOMTOM_API_KEY = 'YOUR_TOMTOM_KEY_HERE';
+
+  // ── Traffic widget ──────────────────────────────────────────────────────
+  // Covers Burns Beach → Perth CBD commute corridor (Mitchell Freeway)
+  const TRAFFIC_BBOX   = '115.72,-31.98,115.87,-31.65'; // lon_min,lat_min,lon_max,lat_max
+  const TRAFFIC_FLOW_PT = '-31.857,115.801';             // Mitchell Fwy near Stirling
+  const INCIDENT_ICONS  = { 0:'⚠️',1:'💥',2:'🌫️',3:'⚠️',4:'🌧️',5:'🧊',6:'🚦',7:'🚧',8:'🚫',9:'🦺',10:'💨',11:'🌊',14:'🚗' };
+
+  async function fetchTraffic() {
+    const dot   = document.getElementById('traffic-dot');
+    const label = document.getElementById('traffic-label');
+    const inc   = document.getElementById('traffic-incidents');
+
+    if (!TOMTOM_API_KEY || TOMTOM_API_KEY === 'YOUR_TOMTOM_KEY_HERE') {
+      dot.className = 'traffic-dot';
+      label.textContent = 'API key needed';
+      inc.innerHTML = `<div class="traffic-key-missing">
+        Get a free key at <strong>developer.tomtom.com</strong><br>
+        then set <code>TOMTOM_API_KEY</code> in this file.
+      </div>`;
+      return;
+    }
+
+    try {
+      const fields = encodeURIComponent('{incidents{type,properties{iconCategory,events{description},from,to,delay,roadNumbers}}}');
+      const [flowRes, incRes] = await Promise.all([
+        fetch(`https://api.tomtom.com/traffic/services/4/flowSegmentData/relative0/10/json?point=${TRAFFIC_FLOW_PT}&key=${TOMTOM_API_KEY}`),
+        fetch(`https://api.tomtom.com/traffic/services/5/incidentDetails?bbox=${TRAFFIC_BBOX}&key=${TOMTOM_API_KEY}&fields=${fields}&language=en-AU&timeValidityFilter=present`),
+      ]);
+
+      // Flow status
+      if (flowRes.ok) {
+        const flow = (await flowRes.json()).flowSegmentData;
+        if (flow) {
+          const ratio = flow.currentSpeed / flow.freeFlowSpeed;
+          if (ratio > 0.8) {
+            dot.className = 'traffic-dot green';
+            label.textContent = `Mitchell Fwy — Flowing freely (${flow.currentSpeed} km/h)`;
+          } else if (ratio > 0.5) {
+            dot.className = 'traffic-dot orange';
+            label.textContent = `Mitchell Fwy — Some delays (${flow.currentSpeed} km/h)`;
+          } else {
+            dot.className = 'traffic-dot red';
+            label.textContent = `Mitchell Fwy — Heavy traffic (${flow.currentSpeed} km/h)`;
+          }
+        }
+      }
+
+      // Incidents
+      if (incRes.ok) {
+        const incidents = (await incRes.json()).incidents || [];
+        if (incidents.length === 0) {
+          inc.innerHTML = '<div class="traffic-clear">✓ No incidents on your corridor</div>';
+        } else {
+          inc.innerHTML = incidents.slice(0, 4).map(i => {
+            const p    = i.properties;
+            const icon = INCIDENT_ICONS[p.iconCategory] ?? '⚠️';
+            const road = (p.roadNumbers?.[0] || p.from || '').replace(/;/g, ' / ');
+            const desc = p.events?.[0]?.description || 'Incident';
+            const delay = p.delay > 60 ? ` <em>(+${Math.round(p.delay / 60)} min)</em>` : '';
+            return `<div class="traffic-incident">
+              <span class="traffic-incident-icon">${icon}</span>
+              <div>
+                <div class="traffic-incident-road">${escapeHtml(road)}</div>
+                <div class="traffic-incident-desc">${escapeHtml(desc)}${delay}</div>
+              </div>
+            </div>`;
+          }).join('');
+        }
+      }
+    } catch (e) {
+      console.warn('Traffic fetch failed:', e);
+      label.textContent = 'Unavailable';
+    }
+  }
+
+  fetchTraffic();
+  setInterval(fetchTraffic, 5 * 60 * 1000); // refresh every 5 min
 
   // ── State ──
   let tokenClient = null;
@@ -961,7 +1059,6 @@
         return aTime - bTime;
       });
       calendarEvents = icalEvs;
-      updateFamilyList();
       renderEvents();
     } finally {
       loading.style.display = 'none';
@@ -1196,7 +1293,6 @@
       });
 
       calendarEvents = allEvents;
-      updateFamilyList();
       renderEvents();
     } catch (e) {
       console.error('Failed to fetch calendar:', e);
@@ -1218,39 +1314,6 @@
     }
   }
 
-  function updateFamilyList() {
-    const list = document.getElementById('family-list');
-    const owners = [...calendarOwners.entries()];
-
-    let html = `
-      <div class="family-member active" onclick="filterEvents(null, this)">
-        <div class="member-dot" style="background: var(--blue)"></div>
-        <span class="member-name">Everyone</span>
-        <span class="member-events">${calendarEvents.length}</span>
-      </div>`;
-
-    owners.forEach(([name, color]) => {
-      const count = calendarEvents.filter(e => e._calendarName === name).length;
-      if (count === 0) return;
-      html += `
-        <div class="family-member" onclick="filterEvents('${name.replace(/'/g, "\\'")}', this)">
-          <div class="member-dot" style="background: ${color}"></div>
-          <span class="member-name">${name}</span>
-          <span class="member-events">${count}</span>
-        </div>`;
-    });
-
-    list.innerHTML = html;
-  }
-
-  let activeFilter = null;
-  function filterEvents(calendarName, el) {
-    activeFilter = calendarName;
-    document.querySelectorAll('.family-member').forEach(m => m.classList.remove('active'));
-    if (el) el.classList.add('active');
-    renderEvents();
-  }
-
   function renderEvents() {
     if (currentView === 'month') {
       renderMonthView();
@@ -1259,9 +1322,6 @@
 
     const container = document.getElementById('events-list');
     let events = calendarEvents;
-    if (activeFilter) {
-      events = events.filter(e => e._calendarName === activeFilter);
-    }
 
     const now = new Date();
     if (currentView === 'week') {
@@ -1347,8 +1407,7 @@
     document.getElementById('month-prev').disabled = monthOffset <= 0;
 
     // Build event map: day-of-month → events[]
-    let events = calendarEvents;
-    if (activeFilter) events = events.filter(e => e._calendarName === activeFilter);
+    const events = calendarEvents;
     const eventMap = {};
     events.forEach(ev => {
       const start = new Date(ev.start?.dateTime || ev.start?.date);
