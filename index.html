@@ -602,6 +602,22 @@
   const GOOGLE_CLIENT_ID = '889041336637-gt0h8kqjdbf6qilqfrn50rph92paof1i.apps.googleusercontent.com';
   const CALENDAR_SCOPES  = 'https://www.googleapis.com/auth/calendar.readonly';
 
+  // ── iCloud / iCal Calendars ──────────────────────────────────────────────
+  // Add public iCloud calendar links here (no Google sign-in required).
+  //
+  // How to get your iCloud calendar URL:
+  //   1. Open Calendar on Mac or iCloud.com
+  //   2. Right-click (or ctrl-click) the calendar → Share Calendar
+  //   3. Enable "Public Calendar" and copy the webcal:// link
+  //   4. Paste it below as the url value
+  //
+  // Example:
+  //   { url: 'webcal://p01-caldav.icloud.com/published/2/ABC123...', name: 'Sarah', color: '#ec4899' },
+  // ─────────────────────────────────────────────────────────────────────────
+  const ICAL_CALENDARS = [
+    // { url: 'webcal://...', name: 'Person Name', color: '#hexcolor' },
+  ];
+
   // Event colors for family members
   const FAMILY_COLORS = ['#4a90d9', '#e74c5e', '#5cb85c', '#f5a623', '#8b5cf6', '#ec4899', '#14b8a6'];
 
@@ -775,8 +791,36 @@
         else setTimeout(trySilent, 2000);
       } else if (accessToken) {
         fetchCalendarEvents();
+      } else {
+        // No Google sign-in — still load iCal calendars if configured
+        loadICalOnly();
       }
     });
+  }
+
+  // Load and display iCal-only events (no Google auth needed)
+  async function loadICalOnly() {
+    if (!ICAL_CALENDARS.length) return;
+    const loading = document.getElementById('events-loading');
+    loading.style.display = 'flex';
+    try {
+      const icalEvs = await fetchICalEvents();
+      icalEvs.forEach(ev => {
+        if (!calendarOwners.has(ev._calendarName)) {
+          calendarOwners.set(ev._calendarName, ev._calendarColor);
+        }
+      });
+      icalEvs.sort((a, b) => {
+        const aTime = new Date(a.start?.dateTime || a.start?.date);
+        const bTime = new Date(b.start?.dateTime || b.start?.date);
+        return aTime - bTime;
+      });
+      calendarEvents = icalEvs;
+      updateFamilyList();
+      renderEvents();
+    } finally {
+      loading.style.display = 'none';
+    }
   }
 
   function initTokenClient() {
@@ -884,6 +928,53 @@
     }
   }
 
+  async function fetchICalEvents() {
+    if (!ICAL_CALENDARS.length || typeof ICAL === 'undefined') return [];
+
+    const now       = new Date();
+    const weekAhead = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const allEvents = [];
+
+    for (const [i, cal] of ICAL_CALENDARS.entries()) {
+      try {
+        const url    = cal.url.replace(/^webcal:\/\//, 'https://');
+        const proxy  = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+        const res    = await fetch(proxy);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const icsText = await res.text();
+
+        const parsed  = ICAL.parse(icsText);
+        const comp    = new ICAL.Component(parsed);
+        const vevents = comp.getAllSubcomponents('vevent');
+
+        for (const vevent of vevents) {
+          try {
+            const ev     = new ICAL.Event(vevent);
+            const start  = ev.startDate.toJSDate();
+            const end    = ev.endDate ? ev.endDate.toJSDate() : start;
+            if (start > weekAhead || end < now) continue;
+
+            const allDay = ev.startDate.isDate;
+            const color  = cal.color || FAMILY_COLORS[i % FAMILY_COLORS.length];
+            allEvents.push({
+              summary: ev.summary || '(No title)',
+              start: allDay ? { date: start.toISOString().slice(0, 10) }
+                            : { dateTime: start.toISOString() },
+              end:   allDay ? { date: end.toISOString().slice(0, 10) }
+                            : { dateTime: end.toISOString() },
+              _calendarName:  cal.name  || 'iCloud',
+              _calendarColor: color,
+              _source: 'ical',
+            });
+          } catch (_) { /* skip malformed event */ }
+        }
+      } catch (e) {
+        console.warn('Could not fetch iCal calendar:', cal.name, e);
+      }
+    }
+    return allEvents;
+  }
+
   async function fetchCalendarEvents() {
     const loading = document.getElementById('events-loading');
     loading.style.display = 'flex';
@@ -927,6 +1018,15 @@
           console.warn('Could not fetch events for', cal.summary, e);
         }
       }
+
+      // Merge in iCal events (iCloud etc.)
+      const icalEvs = await fetchICalEvents();
+      icalEvs.forEach(ev => {
+        if (!calendarOwners.has(ev._calendarName)) {
+          calendarOwners.set(ev._calendarName, ev._calendarColor);
+        }
+      });
+      allEvents.push(...icalEvs);
 
       // Sort by start time
       allEvents.sort((a, b) => {
@@ -1083,5 +1183,6 @@
 
 <script src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
 <script src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+<script src="https://cdn.jsdelivr.net/npm/ical.js@2.0.1/build/ical.min.js"></script>
 </body>
 </html>
