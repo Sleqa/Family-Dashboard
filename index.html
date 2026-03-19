@@ -696,7 +696,7 @@
     // else gapiLoaded() will call fetchCalendarEvents once ready
   }
 
-  function handleGoogleAuth() {
+  async function handleGoogleAuth() {
     if (GOOGLE_CLIENT_ID === 'YOUR_CLIENT_ID_HERE') {
       alert(
         'To use Google Calendar, you need to set up a Google Cloud OAuth Client ID.\n\n' +
@@ -717,9 +717,24 @@
       });
       return;
     }
+    // Wait up to 10 seconds for Google scripts to finish loading
     if (!tokenClient) {
-      alert('Google Sign-In is still loading, please try again in a moment.');
-      return;
+      const btn = document.getElementById('google-btn');
+      const text = document.getElementById('google-btn-text');
+      const originalText = text.textContent;
+      text.textContent = 'Loading...';
+      btn.disabled = true;
+      let waited = 0;
+      while (!tokenClient && waited < 10000) {
+        await new Promise(r => setTimeout(r, 200));
+        waited += 200;
+      }
+      btn.disabled = false;
+      text.textContent = originalText;
+      if (!tokenClient) {
+        alert('Google Sign-In could not load. Please check your internet connection and try refreshing the page.');
+        return;
+      }
     }
     tokenClient.requestAccessToken();
   }
