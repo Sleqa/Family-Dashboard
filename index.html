@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Family Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
-  <script src="https://apis.google.com/js/api.js" async defer></script>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+  <script src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -717,6 +717,10 @@
       });
       return;
     }
+    if (!tokenClient) {
+      alert('Google Sign-In is still loading, please try again in a moment.');
+      return;
+    }
     tokenClient.requestAccessToken();
   }
 
@@ -918,23 +922,6 @@
     return div.innerHTML;
   }
 
-  // ── Initialize Google APIs when scripts load ──
-  function waitForGapi() {
-    if (typeof gapi !== 'undefined' && gapi.load) {
-      gapiLoaded();
-    } else {
-      setTimeout(waitForGapi, 100);
-    }
-  }
-  function waitForGis() {
-    if (typeof google !== 'undefined' && google.accounts) {
-      gisLoaded();
-    } else {
-      setTimeout(waitForGis, 100);
-    }
-  }
-  waitForGapi();
-  waitForGis();
 </script>
 
 </body>
