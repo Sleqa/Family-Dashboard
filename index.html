@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Family Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
-  <script src="https://apis.google.com/js/api.js" async defer></script>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+  <script src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -661,16 +661,20 @@
   // Google Calendar Integration
   // ══════════════════════════════════════════════════
 
+  let gapiReady = false;
+
   function gapiLoaded() {
     gapi.load('client', async () => {
-      await gapi.client.init({});
-      await gapi.client.load('calendar', 'v3');
+      await gapi.client.load('https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest');
+      gapiReady = true;
+      // If auth already happened before gapi finished loading, fetch now
+      if (accessToken) fetchCalendarEvents();
     });
   }
 
   function gisLoaded() {
     if (GOOGLE_CLIENT_ID === 'YOUR_CLIENT_ID_HERE') return;
-    tokenClient = google.accounts.oauth2.initTokenModel({
+    tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: GOOGLE_CLIENT_ID,
       scope: CALENDAR_SCOPES,
       callback: onTokenResponse,
@@ -683,8 +687,13 @@
       return;
     }
     accessToken = response.access_token;
+    // Give GAPI the token so it can make authenticated requests
+    gapi.client.setToken({ access_token: accessToken });
     updateSignInUI(true);
-    fetchCalendarEvents();
+    if (gapiReady) {
+      fetchCalendarEvents();
+    }
+    // else gapiLoaded() will call fetchCalendarEvents once ready
   }
 
   function handleGoogleAuth() {
@@ -706,6 +715,10 @@
         updateSignInUI(false);
         renderEvents();
       });
+      return;
+    }
+    if (!tokenClient) {
+      alert('Google Sign-In is still loading, please try again in a moment.');
       return;
     }
     tokenClient.requestAccessToken();
@@ -909,23 +922,6 @@
     return div.innerHTML;
   }
 
-  // ── Initialize Google APIs when scripts load ──
-  function waitForGapi() {
-    if (typeof gapi !== 'undefined' && gapi.load) {
-      gapiLoaded();
-    } else {
-      setTimeout(waitForGapi, 100);
-    }
-  }
-  function waitForGis() {
-    if (typeof google !== 'undefined' && google.accounts) {
-      gisLoaded();
-    } else {
-      setTimeout(waitForGis, 100);
-    }
-  }
-  waitForGapi();
-  waitForGis();
 </script>
 
 </body>
