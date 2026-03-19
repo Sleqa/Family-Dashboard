@@ -103,7 +103,7 @@
       display: grid;
       grid-template-columns: 320px 1fr;
       gap: 0;
-      min-height: calc(100vh - 60px);
+      height: calc(100vh - 60px);
     }
 
     /* ── Left sidebar ── */
@@ -281,6 +281,24 @@
       display: flex;
       flex-direction: column;
       gap: 20px;
+      overflow: hidden;
+    }
+    #calendar-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+    #events-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    #events-list {
+      flex: 1;
+      min-height: 0;
     }
 
     /* ── View toggle tabs ── */
@@ -417,6 +435,7 @@
       border-radius: 14px;
       overflow: hidden;
       border: 1px solid var(--border);
+      height: 100%;
     }
     .month-day-header {
       background: var(--bg);
@@ -430,8 +449,8 @@
     }
     .month-day {
       background: var(--card-bg);
-      min-height: 88px;
       padding: 6px 5px;
+      overflow: hidden;
     }
     .month-day.other-month { background: #faf7f4; }
     .month-day.today-cell  { background: #eef6ff; }
@@ -920,6 +939,8 @@
   // Load and display iCal-only events (no Google auth needed)
   async function loadICalOnly() {
     if (!ICAL_CALENDARS.length) return;
+    document.getElementById('events-container').style.display = 'flex';
+    document.getElementById('cal-connect-prompt').style.display = 'none';
     const loading = document.getElementById('events-loading');
     loading.style.display = 'flex';
     try {
@@ -1038,7 +1059,7 @@
       btn.classList.add('signed-in');
       text.textContent = 'Connected';
       prompt.style.display = 'none';
-      container.style.display = 'block';
+      container.style.display = 'flex';
     } else {
       btn.classList.remove('signed-in');
       text.textContent = 'Sign in with Google';
@@ -1351,6 +1372,11 @@
 
     html += '</div>';
     container.innerHTML = html;
+
+    // Make each data row stretch equally to fill the available height
+    const numDataRows = Math.ceil((firstDow + daysInMon) / 7);
+    container.querySelector('.month-grid').style.gridTemplateRows =
+      `auto repeat(${numDataRows}, 1fr)`;
   }
 
   function formatTime(d) {
