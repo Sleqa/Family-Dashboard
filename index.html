@@ -157,11 +157,37 @@
       color: var(--muted);
       margin-top: 4px;
     }
-    #datestr-full {
-      font-size: 1.05rem;
-      font-weight: 600;
+    #word-of-day {
+      margin-top: 12px;
+      padding: 10px 12px;
+      background: var(--card);
+      border-radius: 10px;
+      border-left: 3px solid var(--blue);
+    }
+    #word-of-day .wod-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    #word-of-day .wod-word {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--blue);
+    }
+    #word-of-day .wod-pos {
+      font-size: 0.7rem;
+      font-style: italic;
+      color: var(--muted);
+      margin-left: 4px;
+    }
+    #word-of-day .wod-def {
+      font-size: 0.78rem;
       color: var(--text);
-      margin-top: 10px;
+      margin-top: 4px;
+      line-height: 1.4;
     }
 
     /* ── Weather widget ── */
@@ -464,7 +490,11 @@
       <div class="clock-widget">
         <div id="clock">00:00</div>
         <div id="ampm">AM</div>
-        <div id="datestr-full">Thursday, March 19, 2026</div>
+        <div id="word-of-day">
+          <div class="wod-label">Word of the Day</div>
+          <div><span class="wod-word" id="wod-word">...</span><span class="wod-pos" id="wod-pos"></span></div>
+          <div class="wod-def" id="wod-def"></div>
+        </div>
       </div>
     </div>
 
@@ -598,8 +628,6 @@
 
     const dayName = DAYS[now.getDay()];
     const monthName = MONTHS[now.getMonth()];
-    document.getElementById('datestr-full').textContent =
-      dayName + ', ' + monthName + ' ' + now.getDate() + ', ' + now.getFullYear();
     document.getElementById('header-date').textContent =
       dayName + ', ' + monthName + ' ' + now.getDate();
   }
@@ -646,6 +674,57 @@
   }
   fetchWeather();
   setInterval(fetchWeather, 10 * 60 * 1000);
+
+  // ── Word of the Day ──
+  const WORDS = [
+    { word: 'Serendipity',  pos: 'noun',      def: 'The occurrence of happy events by chance in a delightful way.' },
+    { word: 'Ephemeral',    pos: 'adjective', def: 'Lasting for a very short time.' },
+    { word: 'Luminous',     pos: 'adjective', def: 'Radiating or reflecting light; bright or glowing.' },
+    { word: 'Mellifluous',  pos: 'adjective', def: 'Sweet or musical; pleasant to hear.' },
+    { word: 'Sanguine',     pos: 'adjective', def: 'Optimistic, especially in difficult situations.' },
+    { word: 'Eloquent',     pos: 'adjective', def: 'Fluent or persuasive in speaking or writing.' },
+    { word: 'Tranquil',     pos: 'adjective', def: 'Free from disturbance; calm and peaceful.' },
+    { word: 'Resilient',    pos: 'adjective', def: 'Able to recover quickly from difficulties; tough.' },
+    { word: 'Wanderlust',   pos: 'noun',      def: 'A strong desire to travel and explore the world.' },
+    { word: 'Effervescent', pos: 'adjective', def: 'Vivacious and enthusiastic; bubbly.' },
+    { word: 'Tenacious',    pos: 'adjective', def: 'Holding firmly to a purpose; persistent.' },
+    { word: 'Halcyon',      pos: 'adjective', def: 'Denoting a period of happiness and prosperity.' },
+    { word: 'Magnanimous',  pos: 'adjective', def: 'Generous and forgiving, especially toward a rival.' },
+    { word: 'Petrichor',    pos: 'noun',      def: 'The pleasant smell of rain on dry earth.' },
+    { word: 'Quixotic',     pos: 'adjective', def: 'Exceedingly idealistic; unrealistic and impractical.' },
+    { word: 'Solace',       pos: 'noun',      def: 'Comfort or consolation in a time of distress.' },
+    { word: 'Vivacious',    pos: 'adjective', def: 'Attractively lively and animated.' },
+    { word: 'Whimsical',    pos: 'adjective', def: 'Playfully quaint or fanciful; appealing in an unusual way.' },
+    { word: 'Zeal',         pos: 'noun',      def: 'Great energy or enthusiasm in pursuit of a cause.' },
+    { word: 'Benevolent',   pos: 'adjective', def: 'Well-meaning and kindly; generous.' },
+    { word: 'Candor',       pos: 'noun',      def: 'The quality of being open and honest.' },
+    { word: 'Dauntless',    pos: 'adjective', def: 'Showing fearlessness and determination.' },
+    { word: 'Exuberant',    pos: 'adjective', def: 'Filled with lively energy and excitement.' },
+    { word: 'Felicity',     pos: 'noun',      def: 'Intense happiness; the ability to find expression.' },
+    { word: 'Gracious',     pos: 'adjective', def: 'Courteous, kind, and pleasant.' },
+    { word: 'Harbinger',    pos: 'noun',      def: 'A person or thing that signals what is to come.' },
+    { word: 'Ingenious',    pos: 'adjective', def: 'Clever, original, and inventive.' },
+    { word: 'Jubilant',     pos: 'adjective', def: 'Feeling or expressing great happiness and triumph.' },
+    { word: 'Kinetic',      pos: 'adjective', def: 'Relating to or resulting from motion; lively and dynamic.' },
+    { word: 'Loquacious',   pos: 'adjective', def: 'Tending to talk a great deal.' },
+    { word: 'Mirth',        pos: 'noun',      def: 'Amusement expressed in laughter; joyfulness.' },
+    { word: 'Nimble',       pos: 'adjective', def: 'Quick and light in movement or thought.' },
+    { word: 'Opulent',      pos: 'adjective', def: 'Ostentatiously rich and luxurious.' },
+    { word: 'Prudent',      pos: 'adjective', def: 'Acting with care and thought for the future.' },
+    { word: 'Radiant',      pos: 'adjective', def: 'Sending out light; looking joyful and happy.' },
+    { word: 'Sagacious',    pos: 'adjective', def: 'Having good judgement; wise and perceptive.' },
+    { word: 'Tenacity',     pos: 'noun',      def: 'The quality of being very determined and persistent.' },
+  ];
+  function showWordOfDay() {
+    const start = new Date(2026, 0, 1);
+    const today = new Date();
+    const dayIndex = Math.floor((today - start) / 86400000);
+    const entry = WORDS[dayIndex % WORDS.length];
+    document.getElementById('wod-word').textContent = entry.word;
+    document.getElementById('wod-pos').textContent = entry.pos;
+    document.getElementById('wod-def').textContent = entry.def;
+  }
+  showWordOfDay();
 
   // ── View tabs ──
   let currentView = 'schedule';
