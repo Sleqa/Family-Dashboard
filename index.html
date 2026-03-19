@@ -749,8 +749,33 @@
     gapi.load('client', async () => {
       await gapi.client.load('https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest');
       gapiReady = true;
-      // If auth already happened before gapi finished loading, fetch now
-      if (accessToken) fetchCalendarEvents();
+
+      const storedToken = localStorage.getItem('goog_token');
+      const storedExp   = Number(localStorage.getItem('goog_token_exp') || 0);
+
+      if (storedToken && storedExp > Date.now()) {
+        // Token still valid — restore immediately without any popup
+        accessToken = storedToken;
+        gapi.client.setToken({ access_token: accessToken });
+        updateSignInUI(true);
+        fetchCalendarEvents();
+        setInterval(fetchCalendarEvents, 15 * 60 * 1000);
+        // Schedule silent refresh 5 minutes before stored expiry
+        const refreshIn = Math.max(0, storedExp - Date.now() - 300_000);
+        setTimeout(() => tokenClient?.requestAccessToken({ prompt: '' }), refreshIn);
+      } else if (localStorage.getItem('goog_token')) {
+        // Token expired but user was previously signed in — try silent re-auth
+        localStorage.removeItem('goog_token');
+        localStorage.removeItem('goog_token_exp');
+        // Wait for GIS to be ready, then attempt silent request
+        const trySilent = () => {
+          if (tokenClient) tokenClient.requestAccessToken({ prompt: '' });
+        };
+        if (tokenClient) trySilent();
+        else setTimeout(trySilent, 2000);
+      } else if (accessToken) {
+        fetchCalendarEvents();
+      }
     });
   }
 
@@ -776,23 +801,37 @@
 
   function onTokenResponse(response) {
     if (response.error) {
+      // Silent re-auth failed (no active Google session) — just stay signed out
+      if (response.error === 'interaction_required' || response.error === 'access_denied') return;
       console.error('Auth error:', response);
       alert('Sign-in failed: ' + (response.error_description || response.error));
       return;
     }
     accessToken = response.access_token;
     gapi.client.setToken({ access_token: accessToken });
+
+    // Persist token so we can silently restore it on next page load
+    const expiresAt = Date.now() + (response.expires_in ?? 3600) * 1000;
+    localStorage.setItem('goog_token', accessToken);
+    localStorage.setItem('goog_token_exp', expiresAt);
+
     updateSignInUI(true);
     if (gapiReady) {
       fetchCalendarEvents();
       setInterval(fetchCalendarEvents, 15 * 60 * 1000);
     }
+
+    // Schedule a silent refresh 5 minutes before expiry
+    const refreshIn = ((response.expires_in ?? 3600) - 300) * 1000;
+    setTimeout(() => tokenClient?.requestAccessToken({ prompt: '' }), refreshIn);
   }
 
   async function handleGoogleAuth() {
     if (accessToken) {
       google.accounts.oauth2.revoke(accessToken, () => {
         accessToken = null;
+        localStorage.removeItem('goog_token');
+        localStorage.removeItem('goog_token_exp');
         calendarEvents = [];
         updateSignInUI(false);
         renderEvents();
