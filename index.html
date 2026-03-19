@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Family Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
-  <script src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
-  <script src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -672,43 +670,42 @@
     });
   }
 
+  function initTokenClient() {
+    if (tokenClient) return tokenClient;
+    if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) return null;
+    try {
+      tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: CALENDAR_SCOPES,
+        callback: onTokenResponse,
+      });
+    } catch (e) {
+      console.error('initTokenClient failed:', e);
+    }
+    return tokenClient;
+  }
+
   function gisLoaded() {
     if (GOOGLE_CLIENT_ID === 'YOUR_CLIENT_ID_HERE') return;
-    tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: GOOGLE_CLIENT_ID,
-      scope: CALENDAR_SCOPES,
-      callback: onTokenResponse,
-    });
+    initTokenClient();
   }
 
   function onTokenResponse(response) {
     if (response.error) {
       console.error('Auth error:', response);
+      alert('Sign-in failed: ' + (response.error_description || response.error));
       return;
     }
     accessToken = response.access_token;
-    // Give GAPI the token so it can make authenticated requests
     gapi.client.setToken({ access_token: accessToken });
     updateSignInUI(true);
     if (gapiReady) {
       fetchCalendarEvents();
     }
-    // else gapiLoaded() will call fetchCalendarEvents once ready
   }
 
-  function handleGoogleAuth() {
-    if (GOOGLE_CLIENT_ID === 'YOUR_CLIENT_ID_HERE') {
-      alert(
-        'To use Google Calendar, you need to set up a Google Cloud OAuth Client ID.\n\n' +
-        '1. Go to https://console.cloud.google.com/\n' +
-        '2. Create a project and enable the Google Calendar API\n' +
-        '3. Create an OAuth 2.0 Client ID (Web application)\n' +
-        '4. Replace YOUR_CLIENT_ID_HERE in index.html with your Client ID'
-      );
-      return;
-    }
+  async function handleGoogleAuth() {
     if (accessToken) {
-      // Already signed in — revoke
       google.accounts.oauth2.revoke(accessToken, () => {
         accessToken = null;
         calendarEvents = [];
@@ -717,9 +714,29 @@
       });
       return;
     }
+
+    // Try to init on-demand in case the onload callback was missed
+    if (!tokenClient) initTokenClient();
+
+    // Wait up to 10 seconds for Google scripts to finish loading
     if (!tokenClient) {
-      alert('Google Sign-In is still loading, please try again in a moment.');
-      return;
+      const btn = document.getElementById('google-btn');
+      const text = document.getElementById('google-btn-text');
+      const originalText = text.textContent;
+      text.textContent = 'Loading...';
+      btn.disabled = true;
+      let waited = 0;
+      while (!tokenClient && waited < 10000) {
+        await new Promise(r => setTimeout(r, 200));
+        initTokenClient();
+        waited += 200;
+      }
+      btn.disabled = false;
+      text.textContent = originalText;
+      if (!tokenClient) {
+        alert('Google Sign-In could not load. This is usually caused by an ad blocker or browser extension blocking accounts.google.com. Please disable it for this page and refresh.');
+        return;
+      }
     }
     tokenClient.requestAccessToken();
   }
@@ -924,5 +941,7 @@
 
 </script>
 
+<script src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+<script src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </body>
 </html>
