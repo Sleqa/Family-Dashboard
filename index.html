@@ -706,6 +706,7 @@
     updateSignInUI(true);
     if (gapiReady) {
       fetchCalendarEvents();
+      setInterval(fetchCalendarEvents, 15 * 60 * 1000);
     }
   }
 
