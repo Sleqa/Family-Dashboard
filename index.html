@@ -661,16 +661,20 @@
   // Google Calendar Integration
   // ══════════════════════════════════════════════════
 
+  let gapiReady = false;
+
   function gapiLoaded() {
     gapi.load('client', async () => {
-      await gapi.client.init({});
-      await gapi.client.load('calendar', 'v3');
+      await gapi.client.load('https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest');
+      gapiReady = true;
+      // If auth already happened before gapi finished loading, fetch now
+      if (accessToken) fetchCalendarEvents();
     });
   }
 
   function gisLoaded() {
     if (GOOGLE_CLIENT_ID === 'YOUR_CLIENT_ID_HERE') return;
-    tokenClient = google.accounts.oauth2.initTokenModel({
+    tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: GOOGLE_CLIENT_ID,
       scope: CALENDAR_SCOPES,
       callback: onTokenResponse,
@@ -683,8 +687,13 @@
       return;
     }
     accessToken = response.access_token;
+    // Give GAPI the token so it can make authenticated requests
+    gapi.client.setToken({ access_token: accessToken });
     updateSignInUI(true);
-    fetchCalendarEvents();
+    if (gapiReady) {
+      fetchCalendarEvents();
+    }
+    // else gapiLoaded() will call fetchCalendarEvents once ready
   }
 
   function handleGoogleAuth() {
