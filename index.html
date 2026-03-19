@@ -1,411 +1,589 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard</title>
+  <title>Family Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://apis.google.com/js/api.js" async defer></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
-      --glass-bg:      rgba(255, 255, 255, 0.12);
-      --glass-border:  rgba(255, 255, 255, 0.28);
-      --glass-shine:   rgba(255, 255, 255, 0.55);
-      --glass-shadow:  rgba(0, 0, 0, 0.18);
-      --text:          rgba(255, 255, 255, 0.95);
-      --muted:         rgba(255, 255, 255, 0.50);
-      --radius:        26px;
-      --gap:           18px;
+      --bg:        #f5f0eb;
+      --card-bg:   #ffffff;
+      --text:      #2d2d2d;
+      --muted:     #8a8a8a;
+      --border:    #e8e3de;
+      --accent:    #4a90d9;
+      --red:       #e74c5e;
+      --orange:    #f5a623;
+      --green:     #5cb85c;
+      --purple:    #8b5cf6;
+      --blue:      #4a90d9;
+      --pink:      #ec4899;
+      --teal:      #14b8a6;
+      --font:      'Nunito', -apple-system, system-ui, sans-serif;
+      --radius:    16px;
+      --shadow:    0 2px 12px rgba(0,0,0,0.06);
     }
 
     html, body {
       width: 100%; height: 100%;
-      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
       font-family: var(--font);
-      color: var(--text);
+      overflow-x: hidden;
+      overflow-y: auto;
     }
 
-    /* ── Vivid gradient background (macOS Sequoia / visionOS style) ── */
-    body {
-      background:
-        radial-gradient(ellipse 80% 60% at 15% 15%,  #3b82f6 0%,   transparent 55%),
-        radial-gradient(ellipse 60% 70% at 85% 20%,  #a855f7 0%,   transparent 55%),
-        radial-gradient(ellipse 70% 50% at 80% 85%,  #f43f5e 0%,   transparent 55%),
-        radial-gradient(ellipse 60% 60% at 10% 80%,  #06b6d4 0%,   transparent 55%),
-        radial-gradient(ellipse 50% 50% at 50% 50%,  #6366f1 0%,   transparent 70%),
-        #0d0f1f;
-      animation: bgPulse 18s ease-in-out infinite alternate;
-    }
-    @keyframes bgPulse {
-      0%   { filter: hue-rotate(0deg) brightness(1); }
-      100% { filter: hue-rotate(20deg) brightness(1.08); }
-    }
-
-    /* ── Subtle noise grain ── */
-    body::after {
-      content: '';
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
-      background-size: 180px 180px;
-      opacity: 0.5;
-    }
-
-    /* ── Layout ── */
-    .grid {
-      position: relative; z-index: 1;
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      grid-template-rows: auto 1fr;
-      gap: var(--gap);
-      padding: var(--gap);
-      height: 100vh;
-      max-width: 1920px;
-      margin: 0 auto;
-    }
-
-    /* ── Liquid Glass panels ── */
-    .panel {
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--radius);
-      backdrop-filter: blur(48px) saturate(1.8);
-      -webkit-backdrop-filter: blur(48px) saturate(1.8);
-      padding: 28px 32px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      position: relative;
-      overflow: hidden;
-      box-shadow:
-        0 2px 0 0 var(--glass-shine) inset,
-        0 1px 2px 0 rgba(255,255,255,0.2) inset,
-        0 16px 48px var(--glass-shadow),
-        0 4px 12px rgba(0,0,0,0.1);
-      animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
-    }
-
-    /* Specular highlight — top-left corner shimmer */
-    .panel::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 1px;
-      background: linear-gradient(90deg,
-        transparent 0%,
-        rgba(255,255,255,0.7) 30%,
-        rgba(255,255,255,0.9) 50%,
-        rgba(255,255,255,0.7) 70%,
-        transparent 100%
-      );
-    }
-
-    /* Inner light shimmer */
-    .panel::after {
-      content: '';
-      position: absolute;
-      top: -60%; left: -30%;
-      width: 60%; height: 120%;
-      background: linear-gradient(135deg,
-        rgba(255,255,255,0.07) 0%,
-        transparent 60%
-      );
-      pointer-events: none;
-      border-radius: 50%;
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(24px) scale(0.98); }
-      to   { opacity: 1; transform: translateY(0)    scale(1); }
-    }
-    .panel:nth-child(1) { animation-delay: 0.0s; }
-    .panel:nth-child(2) { animation-delay: 0.08s; }
-    .panel:nth-child(3) { animation-delay: 0.16s; }
-    .panel:nth-child(4) { animation-delay: 0.24s; }
-
-    /* ── Labels ── */
-    .label {
-      font-size: 0.68rem;
-      font-weight: 600;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    /* ── Clock ── */
-    #clock {
-      font-size: clamp(4rem, 8vw, 7rem);
-      font-weight: 200;
-      line-height: 1;
-      letter-spacing: -0.04em;
-      color: var(--text);
-      text-shadow: 0 0 60px rgba(255,255,255,0.25);
-    }
-    #ampm {
-      font-size: clamp(1rem, 2vw, 1.5rem);
-      font-weight: 300;
-      letter-spacing: 0.2em;
-      color: var(--muted);
-      margin-top: -4px;
-    }
-
-    /* ── Date ── */
-    #day {
-      font-size: clamp(2.8rem, 5.5vw, 5rem);
-      font-weight: 200;
-      line-height: 1;
-      letter-spacing: -0.03em;
-      color: var(--text);
-      text-shadow: 0 0 40px rgba(255,255,255,0.2);
-    }
-    #datestr {
-      font-size: clamp(0.9rem, 1.4vw, 1.15rem);
-      font-weight: 300;
-      letter-spacing: 0.04em;
-      color: var(--muted);
-    }
-
-    /* ── Weather ── */
-    .weather-main {
+    /* ── Top header bar ── */
+    .header {
       display: flex;
       align-items: center;
-      gap: 16px;
+      justify-content: space-between;
+      padding: 16px 28px;
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
-    #weather-icon {
-      font-size: clamp(2.5rem, 5vw, 4rem);
-      animation: float 5s ease-in-out infinite;
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
     }
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50%       { transform: translateY(-6px); }
+    .logo {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.02em;
     }
-    #weather-temp {
-      font-size: clamp(2.8rem, 5.5vw, 5rem);
-      font-weight: 200;
+    .logo span { color: var(--accent); }
+    .header-date {
+      font-size: 0.9rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* ── Google Sign-In button ── */
+    .google-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 18px;
+      background: var(--card-bg);
+      border: 2px solid var(--border);
+      border-radius: 24px;
+      font-family: var(--font);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .google-btn:hover {
+      border-color: var(--accent);
+      box-shadow: 0 2px 12px rgba(74,144,217,0.15);
+    }
+    .google-btn svg { width: 18px; height: 18px; }
+    .google-btn.signed-in {
+      border-color: var(--green);
+      background: #f0fdf4;
+      color: #166534;
+    }
+
+    /* ── Main layout ── */
+    .main {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 0;
+      min-height: calc(100vh - 60px);
+    }
+
+    /* ── Left sidebar ── */
+    .sidebar {
+      background: var(--card-bg);
+      border-right: 1px solid var(--border);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ── Cards (sidebar widgets) ── */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+    .sidebar .card {
+      border: none;
+      box-shadow: none;
+      padding: 0;
+    }
+    .card-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    /* ── Clock widget ── */
+    .clock-widget {
+      text-align: center;
+      padding: 20px 0 12px;
+    }
+    #clock {
+      font-size: 3.8rem;
+      font-weight: 300;
       letter-spacing: -0.03em;
+      line-height: 1;
+      color: var(--text);
+    }
+    #ampm {
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    #datestr-full {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-top: 10px;
+    }
+
+    /* ── Weather widget ── */
+    .weather-widget {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px;
+      background: linear-gradient(135deg, #e0f2fe, #f0f9ff);
+      border-radius: 14px;
+    }
+    #weather-icon { font-size: 2.6rem; }
+    .weather-info { flex: 1; }
+    #weather-temp {
+      font-size: 2rem;
+      font-weight: 700;
       line-height: 1;
       color: var(--text);
     }
     #weather-desc {
-      font-size: clamp(0.85rem, 1.2vw, 1rem);
-      font-weight: 300;
+      font-size: 0.82rem;
+      font-weight: 600;
       color: var(--muted);
       text-transform: capitalize;
-      margin-top: 4px;
-      letter-spacing: 0.03em;
+      margin-top: 2px;
     }
-    .weather-extras {
-      display: flex;
-      gap: 16px;
-      margin-top: 8px;
-      flex-wrap: wrap;
+    .weather-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 14px;
     }
-    .weather-extra {
+    .weather-detail {
       display: flex;
       flex-direction: column;
-      gap: 2px;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 12px;
-      padding: 8px 14px;
-      backdrop-filter: blur(8px);
+      gap: 1px;
     }
-    .weather-extra span:first-child {
-      font-size: 0.6rem;
-      font-weight: 600;
-      letter-spacing: 0.14em;
+    .weather-detail-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--muted);
     }
-    .weather-extra span:last-child {
-      font-size: clamp(0.9rem, 1.3vw, 1.05rem);
-      font-weight: 400;
+    .weather-detail-value {
+      font-size: 0.92rem;
+      font-weight: 700;
       color: var(--text);
-      letter-spacing: -0.01em;
     }
 
-    /* ── Calendar ── */
-    .panel--cal {
-      padding: 0;
-      overflow: hidden;
-      min-height: 380px;
-      grid-column: 1 / -1;
+    /* ── Family members ── */
+    .family-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
-    .cal-header {
-      padding: 18px 28px 14px;
+    .family-member {
       display: flex;
       align-items: center;
       gap: 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding: 8px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.15s;
     }
-    .cal-dot {
-      width: 8px; height: 8px;
+    .family-member:hover { background: #f5f5f5; }
+    .family-member.active { background: #f0f7ff; }
+    .member-dot {
+      width: 10px; height: 10px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.6);
-      box-shadow: 0 0 10px rgba(255,255,255,0.5);
+      flex-shrink: 0;
     }
-    .cal-header .label { margin: 0; }
-    #cal-frame-wrapper {
-      position: relative;
-      height: calc(100% - 60px);
+    .member-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
     }
-    #cal-frame {
-      width: 100%;
-      height: 100%;
+    .member-events {
+      margin-left: auto;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+      background: #f0f0f0;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    /* ── Calendar area (right side) ── */
+    .calendar-area {
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ── View toggle tabs ── */
+    .view-tabs {
+      display: flex;
+      gap: 4px;
+      background: #f0ebe6;
+      padding: 4px;
+      border-radius: 12px;
+      width: fit-content;
+    }
+    .view-tab {
+      padding: 8px 20px;
       border: none;
-      border-radius: 0 0 var(--radius) var(--radius);
-      filter: invert(1) hue-rotate(180deg) saturate(0.8) brightness(0.85);
-      opacity: 0;
-      transition: opacity 0.6s ease;
+      background: none;
+      border-radius: 10px;
+      font-family: var(--font);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
     }
-    #cal-frame.loaded { opacity: 1; }
-    #cal-placeholder {
+    .view-tab.active {
+      background: var(--card-bg);
+      color: var(--text);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    /* ── Schedule / event list ── */
+    .schedule-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .schedule-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .day-section {
+      margin-bottom: 8px;
+    }
+    .day-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .event-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .event-item {
+      display: flex;
+      align-items: stretch;
+      gap: 14px;
+      padding: 14px 16px;
+      background: var(--card-bg);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .event-item:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    .event-color-bar {
+      width: 4px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .event-content { flex: 1; }
+    .event-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+    .event-time {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .event-tag {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 8px;
+      margin-top: 6px;
+    }
+
+    /* ── Google Calendar connect prompt ── */
+    .cal-connect-prompt {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100%;
-      gap: 14px;
-      color: var(--muted);
       text-align: center;
-      padding: 28px;
+      padding: 60px 40px;
+      background: var(--card-bg);
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      gap: 16px;
     }
-    #cal-placeholder .big-icon { font-size: 3rem; }
-    #cal-placeholder p { font-size: 0.95rem; line-height: 1.6; max-width: 480px; font-weight: 300; }
-    #cal-placeholder code {
-      background: rgba(255,255,255,0.1);
+    .cal-connect-prompt .icon { font-size: 3rem; }
+    .cal-connect-prompt h3 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .cal-connect-prompt p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      max-width: 400px;
+      line-height: 1.6;
+    }
+    .cal-connect-prompt code {
+      background: #f0f0f0;
       padding: 2px 8px;
       border-radius: 6px;
-      font-size: 0.85rem;
-      color: rgba(255,255,255,0.75);
-    }
-    #cal-placeholder a {
-      color: rgba(180,180,255,0.85);
-      text-decoration: underline;
+      font-size: 0.82rem;
     }
 
-    /* ── Weather error ── */
-    #weather-error {
+    /* ── No events placeholder ── */
+    .no-events {
+      text-align: center;
+      padding: 40px;
       color: var(--muted);
-      font-size: 0.9rem;
-      display: none;
     }
+    .no-events .icon { font-size: 2.5rem; margin-bottom: 10px; }
+    .no-events p { font-size: 0.9rem; font-weight: 600; }
+
+    /* ── Loading spinner ── */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      gap: 10px;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .spinner {
+      width: 20px; height: 20px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ── Responsive ── */
     @media (max-width: 900px) {
-      .grid {
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: auto auto 1fr;
+      .main { grid-template-columns: 1fr; }
+      .sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding: 16px;
+        gap: 16px;
       }
-      .panel--cal { grid-column: 1 / -1; }
+      .sidebar > * { flex: 1; min-width: 200px; }
     }
     @media (max-width: 550px) {
-      .grid { grid-template-columns: 1fr; }
-      .panel--cal { grid-column: 1; }
+      .header { padding: 12px 16px; }
+      .calendar-area { padding: 16px; }
+      .sidebar { flex-direction: column; }
     }
   </style>
 </head>
 <body>
 
-<div class="grid">
-
-  <!-- CLOCK -->
-  <div class="panel panel--clock">
-    <div class="label">Time</div>
-    <div id="clock">00:00:00</div>
-    <div id="ampm">AM</div>
+<!-- ════════ HEADER ════════ -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo">Family<span>Hub</span></div>
+    <div class="header-date" id="header-date">Thursday, March 19</div>
   </div>
-
-  <!-- DATE -->
-  <div class="panel panel--date">
-    <div class="label">Date</div>
-    <div id="day">Monday</div>
-    <div id="datestr">1 January 2025</div>
+  <div class="header-right">
+    <button class="google-btn" id="google-btn" onclick="handleGoogleAuth()">
+      <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#34A853" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#FBBC05" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      <span id="google-btn-text">Sign in with Google</span>
+    </button>
   </div>
+</div>
 
-  <!-- WEATHER -->
-  <div class="panel panel--weather">
-    <div class="label">Perth, WA · Weather</div>
-    <div class="weather-main">
-      <div id="weather-icon">⛅</div>
-      <div>
-        <div id="weather-temp">--°C</div>
-        <div id="weather-desc">Loading...</div>
+<!-- ════════ MAIN LAYOUT ════════ -->
+<div class="main">
+
+  <!-- ── Sidebar ── -->
+  <div class="sidebar">
+
+    <!-- Clock -->
+    <div>
+      <div class="clock-widget">
+        <div id="clock">00:00</div>
+        <div id="ampm">AM</div>
+        <div id="datestr-full">Thursday, March 19, 2026</div>
       </div>
     </div>
-    <div class="weather-extras">
-      <div class="weather-extra">
-        <span>Feels Like</span>
-        <span id="feels-like">--°C</span>
+
+    <!-- Weather -->
+    <div>
+      <div class="card-title">Perth, WA</div>
+      <div class="weather-widget">
+        <div id="weather-icon">⛅</div>
+        <div class="weather-info">
+          <div id="weather-temp">--°</div>
+          <div id="weather-desc">Loading...</div>
+        </div>
       </div>
-      <div class="weather-extra">
-        <span>Humidity</span>
-        <span id="humidity">--%</span>
-      </div>
-      <div class="weather-extra">
-        <span>Wind</span>
-        <span id="wind">-- km/h</span>
-      </div>
-      <div class="weather-extra">
-        <span>High / Low</span>
-        <span id="highlow">-- / --°C</span>
+      <div class="weather-details">
+        <div class="weather-detail">
+          <span class="weather-detail-label">Feels Like</span>
+          <span class="weather-detail-value" id="feels-like">--°</span>
+        </div>
+        <div class="weather-detail">
+          <span class="weather-detail-label">Humidity</span>
+          <span class="weather-detail-value" id="humidity">--%</span>
+        </div>
+        <div class="weather-detail">
+          <span class="weather-detail-label">Wind</span>
+          <span class="weather-detail-value" id="wind">--</span>
+        </div>
+        <div class="weather-detail">
+          <span class="weather-detail-label">High / Low</span>
+          <span class="weather-detail-value" id="highlow">-- / --°</span>
+        </div>
       </div>
     </div>
-    <div id="weather-error">⚠ Could not load weather</div>
+
+    <!-- Family Members -->
+    <div>
+      <div class="card-title">Family</div>
+      <div class="family-list" id="family-list">
+        <!-- Populated dynamically from calendar data -->
+        <div class="family-member active">
+          <div class="member-dot" style="background: var(--blue)"></div>
+          <span class="member-name">Everyone</span>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <!-- CALENDAR -->
-  <div class="panel panel--cal">
-    <div class="cal-header">
-      <div class="cal-dot"></div>
-      <div class="label">Google Calendar</div>
+  <!-- ── Calendar Area ── -->
+  <div class="calendar-area">
+
+    <div class="schedule-header">
+      <div class="schedule-title" id="schedule-title">Today's Schedule</div>
+      <div class="view-tabs">
+        <button class="view-tab active" data-view="schedule">Schedule</button>
+        <button class="view-tab" data-view="day">Day</button>
+        <button class="view-tab" data-view="week">Week</button>
+      </div>
     </div>
-    <div id="cal-frame-wrapper">
 
-      <!--
-        ════════════════════════════════════════════════════════
-        HOW TO ADD YOUR GOOGLE CALENDAR
-        ════════════════════════════════════════════════════════
-        1. Open Google Calendar on your computer
-        2. Click the ⚙ Settings icon → Settings
-        3. In the left sidebar, click your calendar name
-        4. Scroll down to "Integrate calendar"
-        5. Copy the "Public URL to this calendar" (or the embed HTML src URL)
-        6. Replace YOUR_CALENDAR_ID below with that URL
-        7. Also make sure your calendar is set to PUBLIC:
-           Settings → your calendar → Access permissions → "Make available to public"
-        ════════════════════════════════════════════════════════
-      -->
-
-      <iframe
-        id="cal-frame"
-        src=""
-        data-src="https://calendar.google.com/calendar/embed?src=YOUR_CALENDAR_ID&ctz=Australia%2FPerth&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&showTz=0&mode=AGENDA&bgcolor=%23000000"
-        title="Google Calendar"
-      ></iframe>
-
-      <div id="cal-placeholder">
-        <div class="big-icon">📅</div>
+    <!-- Calendar content -->
+    <div id="calendar-content">
+      <!-- Show connect prompt if not signed in -->
+      <div class="cal-connect-prompt" id="cal-connect-prompt">
+        <div class="icon">📅</div>
+        <h3>Connect Your Google Calendar</h3>
         <p>
-          To connect your Google Calendar, open <code>index.html</code> in a text editor
-          and find the <code>YOUR_CALENDAR_ID</code> placeholder near line 220.
-          Replace it with your Google Calendar embed URL — instructions are in the comments just above it.
-          <br><br>
-          Need help? See
-          <a href="https://support.google.com/calendar/answer/41207" target="_blank">
-            Google's guide to sharing your calendar publicly.
-          </a>
+          Sign in with Google to sync your family's calendars. Events will appear here
+          with color-coded labels for each family member.
         </p>
+        <p style="font-size: 0.8rem; margin-top: 8px;">
+          To enable this feature, you need a Google Cloud OAuth Client ID.<br />
+          Set your Client ID in the <code>GOOGLE_CLIENT_ID</code> variable in this file.
+        </p>
+        <button class="google-btn" onclick="handleGoogleAuth()" style="margin-top: 8px;">
+          <svg viewBox="0 0 48 48" width="18" height="18"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#34A853" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#FBBC05" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+          <span>Connect Google Calendar</span>
+        </button>
       </div>
 
+      <!-- Events list (shown when signed in) -->
+      <div id="events-container" style="display: none;">
+        <div class="loading" id="events-loading">
+          <div class="spinner"></div>
+          Fetching your events...
+        </div>
+        <div id="events-list"></div>
+      </div>
     </div>
-  </div>
 
+  </div>
 </div>
 
 <script>
-  // ── Clock & Date ─────────────────────────────────────────
+  // ════════════════════════════════════════════════════════════
+  // CONFIGURATION — Replace with your Google Cloud OAuth Client ID
+  // ════════════════════════════════════════════════════════════
+  // 1. Go to https://console.cloud.google.com/
+  // 2. Create a project (or select existing)
+  // 3. Enable "Google Calendar API"
+  // 4. Go to Credentials → Create Credentials → OAuth 2.0 Client ID
+  // 5. Set Application type to "Web application"
+  // 6. Add your domain to Authorized JavaScript origins
+  // 7. Copy the Client ID and paste it below
+  // ════════════════════════════════════════════════════════════
+  const GOOGLE_CLIENT_ID = 'YOUR_CLIENT_ID_HERE';
+  const CALENDAR_SCOPES  = 'https://www.googleapis.com/auth/calendar.readonly';
+
+  // Event colors for family members
+  const FAMILY_COLORS = ['#4a90d9', '#e74c5e', '#5cb85c', '#f5a623', '#8b5cf6', '#ec4899', '#14b8a6'];
+
+  // ── State ──
+  let tokenClient = null;
+  let accessToken  = null;
+  let calendarEvents = [];
+  let calendarOwners = new Map();
+
+  // ── Clock & Date ──
   const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const MONTHS = ['January','February','March','April','May','June',
                   'July','August','September','October','November','December'];
@@ -414,86 +592,340 @@
     const now = new Date();
     let h = now.getHours();
     const m = now.getMinutes();
-    const s = now.getSeconds();
     const ampm = h >= 12 ? 'PM' : 'AM';
     h = h % 12 || 12;
     document.getElementById('clock').textContent =
-      String(h).padStart(2,'0') + ':' +
-      String(m).padStart(2,'0') + ':' +
-      String(s).padStart(2,'0');
+      String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
     document.getElementById('ampm').textContent = ampm;
-    document.getElementById('day').textContent = DAYS[now.getDay()];
-    document.getElementById('datestr').textContent =
-      now.getDate() + ' ' + MONTHS[now.getMonth()] + ' ' + now.getFullYear();
+
+    const dayName = DAYS[now.getDay()];
+    const monthName = MONTHS[now.getMonth()];
+    document.getElementById('datestr-full').textContent =
+      dayName + ', ' + monthName + ' ' + now.getDate() + ', ' + now.getFullYear();
+    document.getElementById('header-date').textContent =
+      dayName + ', ' + monthName + ' ' + now.getDate();
   }
   updateClock();
   setInterval(updateClock, 1000);
 
-  // ── Weather (Open-Meteo — no API key needed) ─────────────
-  const LAT = -31.9505;
-  const LON = 115.8605;
-
+  // ── Weather (Open-Meteo) ──
+  const LAT = -31.9505, LON = 115.8605;
   const WMO_ICONS = {
-    0:'☀️', 1:'🌤️', 2:'⛅', 3:'☁️',
-    45:'🌫️', 48:'🌫️',
-    51:'🌦️', 53:'🌦️', 55:'🌧️',
-    61:'🌧️', 63:'🌧️', 65:'🌧️',
-    71:'❄️', 73:'❄️', 75:'❄️', 77:'🌨️',
-    80:'🌦️', 81:'🌧️', 82:'⛈️',
-    85:'🌨️', 86:'🌨️',
-    95:'⛈️', 96:'⛈️', 99:'⛈️'
+    0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',
+    51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',
+    71:'❄️',73:'❄️',75:'❄️',77:'🌨️',80:'🌦️',81:'🌧️',82:'⛈️',
+    85:'🌨️',86:'🌨️',95:'⛈️',96:'⛈️',99:'⛈️'
   };
   const WMO_DESC = {
-    0:'Clear sky', 1:'Mainly clear', 2:'Partly cloudy', 3:'Overcast',
-    45:'Foggy', 48:'Icy fog',
-    51:'Light drizzle', 53:'Drizzle', 55:'Heavy drizzle',
-    61:'Light rain', 63:'Moderate rain', 65:'Heavy rain',
-    71:'Light snow', 73:'Moderate snow', 75:'Heavy snow', 77:'Snow grains',
-    80:'Rain showers', 81:'Heavy showers', 82:'Violent showers',
-    85:'Snow showers', 86:'Heavy snow showers',
-    95:'Thunderstorm', 96:'Thunderstorm with hail', 99:'Severe thunderstorm'
+    0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',
+    45:'Foggy',48:'Icy fog',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',
+    61:'Light rain',63:'Moderate rain',65:'Heavy rain',
+    71:'Light snow',73:'Moderate snow',75:'Heavy snow',77:'Snow grains',
+    80:'Rain showers',81:'Heavy showers',82:'Violent showers',
+    85:'Snow showers',86:'Heavy snow showers',
+    95:'Thunderstorm',96:'Thunderstorm with hail',99:'Severe thunderstorm'
   };
 
   async function fetchWeather() {
     try {
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}`
         + `&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code`
-        + `&daily=temperature_2m_max,temperature_2m_min`
-        + `&timezone=Australia%2FPerth&forecast_days=1`;
+        + `&daily=temperature_2m_max,temperature_2m_min&timezone=Australia%2FPerth&forecast_days=1`;
       const res  = await fetch(url);
       const data = await res.json();
-      const c    = data.current;
-      const d    = data.daily;
-      const code = c.weather_code;
-
+      const c = data.current, d = data.daily, code = c.weather_code;
       document.getElementById('weather-icon').textContent = WMO_ICONS[code] ?? '🌡️';
-      document.getElementById('weather-temp').textContent = Math.round(c.temperature_2m) + '°C';
+      document.getElementById('weather-temp').textContent = Math.round(c.temperature_2m) + '°';
       document.getElementById('weather-desc').textContent = WMO_DESC[code] ?? 'Unknown';
-      document.getElementById('feels-like').textContent   = Math.round(c.apparent_temperature) + '°C';
-      document.getElementById('humidity').textContent     = c.relative_humidity_2m + '%';
-      document.getElementById('wind').textContent         = Math.round(c.wind_speed_10m) + ' km/h';
-      document.getElementById('highlow').textContent      =
-        Math.round(d.temperature_2m_max[0]) + ' / ' + Math.round(d.temperature_2m_min[0]) + '°C';
+      document.getElementById('feels-like').textContent   = Math.round(c.apparent_temperature) + '°';
+      document.getElementById('humidity').textContent      = c.relative_humidity_2m + '%';
+      document.getElementById('wind').textContent          = Math.round(c.wind_speed_10m) + ' km/h';
+      document.getElementById('highlow').textContent       =
+        Math.round(d.temperature_2m_max[0]) + '° / ' + Math.round(d.temperature_2m_min[0]) + '°';
     } catch (e) {
-      document.getElementById('weather-error').style.display = 'block';
-      document.getElementById('weather-desc').textContent = '';
+      document.getElementById('weather-desc').textContent = 'Unavailable';
     }
   }
   fetchWeather();
   setInterval(fetchWeather, 10 * 60 * 1000);
 
-  // ── Calendar iframe loader ───────────────────────────────
-  const iframe = document.getElementById('cal-frame');
-  const placeholder = document.getElementById('cal-placeholder');
-  const dataSrc = iframe.getAttribute('data-src');
+  // ── View tabs ──
+  document.querySelectorAll('.view-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
 
-  if (dataSrc && !dataSrc.includes('YOUR_CALENDAR_ID')) {
-    iframe.src = dataSrc;
-    iframe.addEventListener('load', () => {
-      placeholder.style.display = 'none';
-      iframe.classList.add('loaded');
+  // ══════════════════════════════════════════════════
+  // Google Calendar Integration
+  // ══════════════════════════════════════════════════
+
+  function gapiLoaded() {
+    gapi.load('client', async () => {
+      await gapi.client.init({});
+      await gapi.client.load('calendar', 'v3');
     });
   }
+
+  function gisLoaded() {
+    if (GOOGLE_CLIENT_ID === 'YOUR_CLIENT_ID_HERE') return;
+    tokenClient = google.accounts.oauth2.initTokenModel({
+      client_id: GOOGLE_CLIENT_ID,
+      scope: CALENDAR_SCOPES,
+      callback: onTokenResponse,
+    });
+  }
+
+  function onTokenResponse(response) {
+    if (response.error) {
+      console.error('Auth error:', response);
+      return;
+    }
+    accessToken = response.access_token;
+    updateSignInUI(true);
+    fetchCalendarEvents();
+  }
+
+  function handleGoogleAuth() {
+    if (GOOGLE_CLIENT_ID === 'YOUR_CLIENT_ID_HERE') {
+      alert(
+        'To use Google Calendar, you need to set up a Google Cloud OAuth Client ID.\n\n' +
+        '1. Go to https://console.cloud.google.com/\n' +
+        '2. Create a project and enable the Google Calendar API\n' +
+        '3. Create an OAuth 2.0 Client ID (Web application)\n' +
+        '4. Replace YOUR_CLIENT_ID_HERE in index.html with your Client ID'
+      );
+      return;
+    }
+    if (accessToken) {
+      // Already signed in — revoke
+      google.accounts.oauth2.revoke(accessToken, () => {
+        accessToken = null;
+        calendarEvents = [];
+        updateSignInUI(false);
+        renderEvents();
+      });
+      return;
+    }
+    tokenClient.requestAccessToken();
+  }
+
+  function updateSignInUI(signedIn) {
+    const btn  = document.getElementById('google-btn');
+    const text = document.getElementById('google-btn-text');
+    const prompt   = document.getElementById('cal-connect-prompt');
+    const container = document.getElementById('events-container');
+
+    if (signedIn) {
+      btn.classList.add('signed-in');
+      text.textContent = 'Connected';
+      prompt.style.display = 'none';
+      container.style.display = 'block';
+    } else {
+      btn.classList.remove('signed-in');
+      text.textContent = 'Sign in with Google';
+      prompt.style.display = '';
+      container.style.display = 'none';
+    }
+  }
+
+  async function fetchCalendarEvents() {
+    const loading = document.getElementById('events-loading');
+    loading.style.display = 'flex';
+
+    try {
+      // Fetch list of calendars
+      const calListRes = await gapi.client.calendar.calendarList.list();
+      const calendars  = calListRes.result.items || [];
+
+      // Assign colors to calendar owners
+      calendarOwners.clear();
+      calendars.forEach((cal, i) => {
+        if (!calendarOwners.has(cal.summary)) {
+          calendarOwners.set(cal.summary, FAMILY_COLORS[i % FAMILY_COLORS.length]);
+        }
+      });
+
+      // Fetch events from all calendars
+      const now  = new Date();
+      const end  = new Date(now);
+      end.setDate(end.getDate() + 7);
+
+      const allEvents = [];
+      for (const cal of calendars) {
+        try {
+          const eventsRes = await gapi.client.calendar.events.list({
+            calendarId: cal.id,
+            timeMin: now.toISOString(),
+            timeMax: end.toISOString(),
+            singleEvents: true,
+            orderBy: 'startTime',
+            maxResults: 50,
+          });
+          const events = eventsRes.result.items || [];
+          events.forEach(ev => {
+            ev._calendarName  = cal.summary;
+            ev._calendarColor = calendarOwners.get(cal.summary) || FAMILY_COLORS[0];
+          });
+          allEvents.push(...events);
+        } catch (e) {
+          console.warn('Could not fetch events for', cal.summary, e);
+        }
+      }
+
+      // Sort by start time
+      allEvents.sort((a, b) => {
+        const aTime = new Date(a.start?.dateTime || a.start?.date);
+        const bTime = new Date(b.start?.dateTime || b.start?.date);
+        return aTime - bTime;
+      });
+
+      calendarEvents = allEvents;
+      updateFamilyList();
+      renderEvents();
+    } catch (e) {
+      console.error('Failed to fetch calendar:', e);
+      document.getElementById('events-list').innerHTML =
+        '<div class="no-events"><div class="icon">⚠️</div><p>Could not load calendar events</p></div>';
+    } finally {
+      loading.style.display = 'none';
+    }
+  }
+
+  function updateFamilyList() {
+    const list = document.getElementById('family-list');
+    const owners = [...calendarOwners.entries()];
+
+    let html = `
+      <div class="family-member active" onclick="filterEvents(null, this)">
+        <div class="member-dot" style="background: var(--blue)"></div>
+        <span class="member-name">Everyone</span>
+        <span class="member-events">${calendarEvents.length}</span>
+      </div>`;
+
+    owners.forEach(([name, color]) => {
+      const count = calendarEvents.filter(e => e._calendarName === name).length;
+      if (count === 0) return;
+      html += `
+        <div class="family-member" onclick="filterEvents('${name.replace(/'/g, "\\'")}', this)">
+          <div class="member-dot" style="background: ${color}"></div>
+          <span class="member-name">${name}</span>
+          <span class="member-events">${count}</span>
+        </div>`;
+    });
+
+    list.innerHTML = html;
+  }
+
+  let activeFilter = null;
+  function filterEvents(calendarName, el) {
+    activeFilter = calendarName;
+    document.querySelectorAll('.family-member').forEach(m => m.classList.remove('active'));
+    if (el) el.classList.add('active');
+    renderEvents();
+  }
+
+  function renderEvents() {
+    const container = document.getElementById('events-list');
+    let events = calendarEvents;
+    if (activeFilter) {
+      events = events.filter(e => e._calendarName === activeFilter);
+    }
+
+    if (events.length === 0) {
+      container.innerHTML =
+        '<div class="no-events"><div class="icon">🎉</div><p>No upcoming events</p></div>';
+      return;
+    }
+
+    // Group by day
+    const grouped = {};
+    events.forEach(ev => {
+      const start = new Date(ev.start?.dateTime || ev.start?.date);
+      const key = start.toDateString();
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(ev);
+    });
+
+    let html = '';
+    const today = new Date().toDateString();
+    const tomorrow = new Date(Date.now() + 86400000).toDateString();
+
+    for (const [dayKey, dayEvents] of Object.entries(grouped)) {
+      let label = dayKey;
+      if (dayKey === today) label = 'Today';
+      else if (dayKey === tomorrow) label = 'Tomorrow';
+      else {
+        const d = new Date(dayKey);
+        label = DAYS[d.getDay()] + ', ' + MONTHS[d.getMonth()] + ' ' + d.getDate();
+      }
+
+      html += `<div class="day-section"><div class="day-label">${label}</div><div class="event-list">`;
+
+      dayEvents.forEach(ev => {
+        const start = new Date(ev.start?.dateTime || ev.start?.date);
+        const end   = new Date(ev.end?.dateTime   || ev.end?.date);
+        const allDay = !ev.start?.dateTime;
+
+        let timeStr = 'All day';
+        if (!allDay) {
+          timeStr = formatTime(start) + ' – ' + formatTime(end);
+        }
+
+        const color = ev._calendarColor;
+        const tagBg = color + '18';
+
+        html += `
+          <div class="event-item">
+            <div class="event-color-bar" style="background: ${color}"></div>
+            <div class="event-content">
+              <div class="event-title">${escapeHtml(ev.summary || '(No title)')}</div>
+              <div class="event-time">${timeStr}</div>
+              <span class="event-tag" style="background: ${tagBg}; color: ${color}">
+                ${escapeHtml(ev._calendarName)}
+              </span>
+            </div>
+          </div>`;
+      });
+
+      html += '</div></div>';
+    }
+
+    container.innerHTML = html;
+  }
+
+  function formatTime(d) {
+    let h = d.getHours();
+    const m = d.getMinutes();
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return h + ':' + String(m).padStart(2, '0') + ' ' + ampm;
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // ── Initialize Google APIs when scripts load ──
+  function waitForGapi() {
+    if (typeof gapi !== 'undefined' && gapi.load) {
+      gapiLoaded();
+    } else {
+      setTimeout(waitForGapi, 100);
+    }
+  }
+  function waitForGis() {
+    if (typeof google !== 'undefined' && google.accounts) {
+      gisLoaded();
+    } else {
+      setTimeout(waitForGis, 100);
+    }
+  }
+  waitForGapi();
+  waitForGis();
 </script>
 
 </body>
