@@ -442,7 +442,7 @@
 <!-- ════════ HEADER ════════ -->
 <div class="header">
   <div class="header-left">
-    <div class="logo">Family<span>Hub</span></div>
+    <div class="logo">Weldon<span>Hub</span></div>
     <div class="header-date" id="header-date">Thursday, March 19</div>
   </div>
   <div class="header-right">
@@ -648,10 +648,15 @@
   setInterval(fetchWeather, 10 * 60 * 1000);
 
   // ── View tabs ──
+  let currentView = 'schedule';
   document.querySelectorAll('.view-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
+      currentView = tab.dataset.view;
+      const titles = { schedule: 'Upcoming', day: "Today's Schedule", week: 'This Week' };
+      document.getElementById('schedule-title').textContent = titles[currentView] || 'Upcoming';
+      renderEvents();
     });
   });
 
@@ -861,6 +866,22 @@
     let events = calendarEvents;
     if (activeFilter) {
       events = events.filter(e => e._calendarName === activeFilter);
+    }
+
+    const now = new Date();
+    if (currentView === 'day') {
+      const todayStr = now.toDateString();
+      events = events.filter(ev => {
+        const start = new Date(ev.start?.dateTime || ev.start?.date);
+        return start.toDateString() === todayStr;
+      });
+    } else if (currentView === 'week') {
+      const weekEnd = new Date(now);
+      weekEnd.setDate(weekEnd.getDate() + 7);
+      events = events.filter(ev => {
+        const start = new Date(ev.start?.dateTime || ev.start?.date);
+        return start >= now && start <= weekEnd;
+      });
     }
 
     if (events.length === 0) {
