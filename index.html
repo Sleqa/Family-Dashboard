@@ -914,9 +914,14 @@
         updateSignInUI(true);
         fetchCalendarEvents();
         setInterval(fetchCalendarEvents, 15 * 60 * 1000);
-        // Schedule silent refresh 5 minutes before stored expiry
+        // Schedule silent refresh 5 min before expiry.
+        // Wait until tokenClient is ready (gisLoaded may not have run yet).
         const refreshIn = Math.max(0, storedExp - Date.now() - 300_000);
-        setTimeout(() => tokenClient?.requestAccessToken({ prompt: '' }), refreshIn);
+        setTimeout(() => {
+          const doRefresh = () => tokenClient?.requestAccessToken({ prompt: '' });
+          if (tokenClient) doRefresh();
+          else { const t = setInterval(() => { if (tokenClient) { doRefresh(); clearInterval(t); } }, 500); }
+        }, refreshIn);
       } else if (localStorage.getItem('goog_token')) {
         // Token expired but user was previously signed in — try silent re-auth
         localStorage.removeItem('goog_token');
@@ -1195,8 +1200,19 @@
       renderEvents();
     } catch (e) {
       console.error('Failed to fetch calendar:', e);
-      document.getElementById('events-list').innerHTML =
-        '<div class="no-events"><div class="icon">⚠️</div><p>Could not load calendar events</p></div>';
+      // If it looks like an auth error, try a silent token refresh instead of showing an error
+      const isAuthError = e?.status === 401 || e?.result?.error?.code === 401
+                       || String(e).includes('401') || String(e?.result?.error?.status).includes('UNAUTHENTICATED');
+      if (isAuthError && tokenClient) {
+        console.log('Token expired — attempting silent refresh');
+        tokenClient.requestAccessToken({ prompt: '' });
+        // Keep showing existing events while we refresh; don't replace with error
+      } else if (calendarEvents.length === 0) {
+        // Only show error if we have nothing to display
+        document.getElementById('events-list').innerHTML =
+          '<div class="no-events"><div class="icon">⚠️</div><p>Could not load calendar events</p></div>';
+      }
+      // If we already have events loaded, just keep showing them silently
     } finally {
       loading.style.display = 'none';
     }
