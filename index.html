@@ -290,6 +290,49 @@
       border-radius: 4px;
       font-size: 0.75rem;
     }
+    .traffic-section-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin: 8px 0 3px;
+    }
+
+    /* ── Fuel prices widget ── */
+    .fuel-row {
+      display: grid;
+      grid-template-columns: 44px 50px 1fr;
+      align-items: baseline;
+      gap: 6px;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.82rem;
+    }
+    .fuel-row:last-child { border-bottom: none; }
+    .fuel-type {
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .fuel-price-best {
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: #5cb85c;
+    }
+    .fuel-price-other {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .fuel-station {
+      font-size: 0.72rem;
+      color: var(--muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
     /* ── Calendar area (right side) ── */
     .calendar-area {
@@ -650,6 +693,12 @@
       </div>
     </div>
 
+    <!-- Fuel Prices -->
+    <div>
+      <div class="card-title">Fuel Prices <span style="font-size:0.62rem;color:var(--muted);font-weight:600">Burns Beach area</span></div>
+      <div id="fuel-widget"><span style="color:var(--muted);font-size:0.8rem">Loading...</span></div>
+    </div>
+
     <!-- Traffic Widget -->
     <div>
       <div class="card-title">Traffic</div>
@@ -761,6 +810,21 @@
   const TRAFFIC_FLOW_PT = '-31.857,115.801';             // Mitchell Fwy near Stirling
   const INCIDENT_ICONS  = { 0:'⚠️',1:'💥',2:'🌫️',3:'⚠️',4:'🌧️',5:'🧊',6:'🚦',7:'🚧',8:'🚫',9:'🦺',10:'💨',11:'🌊',14:'🚗' };
 
+  function renderIncident(i) {
+    const p    = i.properties;
+    const icon = INCIDENT_ICONS[p.iconCategory] ?? '⚠️';
+    const road = (p.roadNumbers?.[0] || p.from || '').replace(/;/g, ' / ');
+    const desc = p.events?.[0]?.description || 'Incident';
+    const delay = p.delay > 60 ? ` <em>(+${Math.round(p.delay / 60)} min)</em>` : '';
+    return `<div class="traffic-incident">
+      <span class="traffic-incident-icon">${icon}</span>
+      <div>
+        <div class="traffic-incident-road">${escapeHtml(road)}</div>
+        <div class="traffic-incident-desc">${escapeHtml(desc)}${delay}</div>
+      </div>
+    </div>`;
+  }
+
   async function fetchTraffic() {
     const dot   = document.getElementById('traffic-dot');
     const label = document.getElementById('traffic-label');
@@ -783,7 +847,7 @@
         fetch(`https://api.tomtom.com/traffic/services/5/incidentDetails?bbox=${TRAFFIC_BBOX}&key=${TOMTOM_API_KEY}&fields=${fields}&language=en-AU&timeValidityFilter=present`),
       ]);
 
-      // Flow status
+      // Mitchell Fwy flow status
       if (flowRes.ok) {
         const flow = (await flowRes.json()).flowSegmentData;
         if (flow) {
@@ -801,27 +865,29 @@
         }
       }
 
-      // Incidents
+      // Split incidents: Mitchell Fwy vs everything else
       if (incRes.ok) {
         const incidents = (await incRes.json()).incidents || [];
-        if (incidents.length === 0) {
-          inc.innerHTML = '<div class="traffic-clear">✓ No incidents on your corridor</div>';
-        } else {
-          inc.innerHTML = incidents.slice(0, 4).map(i => {
-            const p    = i.properties;
-            const icon = INCIDENT_ICONS[p.iconCategory] ?? '⚠️';
-            const road = (p.roadNumbers?.[0] || p.from || '').replace(/;/g, ' / ');
-            const desc = p.events?.[0]?.description || 'Incident';
-            const delay = p.delay > 60 ? ` <em>(+${Math.round(p.delay / 60)} min)</em>` : '';
-            return `<div class="traffic-incident">
-              <span class="traffic-incident-icon">${icon}</span>
-              <div>
-                <div class="traffic-incident-road">${escapeHtml(road)}</div>
-                <div class="traffic-incident-desc">${escapeHtml(desc)}${delay}</div>
-              </div>
-            </div>`;
-          }).join('');
+        const isMitchell = i => {
+          const roads = (i.properties.roadNumbers || []).join(' ').toUpperCase();
+          const from  = (i.properties.from || '').toUpperCase();
+          return roads.includes('M2') || from.includes('MITCHELL');
+        };
+        const mitchellInc = incidents.filter(isMitchell);
+        const otherInc    = incidents.filter(i => !isMitchell(i));
+
+        let html = '';
+        html += '<div class="traffic-section-label">Mitchell Freeway</div>';
+        html += mitchellInc.length === 0
+          ? '<div class="traffic-clear">✓ No incidents</div>'
+          : mitchellInc.map(renderIncident).join('');
+
+        if (otherInc.length > 0) {
+          html += '<div class="traffic-section-label">Other Nearby</div>';
+          html += otherInc.map(renderIncident).join('');
         }
+
+        inc.innerHTML = html;
       }
     } catch (e) {
       console.warn('Traffic fetch failed:', e);
@@ -830,7 +896,56 @@
   }
 
   fetchTraffic();
-  setInterval(fetchTraffic, 5 * 60 * 1000); // refresh every 5 min
+  setInterval(fetchTraffic, 5 * 60 * 1000);
+
+  // ── Fuel prices (FuelWatch WA — free, no API key) ────────────────────────
+  async function fetchFuelPrices() {
+    const container = document.getElementById('fuel-widget');
+    try {
+      const base  = 'https://www.fuelwatch.wa.gov.au/fuelwatch/fuelWatchRSS';
+      const proxy = url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+
+      const [ulpRes, dieselRes] = await Promise.all([
+        fetch(proxy(`${base}?Suburb=Burns+Beach&Product=1&Surrounding=Y`)),
+        fetch(proxy(`${base}?Suburb=Burns+Beach&Product=4&Surrounding=Y`)),
+      ]);
+
+      const parseStations = async (res) => {
+        if (!res.ok) return [];
+        const xml  = new DOMParser().parseFromString(await res.text(), 'text/xml');
+        const get  = (el, tag) => el.getElementsByTagNameNS('*', tag)[0]?.textContent?.trim() || '';
+        return [...xml.querySelectorAll('item')]
+          .map(item => ({
+            name:   get(item, 'TradingName') || item.querySelector('title')?.textContent?.split(' - ')[0] || '?',
+            suburb: get(item, 'Suburb'),
+            price:  parseFloat(get(item, 'Price') || '0'),
+          }))
+          .filter(s => s.price > 0)
+          .sort((a, b) => a.price - b.price);
+      };
+
+      const [ulp, diesel] = await Promise.all([parseStations(ulpRes), parseStations(dieselRes)]);
+
+      const renderFuelRows = (stations, label) => {
+        if (!stations.length) return '';
+        return stations.slice(0, 3).map((s, idx) => `
+          <div class="fuel-row">
+            <span class="fuel-type">${idx === 0 ? label : ''}</span>
+            <span class="${idx === 0 ? 'fuel-price-best' : 'fuel-price-other'}">${s.price.toFixed(1)}¢</span>
+            <span class="fuel-station">${escapeHtml(s.name)}${s.suburb ? ', ' + s.suburb : ''}</span>
+          </div>`).join('');
+      };
+
+      const html = renderFuelRows(ulp, 'ULP 91') + renderFuelRows(diesel, 'Diesel');
+      container.innerHTML = html || '<span style="color:var(--muted);font-size:0.8rem">No data</span>';
+    } catch (e) {
+      console.warn('Fuel fetch failed:', e);
+      container.innerHTML = '<span style="color:var(--muted);font-size:0.8rem">Unavailable</span>';
+    }
+  }
+
+  fetchFuelPrices();
+  setInterval(fetchFuelPrices, 30 * 60 * 1000); // FuelWatch updates once daily; 30-min refresh is plenty
 
   // ── State ──
   let tokenClient = null;
