@@ -695,7 +695,7 @@
 
     <!-- Fuel Prices -->
     <div>
-      <div class="card-title">Fuel Prices <span style="font-size:0.62rem;color:var(--muted);font-weight:600">Burns Beach area</span></div>
+      <div class="card-title">Fuel Prices <span style="font-size:0.62rem;color:var(--muted);font-weight:600">cheapest within 20km</span></div>
       <div id="fuel-widget"><span style="color:var(--muted);font-size:0.8rem">Loading...</span></div>
     </div>
 
@@ -903,28 +903,44 @@
     const container = document.getElementById('fuel-widget');
     try {
       const base  = 'https://www.fuelwatch.wa.gov.au/fuelwatch/fuelWatchRSS';
-      const proxy = url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+      // corsproxy.io is more reliable than allorigins for FuelWatch
+      const proxy = url => 'https://corsproxy.io/?' + encodeURIComponent(url);
 
-      const [ulpRes, dieselRes] = await Promise.all([
-        fetch(proxy(`${base}?Suburb=Burns+Beach&Product=1&Surrounding=Y`)),
-        fetch(proxy(`${base}?Suburb=Burns+Beach&Product=4&Surrounding=Y`)),
+      // Fetch from Joondalup (hub, ~5km) + Clarkson (~8km north), both with
+      // Surrounding=Y — together they cover the full ~20km radius from Burns Beach.
+      // Fetch ULP91 and Diesel for both centres in parallel.
+      const [ulpJ, ulpC, dslJ, dslC] = await Promise.all([
+        fetch(proxy(`${base}?Suburb=Joondalup&Product=1&Surrounding=Y`)),
+        fetch(proxy(`${base}?Suburb=Clarkson&Product=1&Surrounding=Y`)),
+        fetch(proxy(`${base}?Suburb=Joondalup&Product=4&Surrounding=Y`)),
+        fetch(proxy(`${base}?Suburb=Clarkson&Product=4&Surrounding=Y`)),
       ]);
 
       const parseStations = async (res) => {
         if (!res.ok) return [];
-        const xml  = new DOMParser().parseFromString(await res.text(), 'text/xml');
-        const get  = (el, tag) => el.getElementsByTagNameNS('*', tag)[0]?.textContent?.trim() || '';
-        return [...xml.querySelectorAll('item')]
-          .map(item => ({
-            name:   get(item, 'TradingName') || item.querySelector('title')?.textContent?.split(' - ')[0] || '?',
-            suburb: get(item, 'Suburb'),
-            price:  parseFloat(get(item, 'Price') || '0'),
-          }))
-          .filter(s => s.price > 0)
-          .sort((a, b) => a.price - b.price);
+        const xml = new DOMParser().parseFromString(await res.text(), 'text/xml');
+        const get = (el, tag) => el.getElementsByTagNameNS('*', tag)[0]?.textContent?.trim() || '';
+        return [...xml.querySelectorAll('item')].map(item => ({
+          name:   get(item, 'TradingName') || '?',
+          suburb: get(item, 'Suburb'),
+          price:  parseFloat(get(item, 'Price') || '0'),
+        })).filter(s => s.price > 0);
       };
 
-      const [ulp, diesel] = await Promise.all([parseStations(ulpRes), parseStations(dieselRes)]);
+      const merge = (a, b) => {
+        const seen = new Set();
+        return [...a, ...b].filter(s => {
+          const key = `${s.name}|${s.suburb}`;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        }).sort((a, b) => a.price - b.price);
+      };
+
+      const [ulp, diesel] = await Promise.all([
+        Promise.all([parseStations(ulpJ), parseStations(ulpC)]).then(([a, b]) => merge(a, b)),
+        Promise.all([parseStations(dslJ), parseStations(dslC)]).then(([a, b]) => merge(a, b)),
+      ]);
 
       const renderFuelRows = (stations, label) => {
         if (!stations.length) return '';
@@ -932,7 +948,7 @@
           <div class="fuel-row">
             <span class="fuel-type">${idx === 0 ? label : ''}</span>
             <span class="${idx === 0 ? 'fuel-price-best' : 'fuel-price-other'}">${s.price.toFixed(1)}¢</span>
-            <span class="fuel-station">${escapeHtml(s.name)}${s.suburb ? ', ' + s.suburb : ''}</span>
+            <span class="fuel-station">${escapeHtml(s.name)}, ${escapeHtml(s.suburb)}</span>
           </div>`).join('');
       };
 
