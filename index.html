@@ -927,15 +927,20 @@
       const parseStations = (xml) => {
         if (!xml) return [];
         const items = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)];
+        // More permissive: match any chars before/after the tag name (handles namespace prefixes)
         const val = (block, tag) => {
-          const m = block.match(new RegExp(`<[\\w:]*${tag}>([^<]*)<`, 'i'));
+          const m = block.match(new RegExp(`<[^>]*${tag}[^>]*>([^<]*)`, 'i'));
           return m ? m[1].trim() : '';
         };
-        return items.map(([, block]) => ({
-          name:   val(block, 'TradingName') || val(block, 'title') || '?',
-          suburb: val(block, 'Suburb'),
-          price:  parseFloat(val(block, 'Price') || '0'),
-        })).filter(s => s.price > 0);
+        return items.map(([, block]) => {
+          // Title fallback strips the "price: " prefix FuelWatch includes e.g. "239.9: BP Joondalup"
+          const titleRaw = val(block, 'title').replace(/^\d[\d.]*\s*:\s*/, '').trim();
+          return {
+            name:   val(block, 'TradingName') || titleRaw || '?',
+            suburb: val(block, 'Suburb'),
+            price:  parseFloat(val(block, 'Price') || '0'),
+          };
+        }).filter(s => s.price > 0);
       };
 
       const merge = (...lists) => {
@@ -949,15 +954,16 @@
       };
 
       // Joondalup (~5km) + Clarkson (~8km N) with Surrounding=Y → ~20km radius
-      const [ulpJText, ulpCText, dslJText, dslCText] = await Promise.all([
+      // Product 1 = ULP 91, Product 10 = Premium 95
+      const [ulpJText, ulpCText, p95JText, p95CText] = await Promise.all([
         fetchText(`${base}?Suburb=Joondalup&Product=1&Surrounding=Y`),
         fetchText(`${base}?Suburb=Clarkson&Product=1&Surrounding=Y`),
-        fetchText(`${base}?Suburb=Joondalup&Product=4&Surrounding=Y`),
-        fetchText(`${base}?Suburb=Clarkson&Product=4&Surrounding=Y`),
+        fetchText(`${base}?Suburb=Joondalup&Product=10&Surrounding=Y`),
+        fetchText(`${base}?Suburb=Clarkson&Product=10&Surrounding=Y`),
       ]);
 
-      const ulp    = merge(parseStations(ulpJText), parseStations(ulpCText));
-      const diesel = merge(parseStations(dslJText), parseStations(dslCText));
+      const ulp = merge(parseStations(ulpJText), parseStations(ulpCText));
+      const p95 = merge(parseStations(p95JText), parseStations(p95CText));
 
       const renderFuelRows = (stations, label) => {
         if (!stations.length) return '';
@@ -969,7 +975,7 @@
           </div>`).join('');
       };
 
-      const html = renderFuelRows(ulp, 'ULP 91') + renderFuelRows(diesel, 'Diesel');
+      const html = renderFuelRows(ulp, 'ULP 91') + renderFuelRows(p95, 'ULP 95');
       container.innerHTML = html || '<span style="color:var(--muted);font-size:0.8rem">No data</span>';
     } catch (e) {
       console.warn('Fuel fetch failed:', e);
