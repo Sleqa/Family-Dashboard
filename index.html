@@ -902,34 +902,45 @@
   async function fetchFuelPrices() {
     const container = document.getElementById('fuel-widget');
     try {
-      const base  = 'https://www.fuelwatch.wa.gov.au/fuelwatch/fuelWatchRSS';
-      // corsproxy.io is more reliable than allorigins for FuelWatch
-      const proxy = url => 'https://corsproxy.io/?' + encodeURIComponent(url);
+      const base = 'https://www.fuelwatch.wa.gov.au/fuelwatch/fuelWatchRSS';
 
-      // Fetch from Joondalup (hub, ~5km) + Clarkson (~8km north), both with
-      // Surrounding=Y — together they cover the full ~20km radius from Burns Beach.
-      // Fetch ULP91 and Diesel for both centres in parallel.
-      const [ulpJ, ulpC, dslJ, dslC] = await Promise.all([
-        fetch(proxy(`${base}?Suburb=Joondalup&Product=1&Surrounding=Y`)),
-        fetch(proxy(`${base}?Suburb=Clarkson&Product=1&Surrounding=Y`)),
-        fetch(proxy(`${base}?Suburb=Joondalup&Product=4&Surrounding=Y`)),
-        fetch(proxy(`${base}?Suburb=Clarkson&Product=4&Surrounding=Y`)),
-      ]);
+      // Try proxies in order until one returns valid RSS
+      const proxies = [
+        u => 'https://corsproxy.io/?' + encodeURIComponent(u),
+        u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+        u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
+      ];
 
-      const parseStations = async (res) => {
-        if (!res.ok) return [];
-        const xml = new DOMParser().parseFromString(await res.text(), 'text/xml');
-        const get = (el, tag) => el.getElementsByTagNameNS('*', tag)[0]?.textContent?.trim() || '';
-        return [...xml.querySelectorAll('item')].map(item => ({
-          name:   get(item, 'TradingName') || '?',
-          suburb: get(item, 'Suburb'),
-          price:  parseFloat(get(item, 'Price') || '0'),
+      const fetchText = async (url) => {
+        for (const makeProxy of proxies) {
+          try {
+            const res = await fetch(makeProxy(url), { signal: AbortSignal.timeout(8000) });
+            if (!res.ok) continue;
+            const text = await res.text();
+            if (text.includes('<item>')) return text;   // valid RSS
+          } catch (_) {}
+        }
+        return null;
+      };
+
+      // Regex parser — more reliable than DOMParser for namespaced FuelWatch XML
+      const parseStations = (xml) => {
+        if (!xml) return [];
+        const items = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)];
+        const val = (block, tag) => {
+          const m = block.match(new RegExp(`<[\\w:]*${tag}>([^<]*)<`, 'i'));
+          return m ? m[1].trim() : '';
+        };
+        return items.map(([, block]) => ({
+          name:   val(block, 'TradingName') || val(block, 'title') || '?',
+          suburb: val(block, 'Suburb'),
+          price:  parseFloat(val(block, 'Price') || '0'),
         })).filter(s => s.price > 0);
       };
 
-      const merge = (a, b) => {
+      const merge = (...lists) => {
         const seen = new Set();
-        return [...a, ...b].filter(s => {
+        return lists.flat().filter(s => {
           const key = `${s.name}|${s.suburb}`;
           if (seen.has(key)) return false;
           seen.add(key);
@@ -937,10 +948,16 @@
         }).sort((a, b) => a.price - b.price);
       };
 
-      const [ulp, diesel] = await Promise.all([
-        Promise.all([parseStations(ulpJ), parseStations(ulpC)]).then(([a, b]) => merge(a, b)),
-        Promise.all([parseStations(dslJ), parseStations(dslC)]).then(([a, b]) => merge(a, b)),
+      // Joondalup (~5km) + Clarkson (~8km N) with Surrounding=Y → ~20km radius
+      const [ulpJText, ulpCText, dslJText, dslCText] = await Promise.all([
+        fetchText(`${base}?Suburb=Joondalup&Product=1&Surrounding=Y`),
+        fetchText(`${base}?Suburb=Clarkson&Product=1&Surrounding=Y`),
+        fetchText(`${base}?Suburb=Joondalup&Product=4&Surrounding=Y`),
+        fetchText(`${base}?Suburb=Clarkson&Product=4&Surrounding=Y`),
       ]);
+
+      const ulp    = merge(parseStations(ulpJText), parseStations(ulpCText));
+      const diesel = merge(parseStations(dslJText), parseStations(dslCText));
 
       const renderFuelRows = (stations, label) => {
         if (!stations.length) return '';
