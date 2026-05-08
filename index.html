@@ -3,12 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light only" />
+  <meta name="supported-color-schemes" content="light" />
   <title>Family Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
+      color-scheme: light;
       --bg:        #f5f0eb;
       --card-bg:   #ffffff;
       --text:      #2d2d2d;
@@ -348,16 +351,6 @@
       flex-shrink: 0;
     }
     .event-content { flex: 1; }
-    .event-day-label {
-      font-size: 0.62rem;
-      font-weight: 800;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 4px;
-    }
-    .event-personal .event-day-label { color: var(--blue); }
-    .event-family   .event-day-label { color: var(--red);  }
     .event-title {
       font-size: 0.95rem;
       font-weight: 700;
@@ -578,10 +571,6 @@
       width: 52px;
       height: 52px;
       object-fit: contain;
-      background: #fff;
-      border-radius: 6px;
-      padding: 4px;
-      color-scheme: light;
     }
     .sports-team-name {
       font-size: 0.72rem;
@@ -1276,34 +1265,32 @@
       return;
     }
 
-    const todayEvs    = visible.filter(ev => ev.start < tomorrowStart);
-    const upcomingEvs = visible.filter(ev => ev.start >= tomorrowStart);
+    // Group events by day
+    const groups = new Map();
+    visible.forEach(ev => {
+      const d = ev.start;
+      const key = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
+      if (!groups.has(key)) groups.set(key, { date: new Date(d.getFullYear(), d.getMonth(), d.getDate()), events: [] });
+      groups.get(key).events.push(ev);
+    });
 
     let html = '';
-    if (todayEvs.length) {
-      html += `<div class="day-section"><div class="day-label">Today</div><div class="event-list">`;
-      todayEvs.forEach(ev => html += renderEvent(ev, 'TODAY'));
-      html += `</div></div>`;
-    }
-    if (upcomingEvs.length) {
-      html += `<div class="day-section"><div class="day-label">Upcoming</div><div class="event-list">`;
-      upcomingEvs.forEach(ev => html += renderEvent(ev, labelForDate(ev.start, todayStart)));
+    for (const { date, events: dayEvents } of groups.values()) {
+      const label = dayHeader(date, todayStart, tomorrowStart);
+      html += `<div class="day-section"><div class="day-label">${label}</div><div class="event-list">`;
+      dayEvents.forEach(ev => html += renderEvent(ev));
       html += `</div></div>`;
     }
     list.innerHTML = html;
   }
 
-  function labelForDate(date, todayStart) {
-    const tomorrowStart = new Date(todayStart.getTime() + 86400000);
-    const dStart        = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    if (dStart.getTime() === todayStart.getTime())    return 'TODAY';
-    if (dStart.getTime() === tomorrowStart.getTime()) return 'TOMORROW';
-    return DAYS[date.getDay()].slice(0, 3).toUpperCase()
-         + ' ' + date.getDate()
-         + ' ' + MONTHS[date.getMonth()].slice(0, 3).toUpperCase();
+  function dayHeader(date, todayStart, tomorrowStart) {
+    if (date.getTime() === todayStart.getTime())    return 'Today';
+    if (date.getTime() === tomorrowStart.getTime()) return 'Tomorrow';
+    return DAYS[date.getDay()] + ', ' + date.getDate() + ' ' + MONTHS[date.getMonth()];
   }
 
-  function renderEvent(ev, dayLabel) {
+  function renderEvent(ev) {
     const color = ev.feed.color;
     const tagBg = color + '20';
     let timeStr = 'All day';
@@ -1315,7 +1302,6 @@
       <div class="event-item event-${ev.feed.type}">
         <div class="event-color-bar" style="background: ${color}"></div>
         <div class="event-content">
-          <div class="event-day-label">${dayLabel}</div>
           <div class="event-title">${escapeHtml(ev.summary)}</div>
           <div class="event-time">${timeStr}</div>
           <span class="event-tag" style="background:${tagBg}; color:${color}">${escapeHtml(ev.feed.name)}</span>
