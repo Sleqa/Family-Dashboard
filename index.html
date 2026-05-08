@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="light only" />
   <meta name="supported-color-schemes" content="light" />
+  <meta name="darkreader-lock" />
   <title>Family Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
   <style>
@@ -572,15 +573,10 @@
       height: 52px;
       object-fit: contain;
       forced-color-adjust: none;
-      -webkit-filter: none;
-      filter: none;
-    }
-    @media (prefers-color-scheme: dark) {
-      .sports-logo {
-        background: #ffffff;
-        border-radius: 8px;
-        padding: 4px;
-      }
+      -webkit-filter: none !important;
+      filter: none !important;
+      mix-blend-mode: normal !important;
+      isolation: isolate;
     }
     .sports-team-name {
       font-size: 0.72rem;
@@ -1373,6 +1369,24 @@
 
     const cityState = [venueAddr.city, venueAddr.state].filter(Boolean).join(', ');
 
+    // For upcoming games, ESPN's shortDetail uses the league's local timezone
+    // (e.g. "5/8 - 2:30 AM EDT"). Replace with a Perth-formatted timestamp.
+    let statusText = status.shortDetail || status.detail || status.description || '';
+    if (state === 'pre' && event.date) {
+      const d = new Date(event.date);
+      if (!isNaN(d)) {
+        statusText = d.toLocaleString('en-AU', {
+          timeZone: 'Australia/Perth',
+          weekday:  'short',
+          day:      'numeric',
+          month:    'short',
+          hour:     'numeric',
+          minute:   '2-digit',
+          hour12:   true,
+        }) + ' AWST';
+      }
+    }
+
     return {
       sport:    sportLabel,
       home: {
@@ -1387,7 +1401,7 @@
         score:  away.score,
         record: away.records?.[0]?.summary || '',
       },
-      statusText: status.shortDetail || status.detail || status.description || '',
+      statusText,
       state,
       isLive,
       isFinal:    state === 'post',
