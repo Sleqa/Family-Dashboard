@@ -572,9 +572,11 @@
     .sports-logo {
       width: 52px;
       height: 52px;
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
+      object-fit: contain;
+      background: #fff;
+      border-radius: 6px;
+      padding: 4px;
+      color-scheme: light;
     }
     .sports-team-name {
       font-size: 0.72rem;
@@ -1013,20 +1015,18 @@
   }
 
   function parseICal(text, feed) {
-    // RFC 5545 line unfolding: a CRLF followed by space or tab continues the previous line
+    // RFC 5545 line unfolding
     const unfolded = text.replace(/\r?\n[ \t]/g, '');
     const lines    = unfolded.split(/\r?\n/);
 
-    const events = [];
-    let current  = null;
+    const rawEvents = [];
+    let current     = null;
 
     for (const line of lines) {
       if (line === 'BEGIN:VEVENT') {
-        current = {};
+        current = { exdates: [] };
       } else if (line === 'END:VEVENT') {
-        if (current && current.start && current.summary) {
-          events.push({ ...current, feed });
-        }
+        if (current && current.start && current.summary) rawEvents.push(current);
         current = null;
       } else if (current) {
         const colonIdx = line.indexOf(':');
@@ -1039,17 +1039,158 @@
 
         if (propName === 'SUMMARY') {
           current.summary = unescapeICal(value);
+        } else if (propName === 'UID') {
+          current.uid = value;
+        } else if (propName === 'RECURRENCE-ID') {
+          current.recurrenceId = value; // modified instance override
         } else if (propName === 'DTSTART') {
           const isDate = params.some(p => /VALUE=DATE\b/i.test(p)) || /^\d{8}$/.test(value);
-          current.start  = parseICalDate(value, isDate);
-          current.allDay = isDate;
+          current.start    = parseICalDate(value, isDate);
+          current.allDay   = isDate;
+          current.startRaw = value;
         } else if (propName === 'DTEND') {
           const isDate = params.some(p => /VALUE=DATE\b/i.test(p)) || /^\d{8}$/.test(value);
           current.end = parseICalDate(value, isDate);
+        } else if (propName === 'RRULE') {
+          current.rrule = value;
+        } else if (propName === 'EXDATE') {
+          // Multiple EXDATE lines are allowed; each may contain comma-separated values
+          value.split(',').forEach(v => {
+            const d = parseICalDate(v.trim(), /^\d{8}$/.test(v.trim()));
+            if (d && !isNaN(d)) current.exdates.push(d.getTime());
+          });
         }
       }
     }
-    return events;
+
+    // Separate override instances (have RECURRENCE-ID) from base events
+    const overrides  = {};
+    const baseEvents = [];
+    for (const ev of rawEvents) {
+      if (ev.recurrenceId) {
+        if (!overrides[ev.uid]) overrides[ev.uid] = [];
+        overrides[ev.uid].push(ev);
+      } else {
+        baseEvents.push(ev);
+      }
+    }
+
+    const now       = new Date();
+    const winStart  = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const winEnd    = new Date(winStart.getTime() + 30 * 86400000);
+    const expanded  = [];
+
+    for (const ev of baseEvents) {
+      if (!ev.rrule) {
+        // Non-recurring — include as-is
+        expanded.push({ ...ev, feed });
+        continue;
+      }
+
+      // Expand recurrences within the 30-day window
+      const duration = ev.end ? (ev.end - ev.start) : 0;
+      const instances = expandRRule(ev.rrule, ev.start, ev.allDay, winStart, winEnd, ev.exdates);
+      const uidOverrides = overrides[ev.uid] || [];
+
+      for (const occStart of instances) {
+        // Check if this occurrence is overridden by a RECURRENCE-ID instance
+        const overrideMatch = uidOverrides.find(o => {
+          const rid = parseICalDate(o.recurrenceId, /^\d{8}$/.test(o.recurrenceId));
+          return rid && Math.abs(rid - occStart) < 86400000;
+        });
+        if (overrideMatch) {
+          // Use the override's data instead
+          if (overrideMatch.start >= winStart && overrideMatch.start < winEnd) {
+            expanded.push({ ...ev, ...overrideMatch, feed, exdates: [] });
+          }
+        } else {
+          const occEnd = duration ? new Date(occStart.getTime() + duration) : null;
+          expanded.push({ ...ev, start: occStart, end: occEnd, feed });
+        }
+      }
+    }
+
+    return expanded;
+  }
+
+  function expandRRule(rruleStr, dtstart, allDay, winStart, winEnd, exdates) {
+    const params = {};
+    rruleStr.split(';').forEach(part => {
+      const [k, v] = part.split('=');
+      params[k.toUpperCase()] = v;
+    });
+
+    const freq  = (params.FREQ || '').toUpperCase();
+    const count = params.COUNT ? +params.COUNT : Infinity;
+    let   until = null;
+    if (params.UNTIL) {
+      until = parseICalDate(params.UNTIL, /^\d{8}$/.test(params.UNTIL));
+    }
+
+    // BYDAY for weekly: e.g. "MO,WE,FR"
+    const byDay = params.BYDAY ? params.BYDAY.split(',').map(d => d.trim().toUpperCase()) : null;
+    const dayMap = { SU: 0, MO: 1, TU: 2, WE: 3, TH: 4, FR: 5, SA: 6 };
+    const interval = params.INTERVAL ? +params.INTERVAL : 1;
+
+    const occurrences = [];
+    let cur = new Date(dtstart);
+    let n   = 0;
+
+    // Safety: stop after 2 years or 500 iterations
+    const hardLimit = new Date(winEnd.getTime() + 366 * 86400000);
+
+    while (n < count) {
+      if (until && cur > until) break;
+      if (cur > hardLimit) break;
+
+      const candidates = [];
+      if (freq === 'WEEKLY' && byDay) {
+        // Generate all matching weekdays in the current week anchor
+        const weekStart = new Date(cur);
+        weekStart.setDate(weekStart.getDate() - weekStart.getDay()); // Sunday
+        for (const dCode of byDay) {
+          const dow = dayMap[dCode];
+          if (dow == null) continue;
+          const candidate = new Date(weekStart);
+          candidate.setDate(weekStart.getDate() + dow);
+          // Copy time from dtstart
+          candidate.setHours(cur.getHours(), cur.getMinutes(), cur.getSeconds(), 0);
+          candidates.push(candidate);
+        }
+        candidates.sort((a, b) => a - b);
+      } else {
+        candidates.push(new Date(cur));
+      }
+
+      for (const occ of candidates) {
+        if (until && occ > until) continue;
+        if (occ < dtstart) continue; // don't emit before series start
+        if (exdates.includes(occ.getTime())) { n++; continue; }
+        if (occ >= winStart && occ < winEnd) {
+          occurrences.push(new Date(occ));
+        }
+        n++;
+        if (n >= count) break;
+      }
+
+      // Advance by interval
+      if (freq === 'DAILY') {
+        cur.setDate(cur.getDate() + interval);
+      } else if (freq === 'WEEKLY') {
+        cur.setDate(cur.getDate() + 7 * interval);
+      } else if (freq === 'MONTHLY') {
+        cur.setMonth(cur.getMonth() + interval);
+      } else if (freq === 'YEARLY') {
+        cur.setFullYear(cur.getFullYear() + interval);
+      } else {
+        break; // unknown freq
+      }
+
+      // If we've passed the window and aren't generating any new ones, stop early
+      if (cur > winEnd && !until && count === Infinity) break;
+    }
+
+    return occurrences;
   }
 
   function parseICalDate(value, isDate) {
@@ -1288,8 +1429,10 @@
 
   // ── Renderers ────────────────────────────────────────────────────────────
 
-  function logoStyle(url) {
-    return url ? `style="background-image: url('${url}')"` : '';
+  function logoImg(url, name) {
+    return url
+      ? `<img src="${url}" class="sports-logo" alt="${escapeHtml(name)}" />`
+      : `<div class="sports-logo"></div>`;
   }
 
   function emptyCard(label) {
@@ -1341,13 +1484,13 @@
       </div>
       <div class="sports-teams-row">
         <div class="sports-team-block">
-          <div class="sports-logo" ${logoStyle(data.away.logo)}></div>
+          ${logoImg(data.away.logo, data.away.name)}
           <div class="sports-team-name">${escapeHtml(data.away.name)}</div>
           ${data.away.record ? `<div class="sports-team-record">${escapeHtml(data.away.record)}</div>` : ''}
         </div>
         <div class="sports-score-center">${escapeHtml(String(awayScore))} - ${escapeHtml(String(homeScore))}</div>
         <div class="sports-team-block">
-          <div class="sports-logo" ${logoStyle(data.home.logo)}></div>
+          ${logoImg(data.home.logo, data.home.name)}
           <div class="sports-team-name">${escapeHtml(data.home.name)}</div>
           ${data.home.record ? `<div class="sports-team-record">${escapeHtml(data.home.record)}</div>` : ''}
         </div>
