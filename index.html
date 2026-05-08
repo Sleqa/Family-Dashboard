@@ -3,32 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="color-scheme" content="light only" />
-  <meta name="supported-color-schemes" content="light" />
-  <meta name="darkreader-lock" />
   <title>Family Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      color-scheme: light;
-      --bg:        #f5f0eb;
-      --card-bg:   #ffffff;
-      --text:      #2d2d2d;
-      --muted:     #8a8a8a;
-      --border:    #e8e3de;
-      --accent:    #4a90d9;
-      --red:       #e74c5e;
-      --orange:    #f5a623;
-      --green:     #5cb85c;
-      --purple:    #8b5cf6;
-      --blue:      #4a90d9;
-      --pink:      #ec4899;
-      --teal:      #14b8a6;
-      --font:      'Nunito', -apple-system, system-ui, sans-serif;
-      --radius:    16px;
-      --shadow:    0 2px 12px rgba(0,0,0,0.06);
+      --bg:          #0f1418;
+      --card-bg:     #1a1f25;
+      --card-bg-2:   #232831;
+      --text:        #e8e3de;
+      --muted:       #8a8a8a;
+      --border:      #2a3038;
+      --accent:      #4a90d9;
+      --red:         #e74c5e;
+      --orange:      #f5a623;
+      --green:       #5cb85c;
+      --purple:      #8b5cf6;
+      --blue:        #4a90d9;
+      --pink:        #ec4899;
+      --teal:        #14b8a6;
+      --font:        'Nunito', -apple-system, system-ui, sans-serif;
+      --radius:      16px;
+      --shadow:      0 2px 12px rgba(0,0,0,0.4);
     }
 
     html, body {
@@ -98,8 +95,8 @@
     .google-btn svg { width: 18px; height: 18px; }
     .google-btn.signed-in {
       border-color: var(--green);
-      background: #f0fdf4;
-      color: #166534;
+      background: rgba(92, 184, 92, 0.15);
+      color: var(--green);
     }
 
     /* ── Main layout ── */
@@ -200,7 +197,7 @@
       align-items: center;
       gap: 14px;
       padding: 16px;
-      background: linear-gradient(135deg, #e0f2fe, #f0f9ff);
+      background: linear-gradient(135deg, rgba(74, 144, 217, 0.18), rgba(74, 144, 217, 0.08));
       border-radius: 14px;
     }
     #weather-icon { font-size: 2.6rem; }
@@ -277,7 +274,7 @@
     .view-tabs {
       display: flex;
       gap: 4px;
-      background: #f0ebe6;
+      background: var(--card-bg-2);
       padding: 4px;
       border-radius: 12px;
       width: fit-content;
@@ -424,8 +421,8 @@
       padding: 6px 5px;
       overflow: hidden;
     }
-    .month-day.other-month { background: #faf7f4; }
-    .month-day.today-cell  { background: #eef6ff; }
+    .month-day.other-month { background: #14181d; opacity: 0.6; }
+    .month-day.today-cell  { background: rgba(74, 144, 217, 0.18); }
     .month-day-num {
       font-size: 0.75rem;
       font-weight: 700;
@@ -486,7 +483,7 @@
       line-height: 1.6;
     }
     .cal-connect-prompt code {
-      background: #f0f0f0;
+      background: var(--card-bg-2);
       padding: 2px 8px;
       border-radius: 6px;
       font-size: 0.82rem;
@@ -532,7 +529,7 @@
       overflow-y: auto;
     }
     .sports-card {
-      background: #ffffff;
+      background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
@@ -544,7 +541,6 @@
       flex-direction: column;
       gap: 10px;
       font-size: 0.85rem;
-      color-scheme: light;
     }
     .sports-card-header {
       display: flex;
@@ -573,11 +569,9 @@
       width: 52px;
       height: 52px;
       object-fit: contain;
-      forced-color-adjust: none;
-      -webkit-filter: none !important;
-      filter: none !important;
-      mix-blend-mode: normal !important;
-      isolation: isolate;
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 4px;
     }
     .sports-team-name {
       font-size: 0.72rem;
