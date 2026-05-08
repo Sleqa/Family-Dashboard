@@ -299,6 +299,41 @@
       margin: 8px 0 3px;
     }
 
+    /* ── Fuel prices widget ── */
+    .fuel-row {
+      display: grid;
+      grid-template-columns: 44px 50px 1fr;
+      align-items: baseline;
+      gap: 6px;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.82rem;
+    }
+    .fuel-row:last-child { border-bottom: none; }
+    .fuel-type {
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .fuel-price-best {
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: #5cb85c;
+    }
+    .fuel-price-other {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .fuel-station {
+      font-size: 0.72rem;
+      color: var(--muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     /* ── Calendar area (right side) ── */
     .calendar-area {
       padding: 24px 28px;
@@ -661,6 +696,12 @@
           <span class="weather-detail-value" id="highlow">-- / --°</span>
         </div>
       </div>
+    </div>
+
+    <!-- Fuel Prices -->
+    <div>
+      <div class="card-title">Fuel Prices <span style="font-size:0.62rem;color:var(--muted);font-weight:600">cheapest within 20km</span></div>
+      <div id="fuel-widget"><span style="color:var(--muted);font-size:0.8rem">Loading...</span></div>
     </div>
 
     <!-- Traffic Widget -->
