@@ -620,7 +620,7 @@
 
     /* ── Sports Sidebar ── */
     .sports-sidebar {
-      background: var(--card-bg);
+      background: var(--bg);
       border-left: 1px solid var(--border);
       padding: 20px 16px;
       display: flex;
@@ -629,109 +629,204 @@
       overflow-y: auto;
     }
     .sports-card {
-      background: #1a1a1a;
-      border-radius: 12px;
-      padding: 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px 16px;
       position: relative;
       overflow: hidden;
-      color: #fff;
+      color: var(--text);
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
       font-size: 0.85rem;
-      min-height: 240px;
     }
     .sports-card-header {
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 4px;
-    }
-    .sports-logos {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      position: relative;
-      z-index: 2;
-      gap: 8px;
-      flex: 1;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
     }
-    .sports-logo-group {
+    .sports-teams-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 8px;
+    }
+    .sports-team-block {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 4px;
-      flex: 0 0 auto;
+      min-width: 0;
     }
     .sports-logo {
-      width: 60px;
-      height: 60px;
-      border-radius: 8px;
+      width: 52px;
+      height: 52px;
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
     .sports-team-name {
-      font-size: 0.65rem;
+      font-size: 0.72rem;
       font-weight: 700;
+      color: var(--text);
       text-align: center;
-      color: #ccc;
-      max-width: 70px;
+      max-width: 90px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    .sports-score {
+    .sports-team-record {
+      font-size: 0.62rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .sports-score-center {
       text-align: center;
-      font-size: 2rem;
+      font-size: 1.6rem;
       font-weight: 800;
-      position: relative;
-      z-index: 2;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      min-width: 70px;
     }
-    .sports-status {
+    .sports-clock {
       text-align: center;
-      font-size: 0.75rem;
-      color: #aaa;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text);
+      padding: 4px 0;
     }
-    .sports-venue {
-      text-align: center;
+    .sports-clock.live {
+      color: var(--red);
+    }
+    .sports-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
       font-size: 0.7rem;
-      color: #888;
-      border-top: 1px solid #333;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
       padding-top: 8px;
     }
+    .sports-venue-block {
+      flex: 1;
+      min-width: 0;
+    }
+    .sports-venue-name {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 0.72rem;
+    }
+    .sports-venue-city {
+      font-size: 0.66rem;
+    }
+    .sports-network {
+      font-weight: 700;
+      font-size: 0.66rem;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    .sports-lastplay {
+      font-size: 0.7rem;
+      font-style: italic;
+      color: var(--muted);
+      line-height: 1.35;
+      border-top: 1px solid var(--border);
+      padding-top: 8px;
+    }
+    .sports-winprob {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .sports-winprob-bar {
+      display: flex;
+      height: 6px;
+      border-radius: 3px;
+      overflow: hidden;
+      background: var(--border);
+    }
+    .sports-winprob-fill-a { background: var(--blue); }
+    .sports-winprob-fill-b { background: var(--red);  }
+    .sports-winprob-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
     .sports-live-dot {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      width: 10px;
-      height: 10px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       background: #ff4444;
       animation: pulse-red 1.5s ease-in-out infinite;
-      z-index: 3;
+      display: inline-block;
+      margin-left: 6px;
+      vertical-align: middle;
     }
-    .sports-watermark {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 150%;
-      height: 150%;
-      opacity: 0.08;
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
-      z-index: 1;
+    .sports-f1-race {
+      text-align: center;
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.2;
+    }
+    .sports-f1-circuit {
+      text-align: center;
+      font-size: 0.74rem;
+      color: var(--muted);
+    }
+    .sports-f1-time {
+      text-align: center;
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--red);
+      padding: 4px 0;
+    }
+    .sports-f1-countdown {
+      text-align: center;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+    .sports-f1-leader {
+      border-top: 1px solid var(--border);
+      padding-top: 8px;
+      text-align: center;
+    }
+    .sports-f1-leader-label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+    .sports-f1-leader-name {
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: var(--text);
+    }
+    .sports-f1-leader-points {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+    .sports-empty {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.78rem;
+      padding: 20px 0;
     }
     @keyframes pulse-red {
       0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
+      50% { opacity: 0.3; }
     }
 
     /* ── Responsive ── */
@@ -857,22 +952,19 @@
 
   <!-- ── Sports Sidebar ── -->
   <div class="sports-sidebar">
-    <div class="sports-card nbl-card" id="nbl-card">
-      <div class="sports-card-header">NBL</div>
-      <div class="sports-watermark" style="background-image: url('about:blank')"></div>
-      <div style="position: relative; z-index: 2;">Loading...</div>
+    <div class="sports-card" id="nbl-card">
+      <div class="sports-card-header"><span>NBL</span></div>
+      <div class="sports-empty">Loading...</div>
     </div>
 
-    <div class="sports-card afl-card" id="afl-card">
-      <div class="sports-card-header">AFL</div>
-      <div class="sports-watermark" style="background-image: url('about:blank')"></div>
-      <div style="position: relative; z-index: 2;">Loading...</div>
+    <div class="sports-card" id="afl-card">
+      <div class="sports-card-header"><span>AFL</span></div>
+      <div class="sports-empty">Loading...</div>
     </div>
 
-    <div class="sports-card f1-card" id="f1-card">
-      <div class="sports-card-header">F1</div>
-      <div class="sports-watermark" style="background-image: url('about:blank')"></div>
-      <div style="position: relative; z-index: 2;">Loading...</div>
+    <div class="sports-card" id="f1-card">
+      <div class="sports-card-header"><span>F1</span></div>
+      <div class="sports-empty">Loading...</div>
     </div>
   </div>
 
@@ -1304,75 +1396,70 @@
   // Sports Sidebar (NBL, AFL, F1)
   // ════════════════════════════════════════════════════════════
 
-  async function fetchNBLData() {
+  function extractGameData(event, sportLabel) {
+    if (!event) return null;
+    const comp = event.competitions?.[0];
+    if (!comp || !comp.competitors || comp.competitors.length < 2) return null;
+
+    const home = comp.competitors.find(c => c.homeAway === 'home') || comp.competitors[0];
+    const away = comp.competitors.find(c => c.homeAway === 'away') || comp.competitors[1];
+
+    const status = comp.status?.type || event.status?.type || {};
+    const state  = status.state || '';   // 'pre' | 'in' | 'post'
+    const isLive = state === 'in';
+    const venueAddr = event.venue?.address || {};
+    const sit = comp.situation || {};
+
+    const cityState = [venueAddr.city, venueAddr.state].filter(Boolean).join(', ');
+
+    return {
+      sport:    sportLabel,
+      home: {
+        name:   home.team?.shortDisplayName || home.team?.name || '?',
+        logo:   home.team?.logo,
+        score:  home.score,
+        record: home.records?.[0]?.summary || '',
+      },
+      away: {
+        name:   away.team?.shortDisplayName || away.team?.name || '?',
+        logo:   away.team?.logo,
+        score:  away.score,
+        record: away.records?.[0]?.summary || '',
+      },
+      statusText: status.shortDetail || status.detail || status.description || '',
+      state,
+      isLive,
+      isFinal:    state === 'post',
+      isUpcoming: state === 'pre',
+      venueName:  event.venue?.fullName || '',
+      venueCity:  cityState,
+      network:    comp.broadcasts?.[0]?.names?.[0] || '',
+      lastPlay:   sit.lastPlay?.text || '',
+      homeWinPct: sit.lastPlay?.probability?.homeWinPercentage ?? sit.homeWinPercentage,
+      awayWinPct: sit.lastPlay?.probability?.awayWinPercentage ?? sit.awayWinPercentage,
+      date: event.date,
+    };
+  }
+
+  async function fetchEspnGame(sportPath, label) {
     try {
-      const res = await fetch('https://site.api.espn.com/apis/site/v2/sports/basketball/nbl/scoreboard');
+      const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${sportPath}/scoreboard`);
       if (!res.ok) return null;
       const data = await res.json();
-      const event = data.events?.[0];
-      if (!event) return null;
-      const comp = event.competitions?.[0];
-      if (!comp || !comp.competitors) return null;
-      const [comp0, comp1] = comp.competitors;
-      return {
-        sport: 'NBL',
-        team1: {
-          name: comp0.team?.name || '?',
-          logo: comp0.team?.logo,
-          score: comp0.score || '0',
-        },
-        team2: {
-          name: comp1.team?.name || '?',
-          logo: comp1.team?.logo,
-          score: comp1.score || '0',
-        },
-        status: comp.status?.type?.name || 'SCHEDULED',
-        clock: comp.status?.displayClock,
-        period: comp.status?.period,
-        venue: event.venue?.fullName || '',
-        date: event.date,
-        isLive: comp.status?.type?.name === 'IN_PROGRESS',
-      };
+      const events = data.events || [];
+      // Prefer a live game, then upcoming, then most recent (final)
+      const live     = events.find(e => e.competitions?.[0]?.status?.type?.state === 'in');
+      const upcoming = events.find(e => e.competitions?.[0]?.status?.type?.state === 'pre');
+      const event = live || upcoming || events[0];
+      return extractGameData(event, label);
     } catch (e) {
-      console.warn('NBL fetch failed:', e);
+      console.warn(label + ' fetch failed:', e);
       return null;
     }
   }
 
-  async function fetchAFLData() {
-    try {
-      const res = await fetch('https://site.api.espn.com/apis/site/v2/sports/australian-football/afl/scoreboard');
-      if (!res.ok) return null;
-      const data = await res.json();
-      const event = data.events?.[0];
-      if (!event) return null;
-      const comp = event.competitions?.[0];
-      if (!comp || !comp.competitors) return null;
-      const [comp0, comp1] = comp.competitors;
-      return {
-        sport: 'AFL',
-        team1: {
-          name: comp0.team?.name || '?',
-          logo: comp0.team?.logo,
-          score: comp0.score || '0',
-        },
-        team2: {
-          name: comp1.team?.name || '?',
-          logo: comp1.team?.logo,
-          score: comp1.score || '0',
-        },
-        status: comp.status?.type?.name || 'SCHEDULED',
-        clock: comp.status?.displayClock,
-        period: comp.status?.period,
-        venue: event.venue?.fullName || '',
-        date: event.date,
-        isLive: comp.status?.type?.name === 'IN_PROGRESS',
-      };
-    } catch (e) {
-      console.warn('AFL fetch failed:', e);
-      return null;
-    }
-  }
+  async function fetchNBLData() { return fetchEspnGame('basketball/nbl', 'NBL'); }
+  async function fetchAFLData() { return fetchEspnGame('australian-football/afl', 'AFL'); }
 
   async function fetchF1Data() {
     try {
@@ -1380,31 +1467,30 @@
         fetch('https://api.jolpi.ca/ergast/f1/current/next.json'),
         fetch('https://api.jolpi.ca/ergast/f1/current/driverStandings.json'),
       ]);
-      if (!nextRes.ok || !standingsRes.ok) return null;
-      const nextData = await nextRes.json();
-      const standingsData = await standingsRes.json();
+      if (!nextRes.ok) return null;
+      const nextData      = await nextRes.json();
+      const standingsData = standingsRes.ok ? await standingsRes.json() : null;
 
       const race = nextData.MRData?.RaceTable?.Races?.[0];
-      const standings = standingsData.MRData?.DriverStandingsTable?.DriverStandings?.[0]?.Drivers?.[0];
-
       if (!race) return null;
 
-      const raceDate = new Date(race.date + 'T' + (race.time || '00:00:00') + 'Z');
-      const perthDate = new Date(raceDate.getTime() + 8 * 60 * 60 * 1000);
+      // Strip trailing Z so we don't double it; Ergast returns time like "06:00:00Z"
+      const timeStr  = (race.time || '00:00:00Z').replace(/Z$/, '') + 'Z';
+      const raceDate = new Date(race.date + 'T' + timeStr);
+      if (isNaN(raceDate)) return null;
+
+      const leader = standingsData?.MRData?.StandingsTable?.StandingsLists?.[0]?.DriverStandings?.[0];
 
       return {
-        sport: 'F1',
-        raceName: race.name || '',
-        circuit: race.Circuit?.circuitName || '',
-        country: race.Circuit?.Location?.country || '',
-        date: raceDate,
-        perthTime: perthDate,
-        leader: standings ? {
-          name: `${standings.givenName} ${standings.familyName}`,
-          points: standings.points,
-          team: standings.Constructors?.[0]?.name,
+        raceName: race.raceName || race.name || '',
+        circuit:  race.Circuit?.circuitName || '',
+        country:  race.Circuit?.Location?.country || '',
+        date:     raceDate,
+        leader:   leader ? {
+          name:   `${leader.Driver?.givenName} ${leader.Driver?.familyName}`,
+          points: leader.points,
+          team:   leader.Constructors?.[0]?.name,
         } : null,
-        venue: race.Circuit?.Location?.country || '',
       };
     } catch (e) {
       console.warn('F1 fetch failed:', e);
@@ -1412,131 +1498,128 @@
     }
   }
 
-  function renderNBLCard(data) {
-    const card = document.getElementById('nbl-card');
-    if (!data) {
-      card.innerHTML = '<div class="sports-card-header">NBL</div><div style="position:relative;z-index:2;color:#888">No data</div>';
-      return;
-    }
+  // ── Renderers ────────────────────────────────────────────────────────────
 
-    const watermarkUrl = data.team1.logo || '';
-    const score1 = data.team1.score || '—';
-    const score2 = data.team2.score || '—';
-    const status = data.isLive ? 'LIVE' : data.status;
-    const period = data.period ? `Q${data.period}` : '';
-    const clock = data.clock ? `${data.clock}` : '';
-    const timeStr = [period, clock].filter(Boolean).join(' ');
-
-    card.innerHTML = `
-      <div class="sports-card-header">NBL ${data.isLive ? '<span style="color:#ff4444">●</span>' : ''}</div>
-      <div class="sports-watermark" style="background-image: url('${watermarkUrl}')"></div>
-      <div class="sports-logos">
-        <div class="sports-logo-group">
-          <div class="sports-logo" style="background-image: url('${data.team1.logo || ''}')"></div>
-          <div class="sports-team-name">${escapeHtml(data.team1.name)}</div>
-        </div>
-        <div class="sports-score">${score1}<br><span style="font-size:0.5em">${score2}</span></div>
-        <div class="sports-logo-group">
-          <div class="sports-logo" style="background-image: url('${data.team2.logo || ''}')"></div>
-          <div class="sports-team-name">${escapeHtml(data.team2.name)}</div>
-        </div>
-      </div>
-      <div class="sports-status">${status}${timeStr ? ' — ' + timeStr : ''}</div>
-      <div class="sports-venue">${escapeHtml(data.venue)}</div>
-      ${data.isLive ? '<div class="sports-live-dot"></div>' : ''}
-    `;
+  function logoStyle(url) {
+    return url ? `style="background-image: url('${url}')"` : '';
   }
 
-  function renderAFLCard(data) {
-    const card = document.getElementById('afl-card');
-    if (!data) {
-      card.innerHTML = '<div class="sports-card-header">AFL</div><div style="position:relative;z-index:2;color:#888">No data</div>';
-      return;
+  function emptyCard(label) {
+    return `<div class="sports-card-header"><span>${label}</span></div>
+            <div class="sports-empty">No data</div>`;
+  }
+
+  function renderTeamGameCard(card, label, data) {
+    if (!data) { card.innerHTML = emptyCard(label); return; }
+
+    const liveDot = data.isLive ? '<span class="sports-live-dot"></span>' : '';
+    const homeScore = data.home.score ?? '—';
+    const awayScore = data.away.score ?? '—';
+
+    let winProbHtml = '';
+    if (data.isLive && data.homeWinPct != null && data.awayWinPct != null) {
+      const homePct = Math.round(data.homeWinPct * 100);
+      const awayPct = 100 - homePct;
+      winProbHtml = `
+        <div class="sports-winprob">
+          <div class="sports-winprob-bar">
+            <div class="sports-winprob-fill-a" style="width: ${awayPct}%"></div>
+            <div class="sports-winprob-fill-b" style="width: ${homePct}%"></div>
+          </div>
+          <div class="sports-winprob-labels">
+            <span>${escapeHtml(data.away.name)} ${awayPct}%</span>
+            <span>${homePct}% ${escapeHtml(data.home.name)}</span>
+          </div>
+        </div>`;
     }
 
-    const watermarkUrl = data.team1.logo || '';
-    const score1 = data.team1.score || '—';
-    const score2 = data.team2.score || '—';
-    const status = data.isLive ? 'LIVE' : data.status;
-    const period = data.period ? `Q${data.period}` : '';
-    const clock = data.clock ? `${data.clock}` : '';
-    const timeStr = [period, clock].filter(Boolean).join(' ');
+    const lastPlayHtml = (data.isLive && data.lastPlay)
+      ? `<div class="sports-lastplay">${escapeHtml(data.lastPlay)}</div>`
+      : '';
+
+    const metaHtml = (data.venueName || data.network) ? `
+      <div class="sports-meta-row">
+        <div class="sports-venue-block">
+          <div class="sports-venue-name">${escapeHtml(data.venueName)}</div>
+          <div class="sports-venue-city">${escapeHtml(data.venueCity)}</div>
+        </div>
+        ${data.network ? `<div class="sports-network">${escapeHtml(data.network)}</div>` : ''}
+      </div>` : '';
 
     card.innerHTML = `
-      <div class="sports-card-header">AFL ${data.isLive ? '<span style="color:#ff4444">●</span>' : ''}</div>
-      <div class="sports-watermark" style="background-image: url('${watermarkUrl}')"></div>
-      <div class="sports-logos">
-        <div class="sports-logo-group">
-          <div class="sports-logo" style="background-image: url('${data.team1.logo || ''}')"></div>
-          <div class="sports-team-name">${escapeHtml(data.team1.name)}</div>
+      <div class="sports-card-header">
+        <span>${label}${liveDot}</span>
+        <span>${escapeHtml(data.statusText)}</span>
+      </div>
+      <div class="sports-teams-row">
+        <div class="sports-team-block">
+          <div class="sports-logo" ${logoStyle(data.away.logo)}></div>
+          <div class="sports-team-name">${escapeHtml(data.away.name)}</div>
+          ${data.away.record ? `<div class="sports-team-record">${escapeHtml(data.away.record)}</div>` : ''}
         </div>
-        <div class="sports-score">${score1}<br><span style="font-size:0.5em">${score2}</span></div>
-        <div class="sports-logo-group">
-          <div class="sports-logo" style="background-image: url('${data.team2.logo || ''}')"></div>
-          <div class="sports-team-name">${escapeHtml(data.team2.name)}</div>
+        <div class="sports-score-center">${escapeHtml(String(awayScore))} - ${escapeHtml(String(homeScore))}</div>
+        <div class="sports-team-block">
+          <div class="sports-logo" ${logoStyle(data.home.logo)}></div>
+          <div class="sports-team-name">${escapeHtml(data.home.name)}</div>
+          ${data.home.record ? `<div class="sports-team-record">${escapeHtml(data.home.record)}</div>` : ''}
         </div>
       </div>
-      <div class="sports-status">${status}${timeStr ? ' — ' + timeStr : ''}</div>
-      <div class="sports-venue">${escapeHtml(data.venue)}</div>
-      ${data.isLive ? '<div class="sports-live-dot"></div>' : ''}
+      ${metaHtml}
+      ${lastPlayHtml}
+      ${winProbHtml}
     `;
   }
 
   function renderF1Card(data) {
     const card = document.getElementById('f1-card');
-    if (!data) {
-      card.innerHTML = '<div class="sports-card-header">F1</div><div style="position:relative;z-index:2;color:#888">No data</div>';
-      return;
+    if (!data) { card.innerHTML = emptyCard('F1'); return; }
+
+    const now = new Date();
+    const msUntil = data.date - now;
+    let countdown;
+    if (msUntil < 0) {
+      countdown = 'Race in progress or just finished';
+    } else {
+      const totalH = Math.floor(msUntil / 3600000);
+      const days   = Math.floor(totalH / 24);
+      const hours  = totalH % 24;
+      countdown = days > 0 ? `Starts in ${days}d ${hours}h` : `Starts in ${hours}h`;
     }
 
-    const raceDate = data.perthTime;
-    const now = new Date();
-    const hoursUntil = Math.round((raceDate - now) / 3600000);
-    const daysUntil = Math.floor(hoursUntil / 24);
-    const timeStr = daysUntil > 0 ? `${daysUntil}d ${hoursUntil % 24}h` : `${hoursUntil}h`;
-
-    const raceTime = raceDate.toLocaleString('en-AU', {
-      month: 'short',
+    const raceTime = data.date.toLocaleString('en-AU', {
+      weekday: 'short',
       day: 'numeric',
+      month: 'short',
       hour: '2-digit',
       minute: '2-digit',
+      hour12: false,
       timeZone: 'Australia/Perth',
     });
 
     card.innerHTML = `
-      <div class="sports-card-header">F1</div>
-      <div class="sports-watermark"></div>
-      <div style="position: relative; z-index: 2; display: flex; flex-direction: column; gap: 12px; flex: 1;">
-        <div style="text-align: center; font-size: 1.1rem; font-weight: 700;">${escapeHtml(data.raceName)}</div>
-        <div style="text-align: center; font-size: 0.8rem; color: #aaa;">
-          ${escapeHtml(data.circuit)} • ${escapeHtml(data.country)}
-        </div>
-        <div style="text-align: center; font-size: 1.4rem; font-weight: 800; color: #ff4444;">
-          ${raceTime} AWST
-        </div>
-        <div style="text-align: center; font-size: 0.75rem; color: #aaa;">
-          Starts in ${timeStr}
-        </div>
-        ${data.leader ? `
-          <div style="border-top: 1px solid #333; padding-top: 8px; text-align: center; font-size: 0.75rem;">
-            <div style="color: #888; margin-bottom: 4px;">Leader</div>
-            <div style="font-weight: 700;">${escapeHtml(data.leader.name)}</div>
-            <div style="font-size: 0.7rem; color: #aaa;">${data.leader.points} pts</div>
-          </div>
-        ` : ''}
-      </div>
+      <div class="sports-card-header"><span>F1</span><span>Next Race</span></div>
+      <div class="sports-f1-race">${escapeHtml(data.raceName)}</div>
+      <div class="sports-f1-circuit">${escapeHtml(data.circuit)}${data.country ? ' • ' + escapeHtml(data.country) : ''}</div>
+      <div class="sports-f1-time">${raceTime} AWST</div>
+      <div class="sports-f1-countdown">${countdown}</div>
+      ${data.leader ? `
+        <div class="sports-f1-leader">
+          <div class="sports-f1-leader-label">Championship Leader</div>
+          <div class="sports-f1-leader-name">${escapeHtml(data.leader.name)}</div>
+          <div class="sports-f1-leader-points">${escapeHtml(data.leader.points)} pts${data.leader.team ? ' • ' + escapeHtml(data.leader.team) : ''}</div>
+        </div>` : ''}
     `;
   }
 
   async function refreshSports() {
-    const [nblData, aflData, f1Data] = await Promise.all([
+    const [nbl, afl, f1] = await Promise.all([
       fetchNBLData(),
       fetchAFLData(),
       fetchF1Data(),
     ]);
-    renderNBLCard(nblData);
-    renderAFLCard(aflData);
-    renderF1Card(f1Data);
+    renderTeamGameCard(document.getElementById('nbl-card'), 'NBL', nbl);
+    renderTeamGameCard(document.getElementById('afl-card'), 'AFL', afl);
+    renderF1Card(f1);
   }
 
   refreshSports();
