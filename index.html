@@ -262,7 +262,12 @@
     #events-list {
       flex: 1;
       min-height: 0;
+      overflow-y: auto;
+      padding-right: 4px;
     }
+    #events-list::-webkit-scrollbar { width: 6px; }
+    #events-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    #events-list::-webkit-scrollbar-track { background: transparent; }
 
     /* ── View toggle tabs ── */
     .view-tabs {
@@ -1081,32 +1086,33 @@
     const expanded  = [];
 
     for (const ev of baseEvents) {
-      if (!ev.rrule) {
-        // Non-recurring — include as-is
-        expanded.push({ ...ev, feed });
-        continue;
-      }
-
-      // Expand recurrences within the 30-day window
-      const duration = ev.end ? (ev.end - ev.start) : 0;
-      const instances = expandRRule(ev.rrule, ev.start, ev.allDay, winStart, winEnd, ev.exdates);
-      const uidOverrides = overrides[ev.uid] || [];
-
-      for (const occStart of instances) {
-        // Check if this occurrence is overridden by a RECURRENCE-ID instance
-        const overrideMatch = uidOverrides.find(o => {
-          const rid = parseICalDate(o.recurrenceId, /^\d{8}$/.test(o.recurrenceId));
-          return rid && Math.abs(rid - occStart) < 86400000;
-        });
-        if (overrideMatch) {
-          // Use the override's data instead
-          if (overrideMatch.start >= winStart && overrideMatch.start < winEnd) {
-            expanded.push({ ...ev, ...overrideMatch, feed, exdates: [] });
-          }
-        } else {
-          const occEnd = duration ? new Date(occStart.getTime() + duration) : null;
-          expanded.push({ ...ev, start: occStart, end: occEnd, feed });
+      try {
+        if (!ev.rrule) {
+          expanded.push({ ...ev, feed });
+          continue;
         }
+        const duration  = ev.end ? (ev.end - ev.start) : 0;
+        const instances = expandRRule(ev.rrule, ev.start, ev.allDay, winStart, winEnd, ev.exdates);
+        const uidOverrides = overrides[ev.uid] || [];
+
+        for (const occStart of instances) {
+          const overrideMatch = uidOverrides.find(o => {
+            const rid = parseICalDate(o.recurrenceId, /^\d{8}$/.test(o.recurrenceId));
+            return rid && Math.abs(rid - occStart) < 86400000;
+          });
+          if (overrideMatch) {
+            if (overrideMatch.start >= winStart && overrideMatch.start < winEnd) {
+              expanded.push({ ...ev, ...overrideMatch, feed, exdates: [] });
+            }
+          } else {
+            const occEnd = duration ? new Date(occStart.getTime() + duration) : null;
+            expanded.push({ ...ev, start: occStart, end: occEnd, feed });
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to expand event:', ev.summary, err);
+        // Fall back to single occurrence so a bad RRULE doesn't lose the event entirely
+        if (ev.start >= winStart && ev.start < winEnd) expanded.push({ ...ev, feed });
       }
     }
 
@@ -1133,13 +1139,36 @@
     const interval = params.INTERVAL ? +params.INTERVAL : 1;
 
     const occurrences = [];
-    let cur = new Date(dtstart);
-    let n   = 0;
+    let cur  = new Date(dtstart);
+    let n    = 0;
+    let iter = 0;
+    const MAX_ITER = 1000;
 
-    // Safety: stop after 2 years or 500 iterations
+    // Stop searching after a year past the window
     const hardLimit = new Date(winEnd.getTime() + 366 * 86400000);
 
-    while (n < count) {
+    // If dtstart is far in the past, fast-forward cur to near the window start
+    // to avoid iterating thousands of past occurrences for old recurring events.
+    if (freq === 'DAILY' && cur < winStart) {
+      const daysBehind = Math.floor((winStart - cur) / 86400000);
+      const skipUnits  = Math.floor(daysBehind / interval);
+      cur.setDate(cur.getDate() + skipUnits * interval);
+    } else if (freq === 'WEEKLY' && cur < winStart) {
+      const weeksBehind = Math.floor((winStart - cur) / (7 * 86400000));
+      const skipUnits   = Math.floor(weeksBehind / interval);
+      cur.setDate(cur.getDate() + skipUnits * 7 * interval);
+    } else if (freq === 'MONTHLY' && cur < winStart) {
+      const monthsBehind = (winStart.getFullYear() - cur.getFullYear()) * 12 + (winStart.getMonth() - cur.getMonth());
+      const skipUnits    = Math.max(0, Math.floor(monthsBehind / interval) - 1);
+      cur.setMonth(cur.getMonth() + skipUnits * interval);
+    } else if (freq === 'YEARLY' && cur < winStart) {
+      const yearsBehind = winStart.getFullYear() - cur.getFullYear();
+      const skipUnits   = Math.max(0, yearsBehind - 1);
+      cur.setFullYear(cur.getFullYear() + skipUnits * interval);
+    }
+
+    while (n < count && iter < MAX_ITER) {
+      iter++;
       if (until && cur > until) break;
       if (cur > hardLimit) break;
 
@@ -1227,12 +1256,19 @@
     const tomorrowStart = new Date(todayStart.getTime() + 86400000);
     const cutoff        = new Date(todayStart.getTime() + 30 * 86400000);
 
+    const seen = new Set();
     const visible = events
       .filter(ev => {
         const end = ev.end || ev.start;
-        return end >= todayStart && ev.start < cutoff;
+        if (end < todayStart || ev.start >= cutoff) return false;
+        // Dedup events that share the same UID + start time (recurring overlaps)
+        const key = (ev.uid || ev.summary) + '|' + ev.start.getTime();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
       })
-      .sort((a, b) => a.start - b.start);
+      .sort((a, b) => a.start - b.start)
+      .slice(0, 20);
 
     const list = document.getElementById('events-list');
     if (!visible.length) {
