@@ -299,41 +299,6 @@
       margin: 8px 0 3px;
     }
 
-    /* ── Fuel prices widget ── */
-    .fuel-row {
-      display: grid;
-      grid-template-columns: 44px 50px 1fr;
-      align-items: baseline;
-      gap: 6px;
-      padding: 5px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.82rem;
-    }
-    .fuel-row:last-child { border-bottom: none; }
-    .fuel-type {
-      font-size: 0.62rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-    .fuel-price-best {
-      font-size: 0.98rem;
-      font-weight: 800;
-      color: #5cb85c;
-    }
-    .fuel-price-other {
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-    .fuel-station {
-      font-size: 0.72rem;
-      color: var(--muted);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
     /* ── Calendar area (right side) ── */
     .calendar-area {
       padding: 24px 28px;
@@ -693,12 +658,6 @@
       </div>
     </div>
 
-    <!-- Fuel Prices -->
-    <div>
-      <div class="card-title">Fuel Prices <span style="font-size:0.62rem;color:var(--muted);font-weight:600">cheapest within 20km</span></div>
-      <div id="fuel-widget"><span style="color:var(--muted);font-size:0.8rem">Loading...</span></div>
-    </div>
-
     <!-- Traffic Widget -->
     <div>
       <div class="card-title">Traffic</div>
@@ -897,94 +856,6 @@
 
   fetchTraffic();
   setInterval(fetchTraffic, 5 * 60 * 1000);
-
-  // ── Fuel prices (FuelWatch WA — free, no API key) ────────────────────────
-  async function fetchFuelPrices() {
-    const container = document.getElementById('fuel-widget');
-    try {
-      const base = 'https://www.fuelwatch.wa.gov.au/fuelwatch/fuelWatchRSS';
-
-      // Try proxies in order until one returns valid RSS
-      const proxies = [
-        u => 'https://corsproxy.io/?' + encodeURIComponent(u),
-        u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
-        u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
-      ];
-
-      const fetchText = async (url) => {
-        for (const makeProxy of proxies) {
-          try {
-            const res = await fetch(makeProxy(url), { signal: AbortSignal.timeout(8000) });
-            if (!res.ok) continue;
-            const text = await res.text();
-            if (text.includes('<item>')) return text;   // valid RSS
-          } catch (_) {}
-        }
-        return null;
-      };
-
-      // Regex parser — more reliable than DOMParser for namespaced FuelWatch XML
-      const parseStations = (xml) => {
-        if (!xml) return [];
-        const items = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)];
-        // More permissive: match any chars before/after the tag name (handles namespace prefixes)
-        const val = (block, tag) => {
-          const m = block.match(new RegExp(`<[^>]*${tag}[^>]*>([^<]*)`, 'i'));
-          return m ? m[1].trim() : '';
-        };
-        return items.map(([, block]) => {
-          // Title fallback strips the "price: " prefix FuelWatch includes e.g. "239.9: BP Joondalup"
-          const titleRaw = val(block, 'title').replace(/^\d[\d.]*\s*:\s*/, '').trim();
-          return {
-            name:   val(block, 'TradingName') || titleRaw || '?',
-            suburb: val(block, 'Suburb'),
-            price:  parseFloat(val(block, 'Price') || '0'),
-          };
-        }).filter(s => s.price > 0);
-      };
-
-      const merge = (...lists) => {
-        const seen = new Set();
-        return lists.flat().filter(s => {
-          const key = `${s.name}|${s.suburb}`;
-          if (seen.has(key)) return false;
-          seen.add(key);
-          return true;
-        }).sort((a, b) => a.price - b.price);
-      };
-
-      // Joondalup (~5km) + Clarkson (~8km N) with Surrounding=Y → ~20km radius
-      // Product 1 = ULP 91, Product 10 = Premium 95
-      const [ulpJText, ulpCText, p95JText, p95CText] = await Promise.all([
-        fetchText(`${base}?Suburb=Joondalup&Product=1&Surrounding=Y`),
-        fetchText(`${base}?Suburb=Clarkson&Product=1&Surrounding=Y`),
-        fetchText(`${base}?Suburb=Joondalup&Product=10&Surrounding=Y`),
-        fetchText(`${base}?Suburb=Clarkson&Product=10&Surrounding=Y`),
-      ]);
-
-      const ulp = merge(parseStations(ulpJText), parseStations(ulpCText));
-      const p95 = merge(parseStations(p95JText), parseStations(p95CText));
-
-      const renderFuelRows = (stations, label) => {
-        if (!stations.length) return '';
-        return stations.slice(0, 3).map((s, idx) => `
-          <div class="fuel-row">
-            <span class="fuel-type">${idx === 0 ? label : ''}</span>
-            <span class="${idx === 0 ? 'fuel-price-best' : 'fuel-price-other'}">${s.price.toFixed(1)}¢</span>
-            <span class="fuel-station">${escapeHtml(s.name)}, ${escapeHtml(s.suburb)}</span>
-          </div>`).join('');
-      };
-
-      const html = renderFuelRows(ulp, 'ULP 91') + renderFuelRows(p95, 'ULP 95');
-      container.innerHTML = html || '<span style="color:var(--muted);font-size:0.8rem">No data</span>';
-    } catch (e) {
-      console.warn('Fuel fetch failed:', e);
-      container.innerHTML = '<span style="color:var(--muted);font-size:0.8rem">Unavailable</span>';
-    }
-  }
-
-  fetchFuelPrices();
-  setInterval(fetchFuelPrices, 30 * 60 * 1000); // FuelWatch updates once daily; 30-min refresh is plenty
 
   // ── State ──
   let tokenClient = null;
