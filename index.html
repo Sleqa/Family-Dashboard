@@ -439,6 +439,16 @@
       flex-shrink: 0;
     }
     .event-content { flex: 1; }
+    .event-day-label {
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .event-personal .event-day-label { color: var(--blue); }
+    .event-family   .event-day-label { color: var(--red);  }
     .event-title {
       font-size: 0.95rem;
       font-weight: 700;
@@ -636,12 +646,7 @@
     <div class="logo">Weldon<span>Hub</span></div>
     <div class="header-date" id="header-date">Thursday, March 19</div>
   </div>
-  <div class="header-right">
-    <button class="google-btn" id="google-btn" onclick="handleGoogleAuth()">
-      <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#34A853" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#FBBC05" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-      <span id="google-btn-text">Sign in with Google</span>
-    </button>
-  </div>
+  <div class="header-right"></div>
 </div>
 
 <!-- ════════ MAIN LAYOUT ════════ -->
@@ -717,46 +722,14 @@
   <div class="calendar-area">
 
     <div class="schedule-header">
-      <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
-        <div class="schedule-title" id="schedule-title">Upcoming</div>
-        <div class="month-nav" id="month-nav" style="display: none;">
-          <button class="month-nav-btn" id="month-prev" onclick="changeMonth(-1)">&#8249;</button>
-          <span class="month-nav-label" id="month-nav-label"></span>
-          <button class="month-nav-btn" id="month-next" onclick="changeMonth(1)">&#8250;</button>
-        </div>
-      </div>
-      <div class="view-tabs">
-        <button class="view-tab active" data-view="schedule">Schedule</button>
-        <button class="view-tab" data-view="week">Week</button>
-        <button class="view-tab" data-view="month">Month</button>
-      </div>
+      <div class="schedule-title">Schedule</div>
     </div>
 
-    <!-- Calendar content -->
     <div id="calendar-content">
-      <!-- Show connect prompt if not signed in -->
-      <div class="cal-connect-prompt" id="cal-connect-prompt">
-        <div class="icon">📅</div>
-        <h3>Connect Your Google Calendar</h3>
-        <p>
-          Sign in with Google to sync your family's calendars. Events will appear here
-          with color-coded labels for each family member.
-        </p>
-        <p style="font-size: 0.8rem; margin-top: 8px;">
-          To enable this feature, you need a Google Cloud OAuth Client ID.<br />
-          Set your Client ID in the <code>GOOGLE_CLIENT_ID</code> variable in this file.
-        </p>
-        <button class="google-btn" onclick="handleGoogleAuth()" style="margin-top: 8px;">
-          <svg viewBox="0 0 48 48" width="18" height="18"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#34A853" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#FBBC05" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-          <span>Connect Google Calendar</span>
-        </button>
-      </div>
-
-      <!-- Events list (shown when signed in) -->
-      <div id="events-container" style="display: none;">
+      <div id="events-container" style="display: flex;">
         <div class="loading" id="events-loading">
           <div class="spinner"></div>
-          Fetching your events...
+          Loading calendars...
         </div>
         <div id="events-list"></div>
       </div>
@@ -767,37 +740,24 @@
 
 <script>
   // ════════════════════════════════════════════════════════════
-  // CONFIGURATION — Replace with your Google Cloud OAuth Client ID
+  // iCal Calendar Feeds — direct fetch + parse, no OAuth, no popups
   // ════════════════════════════════════════════════════════════
-  // 1. Go to https://console.cloud.google.com/
-  // 2. Create a project (or select existing)
-  // 3. Enable "Google Calendar API"
-  // 4. Go to Credentials → Create Credentials → OAuth 2.0 Client ID
-  // 5. Set Application type to "Web application"
-  // 6. Add your domain to Authorized JavaScript origins
-  // 7. Copy the Client ID and paste it below
-  // ════════════════════════════════════════════════════════════
-  const GOOGLE_CLIENT_ID = '889041336637-gt0h8kqjdbf6qilqfrn50rph92paof1i.apps.googleusercontent.com';
-  const CALENDAR_SCOPES  = 'https://www.googleapis.com/auth/calendar.readonly';
-
-  // ── iCloud / iCal Calendars ──────────────────────────────────────────────
-  // Add public iCloud calendar links here (no Google sign-in required).
-  //
-  // How to get your iCloud calendar URL:
-  //   1. Open Calendar on Mac or iCloud.com
-  //   2. Right-click (or ctrl-click) the calendar → Share Calendar
-  //   3. Enable "Public Calendar" and copy the webcal:// link
-  //   4. Paste it below as the url value
-  //
-  // Example:
-  //   { url: 'webcal://p01-caldav.icloud.com/published/2/ABC123...', name: 'Sarah', color: '#ec4899' },
-  // ─────────────────────────────────────────────────────────────────────────
-  const ICAL_CALENDARS = [
-    // { url: 'webcal://...', name: 'Person Name', color: '#hexcolor' },
+  // Routed through corsproxy.io because browsers block cross-origin iCal requests.
+  const CORS_PROXY = 'https://corsproxy.io/?';
+  const ICAL_FEEDS = [
+    {
+      name:  'Personal',
+      type:  'personal',
+      color: '#4a90d9',
+      url:   'https://calendar.google.com/calendar/ical/sleqamail%40gmail.com/private-0058b4cb80d75c4f598b7c3c5252e1e3/basic.ics',
+    },
+    {
+      name:  'Family',
+      type:  'family',
+      color: '#e74c5e',
+      url:   'https://calendar.google.com/calendar/ical/family15578277438172803939%40group.calendar.google.com/private-d51ecb438107614a12b31e81b25875bd/basic.ics',
+    },
   ];
-
-  // Event colors for calendars
-  const FAMILY_COLORS = ['#4a90d9', '#e74c5e', '#5cb85c', '#f5a623', '#8b5cf6', '#ec4899', '#14b8a6'];
 
   // ── Traffic (TomTom) ────────────────────────────────────────────────────
   // Free tier: https://developer.tomtom.com  →  My Apps → Create API Key
@@ -897,100 +857,6 @@
 
   fetchTraffic();
   setInterval(fetchTraffic, 5 * 60 * 1000);
-
-  // ── Fuel prices (FuelWatch WA — free, no API key) ────────────────────────
-  async function fetchFuelPrices() {
-    const container = document.getElementById('fuel-widget');
-    try {
-      const base = 'https://www.fuelwatch.wa.gov.au/fuelwatch/fuelWatchRSS';
-
-      // Try proxies in order until one returns valid RSS
-      const proxies = [
-        u => 'https://corsproxy.io/?' + encodeURIComponent(u),
-        u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
-        u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
-      ];
-
-      const fetchText = async (url) => {
-        for (const makeProxy of proxies) {
-          try {
-            const res = await fetch(makeProxy(url), { signal: AbortSignal.timeout(8000) });
-            if (!res.ok) continue;
-            const text = await res.text();
-            if (text.includes('<item>')) return text;   // valid RSS
-          } catch (_) {}
-        }
-        return null;
-      };
-
-      // Regex parser — more reliable than DOMParser for namespaced FuelWatch XML
-      const parseStations = (xml) => {
-        if (!xml) return [];
-        const items = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)];
-        // More permissive: match any chars before/after the tag name (handles namespace prefixes)
-        const val = (block, tag) => {
-          const m = block.match(new RegExp(`<[^>]*${tag}[^>]*>([^<]*)`, 'i'));
-          return m ? m[1].trim() : '';
-        };
-        return items.map(([, block]) => {
-          // Title fallback strips the "price: " prefix FuelWatch includes e.g. "239.9: BP Joondalup"
-          const titleRaw = val(block, 'title').replace(/^\d[\d.]*\s*:\s*/, '').trim();
-          return {
-            name:   val(block, 'TradingName') || titleRaw || '?',
-            suburb: val(block, 'Suburb'),
-            price:  parseFloat(val(block, 'Price') || '0'),
-          };
-        }).filter(s => s.price > 0);
-      };
-
-      const merge = (...lists) => {
-        const seen = new Set();
-        return lists.flat().filter(s => {
-          const key = `${s.name}|${s.suburb}`;
-          if (seen.has(key)) return false;
-          seen.add(key);
-          return true;
-        }).sort((a, b) => a.price - b.price);
-      };
-
-      // Joondalup (~5km) + Clarkson (~8km N) with Surrounding=Y → ~20km radius
-      // Product 1 = ULP 91, Product 10 = Premium 95
-      const [ulpJText, ulpCText, p95JText, p95CText] = await Promise.all([
-        fetchText(`${base}?Suburb=Joondalup&Product=1&Surrounding=Y`),
-        fetchText(`${base}?Suburb=Clarkson&Product=1&Surrounding=Y`),
-        fetchText(`${base}?Suburb=Joondalup&Product=10&Surrounding=Y`),
-        fetchText(`${base}?Suburb=Clarkson&Product=10&Surrounding=Y`),
-      ]);
-
-      const ulp = merge(parseStations(ulpJText), parseStations(ulpCText));
-      const p95 = merge(parseStations(p95JText), parseStations(p95CText));
-
-      const renderFuelRows = (stations, label) => {
-        if (!stations.length) return '';
-        return stations.slice(0, 3).map((s, idx) => `
-          <div class="fuel-row">
-            <span class="fuel-type">${idx === 0 ? label : ''}</span>
-            <span class="${idx === 0 ? 'fuel-price-best' : 'fuel-price-other'}">${s.price.toFixed(1)}¢</span>
-            <span class="fuel-station">${escapeHtml(s.name)}, ${escapeHtml(s.suburb)}</span>
-          </div>`).join('');
-      };
-
-      const html = renderFuelRows(ulp, 'ULP 91') + renderFuelRows(p95, 'ULP 95');
-      container.innerHTML = html || '<span style="color:var(--muted);font-size:0.8rem">No data</span>';
-    } catch (e) {
-      console.warn('Fuel fetch failed:', e);
-      container.innerHTML = '<span style="color:var(--muted);font-size:0.8rem">Unavailable</span>';
-    }
-  }
-
-  fetchFuelPrices();
-  setInterval(fetchFuelPrices, 30 * 60 * 1000); // FuelWatch updates once daily; 30-min refresh is plenty
-
-  // ── State ──
-  let tokenClient = null;
-  let accessToken  = null;
-  let calendarEvents = [];
-  let calendarOwners = new Map();
 
   // ── Clock & Date ──
   const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -1107,506 +973,178 @@
   }
   showWordOfDay();
 
-  // ── View tabs ──
-  let currentView = 'schedule';
-  let monthOffset  = 0;
+  // ════════════════════════════════════════════════════════════
+  // iCal feed loader & parser (RFC 5545)
+  // ════════════════════════════════════════════════════════════
 
-  document.querySelectorAll('.view-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      currentView = tab.dataset.view;
-      const titles = { schedule: 'Upcoming', week: 'This Week', month: '' };
-      document.getElementById('schedule-title').textContent = titles[currentView] ?? 'Upcoming';
-      const monthNav = document.getElementById('month-nav');
-      monthNav.style.display = currentView === 'month' ? 'flex' : 'none';
-      if (currentView === 'month') {
-        // Re-fetch so we get the full month range
-        refreshEvents();
-      } else {
-        renderEvents();
-      }
-    });
-  });
-
-  function changeMonth(delta) {
-    monthOffset += delta;
-    document.getElementById('month-prev').disabled = monthOffset <= 0;
-    refreshEvents();
-  }
-
-  async function refreshEvents() {
-    if (accessToken) {
-      await fetchCalendarEvents();
-    } else if (ICAL_CALENDARS.length) {
-      await loadICalOnly();
-    } else {
-      renderEvents();
-    }
-  }
-
-  // ══════════════════════════════════════════════════
-  // Google Calendar Integration
-  // ══════════════════════════════════════════════════
-
-  let gapiReady = false;
-
-  function gapiLoaded() {
-    gapi.load('client', async () => {
-      await gapi.client.load('https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest');
-      gapiReady = true;
-
-      const storedToken = localStorage.getItem('goog_token');
-      const storedExp   = Number(localStorage.getItem('goog_token_exp') || 0);
-
-      if (storedToken && storedExp > Date.now()) {
-        // Token still valid — restore immediately without any popup
-        accessToken = storedToken;
-        gapi.client.setToken({ access_token: accessToken });
-        updateSignInUI(true);
-        fetchCalendarEvents();
-        setInterval(fetchCalendarEvents, 15 * 60 * 1000);
-        // Schedule silent refresh 5 min before expiry.
-        // Wait until tokenClient is ready (gisLoaded may not have run yet).
-        const refreshIn = Math.max(0, storedExp - Date.now() - 300_000);
-        setTimeout(() => {
-          const doRefresh = () => tokenClient?.requestAccessToken({ prompt: '' });
-          if (tokenClient) doRefresh();
-          else { const t = setInterval(() => { if (tokenClient) { doRefresh(); clearInterval(t); } }, 500); }
-        }, refreshIn);
-      } else if (localStorage.getItem('goog_token')) {
-        // Token expired but user was previously signed in — try silent re-auth
-        localStorage.removeItem('goog_token');
-        localStorage.removeItem('goog_token_exp');
-        // Wait for GIS to be ready, then attempt silent request
-        const trySilent = () => {
-          if (tokenClient) tokenClient.requestAccessToken({ prompt: '' });
-        };
-        if (tokenClient) trySilent();
-        else setTimeout(trySilent, 2000);
-      } else if (accessToken) {
-        fetchCalendarEvents();
-      } else {
-        // No Google sign-in — still load iCal calendars if configured
-        loadICalOnly();
-      }
-    });
-  }
-
-  // Load and display iCal-only events (no Google auth needed)
-  async function loadICalOnly() {
-    if (!ICAL_CALENDARS.length) return;
-    document.getElementById('events-container').style.display = 'flex';
-    document.getElementById('cal-connect-prompt').style.display = 'none';
-    const loading = document.getElementById('events-loading');
-    loading.style.display = 'flex';
-    try {
-      const icalEvs = await fetchICalEvents();
-      icalEvs.forEach(ev => {
-        if (!calendarOwners.has(ev._calendarName)) {
-          calendarOwners.set(ev._calendarName, ev._calendarColor);
-        }
-      });
-      icalEvs.sort((a, b) => {
-        const aTime = new Date(a.start?.dateTime || a.start?.date);
-        const bTime = new Date(b.start?.dateTime || b.start?.date);
-        return aTime - bTime;
-      });
-      calendarEvents = icalEvs;
-      renderEvents();
-    } finally {
-      loading.style.display = 'none';
-    }
-  }
-
-  function initTokenClient() {
-    if (tokenClient) return tokenClient;
-    if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) return null;
-    try {
-      tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: GOOGLE_CLIENT_ID,
-        scope: CALENDAR_SCOPES,
-        callback: onTokenResponse,
-      });
-    } catch (e) {
-      console.error('initTokenClient failed:', e);
-    }
-    return tokenClient;
-  }
-
-  function gisLoaded() {
-    if (GOOGLE_CLIENT_ID === 'YOUR_CLIENT_ID_HERE') return;
-    initTokenClient();
-  }
-
-  function onTokenResponse(response) {
-    if (response.error) {
-      // Silent re-auth failed (no active Google session) — just stay signed out
-      if (response.error === 'interaction_required' || response.error === 'access_denied') return;
-      console.error('Auth error:', response);
-      alert('Sign-in failed: ' + (response.error_description || response.error));
-      return;
-    }
-    accessToken = response.access_token;
-    gapi.client.setToken({ access_token: accessToken });
-
-    // Persist token so we can silently restore it on next page load
-    const expiresAt = Date.now() + (response.expires_in ?? 3600) * 1000;
-    localStorage.setItem('goog_token', accessToken);
-    localStorage.setItem('goog_token_exp', expiresAt);
-
-    updateSignInUI(true);
-    if (gapiReady) {
-      fetchCalendarEvents();
-      setInterval(fetchCalendarEvents, 15 * 60 * 1000);
-    }
-
-    // Schedule a silent refresh 5 minutes before expiry
-    const refreshIn = ((response.expires_in ?? 3600) - 300) * 1000;
-    setTimeout(() => tokenClient?.requestAccessToken({ prompt: '' }), refreshIn);
-  }
-
-  async function handleGoogleAuth() {
-    if (accessToken) {
-      google.accounts.oauth2.revoke(accessToken, () => {
-        accessToken = null;
-        localStorage.removeItem('goog_token');
-        localStorage.removeItem('goog_token_exp');
-        calendarEvents = [];
-        updateSignInUI(false);
-        renderEvents();
-      });
-      return;
-    }
-
-    // Try to init on-demand in case the onload callback was missed
-    if (!tokenClient) initTokenClient();
-
-    // Wait up to 10 seconds for Google scripts to finish loading
-    if (!tokenClient) {
-      const btn = document.getElementById('google-btn');
-      const text = document.getElementById('google-btn-text');
-      const originalText = text.textContent;
-      text.textContent = 'Loading...';
-      btn.disabled = true;
-      let waited = 0;
-      while (!tokenClient && waited < 10000) {
-        await new Promise(r => setTimeout(r, 200));
-        initTokenClient();
-        waited += 200;
-      }
-      btn.disabled = false;
-      text.textContent = originalText;
-      if (!tokenClient) {
-        alert('Google Sign-In could not load. This is usually caused by an ad blocker or browser extension blocking accounts.google.com. Please disable it for this page and refresh.');
-        return;
-      }
-    }
-    tokenClient.requestAccessToken();
-  }
-
-  function updateSignInUI(signedIn) {
-    const btn  = document.getElementById('google-btn');
-    const text = document.getElementById('google-btn-text');
-    const prompt   = document.getElementById('cal-connect-prompt');
-    const container = document.getElementById('events-container');
-
-    if (signedIn) {
-      btn.classList.add('signed-in');
-      text.textContent = 'Connected';
-      prompt.style.display = 'none';
-      container.style.display = 'flex';
-    } else {
-      btn.classList.remove('signed-in');
-      text.textContent = 'Sign in with Google';
-      prompt.style.display = '';
-      container.style.display = 'none';
-    }
-  }
-
-  async function fetchICalEvents() {
-    if (!ICAL_CALENDARS.length || typeof ICAL === 'undefined') return [];
-
-    const now = new Date();
-    let rangeStart, rangeEnd;
-    if (currentView === 'month') {
-      const dm = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
-      rangeStart = dm > now ? dm : now;
-      rangeEnd   = new Date(dm.getFullYear(), dm.getMonth() + 1, 0, 23, 59, 59);
-    } else {
-      rangeStart = now;
-      rangeEnd   = new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000);
-    }
-    const allEvents = [];
-
-    for (const [i, cal] of ICAL_CALENDARS.entries()) {
+  async function fetchAllEvents() {
+    const all = [];
+    await Promise.all(ICAL_FEEDS.map(async (feed) => {
       try {
-        const url    = cal.url.replace(/^webcal:\/\//, 'https://');
-        const proxy  = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
-        const res    = await fetch(proxy);
+        const res = await fetch(CORS_PROXY + encodeURIComponent(feed.url));
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        const icsText = await res.text();
-
-        const parsed  = ICAL.parse(icsText);
-        const comp    = new ICAL.Component(parsed);
-        const vevents = comp.getAllSubcomponents('vevent');
-
-        for (const vevent of vevents) {
-          try {
-            const ev     = new ICAL.Event(vevent);
-            const start  = ev.startDate.toJSDate();
-            const end    = ev.endDate ? ev.endDate.toJSDate() : start;
-            if (start > rangeEnd || end < rangeStart) continue;
-
-            const allDay = ev.startDate.isDate;
-            const color  = cal.color || FAMILY_COLORS[i % FAMILY_COLORS.length];
-            allEvents.push({
-              summary: ev.summary || '(No title)',
-              start: allDay ? { date: start.toISOString().slice(0, 10) }
-                            : { dateTime: start.toISOString() },
-              end:   allDay ? { date: end.toISOString().slice(0, 10) }
-                            : { dateTime: end.toISOString() },
-              _calendarName:  cal.name  || 'iCloud',
-              _calendarColor: color,
-              _source: 'ical',
-            });
-          } catch (_) { /* skip malformed event */ }
-        }
+        const text = await res.text();
+        all.push(...parseICal(text, feed));
       } catch (e) {
-        console.warn('Could not fetch iCal calendar:', cal.name, e);
+        console.warn('Could not load ' + feed.name + ' calendar:', e);
       }
-    }
-    return allEvents;
+    }));
+    return all;
   }
 
-  async function fetchCalendarEvents() {
-    const loading = document.getElementById('events-loading');
-    loading.style.display = 'flex';
+  function parseICal(text, feed) {
+    // RFC 5545 line unfolding: a CRLF followed by space or tab continues the previous line
+    const unfolded = text.replace(/\r?\n[ \t]/g, '');
+    const lines    = unfolded.split(/\r?\n/);
 
-    try {
-      // Fetch list of calendars
-      const calListRes = await gapi.client.calendar.calendarList.list();
-      const calendars  = calListRes.result.items || [];
+    const events = [];
+    let current  = null;
 
-      // Assign colors to calendar owners
-      calendarOwners.clear();
-      calendars.forEach((cal, i) => {
-        if (!calendarOwners.has(cal.summary)) {
-          calendarOwners.set(cal.summary, FAMILY_COLORS[i % FAMILY_COLORS.length]);
+    for (const line of lines) {
+      if (line === 'BEGIN:VEVENT') {
+        current = {};
+      } else if (line === 'END:VEVENT') {
+        if (current && current.start && current.summary) {
+          events.push({ ...current, feed });
         }
-      });
+        current = null;
+      } else if (current) {
+        const colonIdx = line.indexOf(':');
+        if (colonIdx === -1) continue;
+        const propPart = line.substring(0, colonIdx);
+        const value    = line.substring(colonIdx + 1);
+        const segments = propPart.split(';');
+        const propName = segments[0].toUpperCase();
+        const params   = segments.slice(1);
 
-      // Compute fetch range based on current view
-      const now = new Date();
-      let timeMin, timeMax;
-      if (currentView === 'month') {
-        const dm = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
-        timeMin  = (dm > now ? dm : now).toISOString();
-        timeMax  = new Date(dm.getFullYear(), dm.getMonth() + 1, 0, 23, 59, 59).toISOString();
-      } else {
-        timeMin = now.toISOString();
-        timeMax = new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000).toISOString();
-      }
-
-      const allEvents = [];
-      for (const cal of calendars) {
-        try {
-          const eventsRes = await gapi.client.calendar.events.list({
-            calendarId: cal.id,
-            timeMin,
-            timeMax,
-            singleEvents: true,
-            orderBy: 'startTime',
-            maxResults: 50,
-          });
-          const events = eventsRes.result.items || [];
-          events.forEach(ev => {
-            ev._calendarName  = cal.summary;
-            ev._calendarColor = calendarOwners.get(cal.summary) || FAMILY_COLORS[0];
-          });
-          allEvents.push(...events);
-        } catch (e) {
-          console.warn('Could not fetch events for', cal.summary, e);
+        if (propName === 'SUMMARY') {
+          current.summary = unescapeICal(value);
+        } else if (propName === 'DTSTART') {
+          const isDate = params.some(p => /VALUE=DATE\b/i.test(p)) || /^\d{8}$/.test(value);
+          current.start  = parseICalDate(value, isDate);
+          current.allDay = isDate;
+        } else if (propName === 'DTEND') {
+          const isDate = params.some(p => /VALUE=DATE\b/i.test(p)) || /^\d{8}$/.test(value);
+          current.end = parseICalDate(value, isDate);
         }
       }
-
-      // Merge in iCal events (iCloud etc.)
-      const icalEvs = await fetchICalEvents();
-      icalEvs.forEach(ev => {
-        if (!calendarOwners.has(ev._calendarName)) {
-          calendarOwners.set(ev._calendarName, ev._calendarColor);
-        }
-      });
-      allEvents.push(...icalEvs);
-
-      // Sort by start time
-      allEvents.sort((a, b) => {
-        const aTime = new Date(a.start?.dateTime || a.start?.date);
-        const bTime = new Date(b.start?.dateTime || b.start?.date);
-        return aTime - bTime;
-      });
-
-      calendarEvents = allEvents;
-      renderEvents();
-    } catch (e) {
-      console.error('Failed to fetch calendar:', e);
-      // If it looks like an auth error, try a silent token refresh instead of showing an error
-      const isAuthError = e?.status === 401 || e?.result?.error?.code === 401
-                       || String(e).includes('401') || String(e?.result?.error?.status).includes('UNAUTHENTICATED');
-      if (isAuthError && tokenClient) {
-        console.log('Token expired — attempting silent refresh');
-        tokenClient.requestAccessToken({ prompt: '' });
-        // Keep showing existing events while we refresh; don't replace with error
-      } else if (calendarEvents.length === 0) {
-        // Only show error if we have nothing to display
-        document.getElementById('events-list').innerHTML =
-          '<div class="no-events"><div class="icon">⚠️</div><p>Could not load calendar events</p></div>';
-      }
-      // If we already have events loaded, just keep showing them silently
-    } finally {
-      loading.style.display = 'none';
     }
+    return events;
   }
 
-  function renderEvents() {
-    if (currentView === 'month') {
-      renderMonthView();
+  function parseICalDate(value, isDate) {
+    if (isDate) {
+      // YYYYMMDD — local midnight
+      const y = +value.slice(0, 4);
+      const m = +value.slice(4, 6) - 1;
+      const d = +value.slice(6, 8);
+      return new Date(y, m, d);
+    }
+    // YYYYMMDDTHHmmss[Z]
+    const y   = +value.slice(0, 4);
+    const m   = +value.slice(4, 6) - 1;
+    const d   = +value.slice(6, 8);
+    const h   = +value.slice(9, 11);
+    const min = +value.slice(11, 13);
+    const s   = +value.slice(13, 15) || 0;
+    if (value.endsWith('Z')) return new Date(Date.UTC(y, m, d, h, min, s));
+    return new Date(y, m, d, h, min, s);
+  }
+
+  function unescapeICal(value) {
+    return value
+      .replace(/\\n/gi, '\n')
+      .replace(/\\,/g, ',')
+      .replace(/\\;/g, ';')
+      .replace(/\\\\/g, '\\');
+  }
+
+  // ── Render ───────────────────────────────────────────────────────────────
+  function renderEvents(events) {
+    const now           = new Date();
+    const todayStart    = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const tomorrowStart = new Date(todayStart.getTime() + 86400000);
+    const cutoff        = new Date(todayStart.getTime() + 30 * 86400000);
+
+    const visible = events
+      .filter(ev => {
+        const end = ev.end || ev.start;
+        return end >= todayStart && ev.start < cutoff;
+      })
+      .sort((a, b) => a.start - b.start);
+
+    const list = document.getElementById('events-list');
+    if (!visible.length) {
+      list.innerHTML = '<div class="no-events"><div class="icon">🎉</div><p>No upcoming events</p></div>';
       return;
     }
 
-    const container = document.getElementById('events-list');
-    let events = calendarEvents;
-
-    const now = new Date();
-    if (currentView === 'week') {
-      const weekEnd = new Date(now);
-      weekEnd.setDate(weekEnd.getDate() + 7);
-      events = events.filter(ev => {
-        const start = new Date(ev.start?.dateTime || ev.start?.date);
-        return start >= now && start <= weekEnd;
-      });
-    }
-
-    if (events.length === 0) {
-      container.innerHTML =
-        '<div class="no-events"><div class="icon">🎉</div><p>No upcoming events</p></div>';
-      return;
-    }
-
-    // Group by day
-    const grouped = {};
-    events.forEach(ev => {
-      const start = new Date(ev.start?.dateTime || ev.start?.date);
-      const key = start.toDateString();
-      if (!grouped[key]) grouped[key] = [];
-      grouped[key].push(ev);
-    });
+    const todayEvs    = visible.filter(ev => ev.start < tomorrowStart);
+    const upcomingEvs = visible.filter(ev => ev.start >= tomorrowStart);
 
     let html = '';
-    const today = new Date().toDateString();
-    const tomorrow = new Date(Date.now() + 86400000).toDateString();
-
-    for (const [dayKey, dayEvents] of Object.entries(grouped)) {
-      let label = dayKey;
-      if (dayKey === today) label = 'Today';
-      else if (dayKey === tomorrow) label = 'Tomorrow';
-      else {
-        const d = new Date(dayKey);
-        label = DAYS[d.getDay()] + ', ' + MONTHS[d.getMonth()] + ' ' + d.getDate();
-      }
-
-      html += `<div class="day-section"><div class="day-label">${label}</div><div class="event-list">`;
-
-      dayEvents.forEach(ev => {
-        const start = new Date(ev.start?.dateTime || ev.start?.date);
-        const end   = new Date(ev.end?.dateTime   || ev.end?.date);
-        const allDay = !ev.start?.dateTime;
-
-        let timeStr = 'All day';
-        if (!allDay) {
-          timeStr = formatTime(start) + ' – ' + formatTime(end);
-        }
-
-        const color = ev._calendarColor;
-        const tagBg = color + '18';
-
-        html += `
-          <div class="event-item">
-            <div class="event-color-bar" style="background: ${color}"></div>
-            <div class="event-content">
-              <div class="event-title">${escapeHtml(ev.summary || '(No title)')}</div>
-              <div class="event-time">${timeStr}</div>
-              <span class="event-tag" style="background: ${tagBg}; color: ${color}">
-                ${escapeHtml(ev._calendarName)}
-              </span>
-            </div>
-          </div>`;
-      });
-
-      html += '</div></div>';
+    if (todayEvs.length) {
+      html += `<div class="day-section"><div class="day-label">Today</div><div class="event-list">`;
+      todayEvs.forEach(ev => html += renderEvent(ev, 'TODAY'));
+      html += `</div></div>`;
     }
-
-    container.innerHTML = html;
+    if (upcomingEvs.length) {
+      html += `<div class="day-section"><div class="day-label">Upcoming</div><div class="event-list">`;
+      upcomingEvs.forEach(ev => html += renderEvent(ev, labelForDate(ev.start, todayStart)));
+      html += `</div></div>`;
+    }
+    list.innerHTML = html;
   }
 
-  function renderMonthView() {
-    const container = document.getElementById('events-list');
-    const now = new Date();
-    const dm  = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
-    const year  = dm.getFullYear();
-    const month = dm.getMonth();
-
-    // Update nav label and prev button
-    document.getElementById('month-nav-label').textContent = MONTHS[month] + ' ' + year;
-    document.getElementById('month-prev').disabled = monthOffset <= 0;
-
-    // Build event map: day-of-month → events[]
-    const events = calendarEvents;
-    const eventMap = {};
-    events.forEach(ev => {
-      const start = new Date(ev.start?.dateTime || ev.start?.date);
-      if (start.getFullYear() === year && start.getMonth() === month) {
-        const d = start.getDate();
-        if (!eventMap[d]) eventMap[d] = [];
-        eventMap[d].push(ev);
-      }
-    });
-
-    const firstDow  = new Date(year, month, 1).getDay();        // 0=Sun
-    const daysInMon = new Date(year, month + 1, 0).getDate();
-    const dayNames  = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-    let html = '<div class="month-grid">';
-    dayNames.forEach(d => { html += `<div class="month-day-header">${d}</div>`; });
-
-    // Leading padding
-    for (let i = 0; i < firstDow; i++) html += '<div class="month-day other-month"></div>';
-
-    for (let d = 1; d <= daysInMon; d++) {
-      const isToday = d === now.getDate() && month === now.getMonth() && year === now.getFullYear();
-      const dayEvs  = eventMap[d] || [];
-      html += `<div class="month-day${isToday ? ' today-cell' : ''}">`;
-      html += `<div class="month-day-num${isToday ? ' today-num' : ''}">${d}</div>`;
-      dayEvs.slice(0, 3).forEach(ev => {
-        html += `<div class="month-event-pill" style="background:${ev._calendarColor}">${escapeHtml(ev.summary || '(No title)')}</div>`;
-      });
-      if (dayEvs.length > 3) html += `<div class="month-more">+${dayEvs.length - 3} more</div>`;
-      html += '</div>';
-    }
-
-    // Trailing padding
-    const total = firstDow + daysInMon;
-    const trail = total % 7 === 0 ? 0 : 7 - (total % 7);
-    for (let i = 0; i < trail; i++) html += '<div class="month-day other-month"></div>';
-
-    html += '</div>';
-    container.innerHTML = html;
-
-    // Make each data row stretch equally to fill the available height
-    const numDataRows = Math.ceil((firstDow + daysInMon) / 7);
-    container.querySelector('.month-grid').style.gridTemplateRows =
-      `auto repeat(${numDataRows}, 1fr)`;
+  function labelForDate(date, todayStart) {
+    const tomorrowStart = new Date(todayStart.getTime() + 86400000);
+    const dStart        = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    if (dStart.getTime() === todayStart.getTime())    return 'TODAY';
+    if (dStart.getTime() === tomorrowStart.getTime()) return 'TOMORROW';
+    return DAYS[date.getDay()].slice(0, 3).toUpperCase()
+         + ' ' + date.getDate()
+         + ' ' + MONTHS[date.getMonth()].slice(0, 3).toUpperCase();
   }
+
+  function renderEvent(ev, dayLabel) {
+    const color = ev.feed.color;
+    const tagBg = color + '20';
+    let timeStr = 'All day';
+    if (!ev.allDay) {
+      timeStr = formatTime(ev.start);
+      if (ev.end && ev.end > ev.start) timeStr += ' – ' + formatTime(ev.end);
+    }
+    return `
+      <div class="event-item event-${ev.feed.type}">
+        <div class="event-color-bar" style="background: ${color}"></div>
+        <div class="event-content">
+          <div class="event-day-label">${dayLabel}</div>
+          <div class="event-title">${escapeHtml(ev.summary)}</div>
+          <div class="event-time">${timeStr}</div>
+          <span class="event-tag" style="background:${tagBg}; color:${color}">${escapeHtml(ev.feed.name)}</span>
+        </div>
+      </div>`;
+  }
+
+  async function refreshCalendar() {
+    const loading = document.getElementById('events-loading');
+    const list    = document.getElementById('events-list');
+    if (!list.innerHTML.trim()) loading.style.display = 'flex';
+    try {
+      const events = await fetchAllEvents();
+      renderEvents(events);
+    } catch (e) {
+      console.error('Calendar refresh failed:', e);
+      if (!list.innerHTML.trim()) {
+        list.innerHTML = '<div class="no-events"><div class="icon">⚠️</div><p>Could not load events</p></div>';
+      }
+    } finally {
+      loading.style.display = 'none';
+    }
+  }
+
+  refreshCalendar();
+  setInterval(refreshCalendar, 15 * 60 * 1000);
 
   function formatTime(d) {
     let h = d.getHours();
@@ -1624,8 +1162,5 @@
 
 </script>
 
-<script src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
-<script src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
-<script src="https://cdn.jsdelivr.net/npm/ical.js@2.0.1/build/ical.min.js"></script>
 </body>
 </html>
