@@ -574,6 +574,103 @@
         drop-shadow(0 0 0.6px rgba(255,255,255,0.95))
         drop-shadow(0 0 0.6px rgba(255,255,255,0.95));
     }
+    .sports-logo-sm {
+      width: 26px;
+      height: 26px;
+      object-fit: contain;
+      flex-shrink: 0;
+      filter:
+        drop-shadow(0 0 0.5px rgba(255,255,255,0.9))
+        drop-shadow(0 0 0.5px rgba(255,255,255,0.9));
+    }
+    /* compact game row (multi-game view) */
+    .sports-games-list { display: flex; flex-direction: column; }
+    .sports-game-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.76rem;
+    }
+    .sports-game-row:last-child { border-bottom: none; }
+    .sports-game-row.is-live .sports-game-status { color: var(--red); }
+    .sports-game-away {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      min-width: 0;
+    }
+    .sports-game-home {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 5px;
+      min-width: 0;
+    }
+    .sports-game-team-name {
+      font-weight: 700;
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .sports-game-scores {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 800;
+      font-size: 0.82rem;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .sports-game-sep { color: var(--muted); font-weight: 400; }
+    .sports-game-vs { color: var(--muted); font-size: 0.7rem; font-weight: 600; }
+    .sports-game-status {
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-align: right;
+      white-space: nowrap;
+      min-width: 0;
+    }
+    /* standings */
+    .sports-standings-list { display: flex; flex-direction: column; }
+    .sports-standing-row {
+      display: grid;
+      grid-template-columns: 18px 26px 1fr auto auto;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.74rem;
+    }
+    .sports-standing-row:last-child { border-bottom: none; }
+    .sports-standing-rank {
+      color: var(--muted);
+      font-weight: 700;
+      text-align: right;
+      font-size: 0.66rem;
+    }
+    .sports-standing-team {
+      font-weight: 700;
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .sports-standing-record {
+      color: var(--muted);
+      font-size: 0.68rem;
+      white-space: nowrap;
+    }
+    .sports-standing-pct {
+      color: var(--muted);
+      font-size: 0.66rem;
+      text-align: right;
+      white-space: nowrap;
+    }
     .sports-team-name {
       font-size: 0.72rem;
       font-weight: 700;
@@ -1412,25 +1509,46 @@
     };
   }
 
-  async function fetchEspnGame(sportPath, label) {
+  async function fetchLeagueData(sportPath, label) {
     try {
-      const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${sportPath}/scoreboard`);
-      if (!res.ok) return null;
-      const data = await res.json();
-      const events = data.events || [];
-      // Prefer a live game, then upcoming, then most recent (final)
-      const live     = events.find(e => e.competitions?.[0]?.status?.type?.state === 'in');
-      const upcoming = events.find(e => e.competitions?.[0]?.status?.type?.state === 'pre');
-      const event = live || upcoming || events[0];
-      return extractGameData(event, label);
+      const scoreRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${sportPath}/scoreboard`);
+      if (!scoreRes.ok) return { label, games: [], standings: null };
+      const scoreData = await scoreRes.json();
+      const events = scoreData.events || [];
+
+      if (events.length > 0) {
+        return { label, games: events.map(e => extractGameData(e, label)).filter(Boolean), standings: null };
+      }
+
+      // No games today — fetch standings ladder
+      const standRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${sportPath}/standings`);
+      if (!standRes.ok) return { label, games: [], standings: null };
+      const standData = await standRes.json();
+
+      const entries = [];
+      for (const conf of standData.children || [standData]) {
+        for (const entry of conf.standings?.entries || []) {
+          const stats = Object.fromEntries((entry.stats || []).map(s => [s.name, s]));
+          entries.push({
+            team:      entry.team || {},
+            wins:      +(stats.wins?.value ?? 0),
+            losses:    +(stats.losses?.value ?? 0),
+            pct:       +(stats.winPercent?.value ?? 0),
+            pctDisplay: stats.winPercent?.displayValue || '',
+          });
+        }
+      }
+      entries.sort((a, b) => b.pct - a.pct || b.wins - a.wins);
+
+      return { label, games: [], standings: entries.slice(0, 14) };
     } catch (e) {
       console.warn(label + ' fetch failed:', e);
-      return null;
+      return { label, games: [], standings: null };
     }
   }
 
-  async function fetchNBAData() { return fetchEspnGame('basketball/nba', 'NBA'); }
-  async function fetchAFLData() { return fetchEspnGame('australian-football/afl', 'AFL'); }
+  async function fetchNBAData() { return fetchLeagueData('basketball/nba', 'NBA'); }
+  async function fetchAFLData() { return fetchLeagueData('australian-football/afl', 'AFL'); }
 
   async function fetchF1Data() {
     try {
@@ -1482,65 +1600,79 @@
             <div class="sports-empty">No data</div>`;
   }
 
-  function renderTeamGameCard(card, label, data) {
-    if (!data) { card.innerHTML = emptyCard(label); return; }
+  function logoImgSm(url, name) {
+    return url
+      ? `<img src="${url}" class="sports-logo-sm" alt="${escapeHtml(name)}" />`
+      : `<div class="sports-logo-sm"></div>`;
+  }
 
-    const liveDot = data.isLive ? '<span class="sports-live-dot"></span>' : '';
-    const homeScore = data.home.score ?? '—';
-    const awayScore = data.away.score ?? '—';
+  function renderCompactGame(g) {
+    const liveDot   = g.isLive ? '<span class="sports-live-dot"></span>' : '';
+    const hasScore  = g.isLive || g.isFinal;
+    const awayScore = g.away.score ?? '';
+    const homeScore = g.home.score ?? '';
+    const scoresHtml = hasScore
+      ? `<div class="sports-game-scores">
+           <span>${escapeHtml(String(awayScore))}</span>
+           <span class="sports-game-sep">-</span>
+           <span>${escapeHtml(String(homeScore))}</span>
+         </div>`
+      : `<div class="sports-game-scores"><span class="sports-game-vs">vs</span></div>`;
 
-    let winProbHtml = '';
-    if (data.isLive && data.homeWinPct != null && data.awayWinPct != null) {
-      const homePct = Math.round(data.homeWinPct * 100);
-      const awayPct = 100 - homePct;
-      winProbHtml = `
-        <div class="sports-winprob">
-          <div class="sports-winprob-bar">
-            <div class="sports-winprob-fill-a" style="width: ${awayPct}%"></div>
-            <div class="sports-winprob-fill-b" style="width: ${homePct}%"></div>
-          </div>
-          <div class="sports-winprob-labels">
-            <span>${escapeHtml(data.away.name)} ${awayPct}%</span>
-            <span>${homePct}% ${escapeHtml(data.home.name)}</span>
-          </div>
-        </div>`;
+    return `
+      <div class="sports-game-row${g.isLive ? ' is-live' : ''}">
+        <div class="sports-game-away">
+          ${logoImgSm(g.away.logo, g.away.name)}
+          <span class="sports-game-team-name">${escapeHtml(g.away.name)}</span>
+        </div>
+        ${scoresHtml}
+        <div class="sports-game-home">
+          <span class="sports-game-team-name">${escapeHtml(g.home.name)}</span>
+          ${logoImgSm(g.home.logo, g.home.name)}
+        </div>
+        <div class="sports-game-status">${escapeHtml(g.statusText)}${liveDot}</div>
+      </div>`;
+  }
+
+  function renderStandingRow(s, rank) {
+    const logo = s.team?.logo
+      ? `<img src="${s.team.logo}" class="sports-logo-sm" alt="${escapeHtml(s.team.shortDisplayName || '')}" />`
+      : '<div class="sports-logo-sm"></div>';
+    return `
+      <div class="sports-standing-row">
+        <span class="sports-standing-rank">${rank}</span>
+        ${logo}
+        <span class="sports-standing-team">${escapeHtml(s.team?.shortDisplayName || s.team?.name || '')}</span>
+        <span class="sports-standing-record">${s.wins}-${s.losses}</span>
+        <span class="sports-standing-pct">${escapeHtml(s.pctDisplay)}</span>
+      </div>`;
+  }
+
+  function renderLeagueCard(cardEl, data) {
+    if (!data || (!data.games.length && !data.standings)) {
+      cardEl.innerHTML = emptyCard(data?.label || '');
+      return;
     }
+    const { label, games, standings } = data;
 
-    const lastPlayHtml = (data.isLive && data.lastPlay)
-      ? `<div class="sports-lastplay">${escapeHtml(data.lastPlay)}</div>`
-      : '';
-
-    const metaHtml = (data.venueName || data.network) ? `
-      <div class="sports-meta-row">
-        <div class="sports-venue-block">
-          <div class="sports-venue-name">${escapeHtml(data.venueName)}</div>
-          <div class="sports-venue-city">${escapeHtml(data.venueCity)}</div>
+    if (games.length > 0) {
+      const hasLive = games.some(g => g.isLive);
+      const liveDot = hasLive ? '<span class="sports-live-dot"></span>' : '';
+      const subtitle = `${games.length} game${games.length !== 1 ? 's' : ''} today`;
+      cardEl.innerHTML = `
+        <div class="sports-card-header">
+          <span>${label}${liveDot}</span>
+          <span>${subtitle}</span>
         </div>
-        ${data.network ? `<div class="sports-network">${escapeHtml(data.network)}</div>` : ''}
-      </div>` : '';
-
-    card.innerHTML = `
-      <div class="sports-card-header">
-        <span>${label}${liveDot}</span>
-        <span>${escapeHtml(data.statusText)}</span>
-      </div>
-      <div class="sports-teams-row">
-        <div class="sports-team-block">
-          ${logoImg(data.away.logo, data.away.name)}
-          <div class="sports-team-name">${escapeHtml(data.away.name)}</div>
-          ${data.away.record ? `<div class="sports-team-record">${escapeHtml(data.away.record)}</div>` : ''}
+        <div class="sports-games-list">${games.map(g => renderCompactGame(g)).join('')}</div>`;
+    } else {
+      cardEl.innerHTML = `
+        <div class="sports-card-header">
+          <span>${label}</span>
+          <span>Standings</span>
         </div>
-        <div class="sports-score-center">${escapeHtml(String(awayScore))} - ${escapeHtml(String(homeScore))}</div>
-        <div class="sports-team-block">
-          ${logoImg(data.home.logo, data.home.name)}
-          <div class="sports-team-name">${escapeHtml(data.home.name)}</div>
-          ${data.home.record ? `<div class="sports-team-record">${escapeHtml(data.home.record)}</div>` : ''}
-        </div>
-      </div>
-      ${metaHtml}
-      ${lastPlayHtml}
-      ${winProbHtml}
-    `;
+        <div class="sports-standings-list">${standings.map((s, i) => renderStandingRow(s, i + 1)).join('')}</div>`;
+    }
   }
 
   function renderF1Card(data) {
@@ -1590,8 +1722,8 @@
       fetchAFLData(),
       fetchF1Data(),
     ]);
-    renderTeamGameCard(document.getElementById('nba-card'), 'NBA', nba);
-    renderTeamGameCard(document.getElementById('afl-card'), 'AFL', afl);
+    renderLeagueCard(document.getElementById('nba-card'), nba);
+    renderLeagueCard(document.getElementById('afl-card'), afl);
     renderF1Card(f1);
   }
 
