@@ -583,14 +583,15 @@
         drop-shadow(0 0 0.5px rgba(255,255,255,0.9))
         drop-shadow(0 0 0.5px rgba(255,255,255,0.9));
     }
-    /* compact game row (multi-game view) */
+    /* compact game row (multi-game view, logos only) */
     .sports-games-list { display: flex; flex-direction: column; }
     .sports-game-row {
       display: grid;
-      grid-template-columns: 1fr auto 1fr auto;
+      grid-template-columns: auto auto auto auto;
       align-items: center;
+      justify-content: space-between;
       gap: 6px;
-      padding: 7px 0;
+      padding: 6px 0;
       border-bottom: 1px solid var(--border);
       font-size: 0.76rem;
     }
@@ -599,22 +600,11 @@
     .sports-game-away {
       display: flex;
       align-items: center;
-      gap: 5px;
-      min-width: 0;
     }
     .sports-game-home {
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      gap: 5px;
-      min-width: 0;
-    }
-    .sports-game-team-name {
-      font-weight: 700;
-      color: var(--text);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
     }
     .sports-game-scores {
       display: flex;
@@ -635,11 +625,11 @@
       white-space: nowrap;
       min-width: 0;
     }
-    /* standings */
+    /* standings (logos only, no team name text) */
     .sports-standings-list { display: flex; flex-direction: column; }
     .sports-standing-row {
       display: grid;
-      grid-template-columns: 18px 26px 1fr auto auto;
+      grid-template-columns: 18px 26px auto auto;
       align-items: center;
       gap: 5px;
       padding: 5px 0;
@@ -652,13 +642,6 @@
       font-weight: 700;
       text-align: right;
       font-size: 0.66rem;
-    }
-    .sports-standing-team {
-      font-weight: 700;
-      color: var(--text);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
     }
     .sports-standing-record {
       color: var(--muted);
@@ -1539,21 +1522,30 @@
       if (!standRes.ok) return { label, games: [], standings: null };
       const standData = await standRes.json();
 
-      const entries = [];
-      for (const conf of standData.children || [standData]) {
-        for (const entry of conf.standings?.entries || []) {
+      // ESPN structures standings under children (conferences) or a top-level standings object.
+      // During NBA playoffs the regular children may be empty — flatten every nested level.
+      function extractEntries(node) {
+        const list = [];
+        for (const entry of node.standings?.entries || []) {
           const stats = Object.fromEntries((entry.stats || []).map(s => [s.name, s]));
-          entries.push({
-            team:      entry.team || {},
-            wins:      +(stats.wins?.value ?? 0),
-            losses:    +(stats.losses?.value ?? 0),
-            pct:       +(stats.winPercent?.value ?? 0),
+          list.push({
+            team:       entry.team || {},
+            wins:       +(stats.wins?.value ?? 0),
+            losses:     +(stats.losses?.value ?? 0),
+            pct:        +(stats.winPercent?.value ?? 0),
             pctDisplay: stats.winPercent?.displayValue || '',
           });
         }
+        for (const child of node.children || []) {
+          list.push(...extractEntries(child));
+        }
+        return list;
       }
+
+      const entries = extractEntries(standData);
       entries.sort((a, b) => b.pct - a.pct || b.wins - a.wins);
 
+      if (entries.length === 0) return { label, games: [], standings: null };
       return { label, games: [], standings: entries.slice(0, 14) };
     } catch (e) {
       console.warn(label + ' fetch failed:', e);
@@ -1635,15 +1627,9 @@
 
     return `
       <div class="sports-game-row${g.isLive ? ' is-live' : ''}">
-        <div class="sports-game-away">
-          ${logoImgSm(g.away.logo, g.away.name)}
-          <span class="sports-game-team-name">${escapeHtml(g.away.name)}</span>
-        </div>
+        <div class="sports-game-away">${logoImgSm(g.away.logo, g.away.name)}</div>
         ${scoresHtml}
-        <div class="sports-game-home">
-          <span class="sports-game-team-name">${escapeHtml(g.home.name)}</span>
-          ${logoImgSm(g.home.logo, g.home.name)}
-        </div>
+        <div class="sports-game-home">${logoImgSm(g.home.logo, g.home.name)}</div>
         <div class="sports-game-status">${escapeHtml(g.statusText)}${liveDot}</div>
       </div>`;
   }
@@ -1656,10 +1642,70 @@
       <div class="sports-standing-row">
         <span class="sports-standing-rank">${rank}</span>
         ${logo}
-        <span class="sports-standing-team">${escapeHtml(s.team?.shortDisplayName || s.team?.name || '')}</span>
         <span class="sports-standing-record">${s.wins}-${s.losses}</span>
         <span class="sports-standing-pct">${escapeHtml(s.pctDisplay)}</span>
       </div>`;
+  }
+
+  function renderSingleGame(g) {
+    const hasScore = g.isLive || g.isFinal;
+    const awayScore = g.away.score ?? '';
+    const homeScore = g.home.score ?? '';
+    const scoreHtml = hasScore
+      ? `<div class="sports-score-center">${escapeHtml(String(awayScore))} – ${escapeHtml(String(homeScore))}</div>`
+      : `<div class="sports-score-center" style="font-size:1rem;color:var(--muted)">vs</div>`;
+
+    const clockClass = g.isLive ? 'sports-clock live' : 'sports-clock';
+
+    let metaHtml = '';
+    if (g.venueName || g.network) {
+      metaHtml = `<div class="sports-meta-row">
+        <div class="sports-venue-block">
+          ${g.venueName ? `<div class="sports-venue-name">${escapeHtml(g.venueName)}</div>` : ''}
+          ${g.venueCity ? `<div class="sports-venue-city">${escapeHtml(g.venueCity)}</div>` : ''}
+        </div>
+        ${g.network ? `<div class="sports-network">${escapeHtml(g.network)}</div>` : ''}
+      </div>`;
+    }
+
+    let lastPlayHtml = '';
+    if (g.isLive && g.lastPlay) {
+      lastPlayHtml = `<div class="sports-lastplay">${escapeHtml(g.lastPlay)}</div>`;
+    }
+
+    let winProbHtml = '';
+    if (g.isLive && g.awayWinPct != null && g.homeWinPct != null) {
+      const aPct = Math.round(g.awayWinPct * 100);
+      const hPct = Math.round(g.homeWinPct * 100);
+      winProbHtml = `
+        <div class="sports-winprob">
+          <div class="sports-winprob-bar">
+            <div class="sports-winprob-fill-a" style="width:${aPct}%"></div>
+            <div class="sports-winprob-fill-b" style="width:${hPct}%"></div>
+          </div>
+          <div class="sports-winprob-labels">
+            <span>${escapeHtml(g.away.name)} ${aPct}%</span>
+            <span>${hPct}% ${escapeHtml(g.home.name)}</span>
+          </div>
+        </div>`;
+    }
+
+    return `
+      <div class="sports-teams-row">
+        <div class="sports-team-block">
+          ${logoImg(g.away.logo, g.away.name)}
+          <div class="sports-team-name">${escapeHtml(g.away.name)}</div>
+          ${g.away.record ? `<div class="sports-team-record">${escapeHtml(g.away.record)}</div>` : ''}
+        </div>
+        ${scoreHtml}
+        <div class="sports-team-block">
+          ${logoImg(g.home.logo, g.home.name)}
+          <div class="sports-team-name">${escapeHtml(g.home.name)}</div>
+          ${g.home.record ? `<div class="sports-team-record">${escapeHtml(g.home.record)}</div>` : ''}
+        </div>
+      </div>
+      <div class="${clockClass}">${escapeHtml(g.statusText)}</div>
+      ${metaHtml}${lastPlayHtml}${winProbHtml}`;
   }
 
   function renderLeagueCard(cardEl, data) {
@@ -1670,15 +1716,29 @@
     const { label, games, standings } = data;
 
     if (games.length > 0) {
-      const hasLive = games.some(g => g.isLive);
-      const liveDot = hasLive ? '<span class="sports-live-dot"></span>' : '';
-      const subtitle = `${games.length} game${games.length !== 1 ? 's' : ''} today`;
-      cardEl.innerHTML = `
-        <div class="sports-card-header">
-          <span>${label}${liveDot}</span>
-          <span>${subtitle}</span>
-        </div>
-        <div class="sports-games-list">${games.map(g => renderCompactGame(g)).join('')}</div>`;
+      const hasLive  = games.some(g => g.isLive);
+      const liveGame = games.find(g => g.isLive);
+      const liveDot  = hasLive ? '<span class="sports-live-dot"></span>' : '';
+
+      // Full format: exactly 1 game today, OR at least one live game
+      if (games.length === 1 || hasLive) {
+        const featured = liveGame || games[0];
+        const subtitle = hasLive ? 'Live' : 'Today';
+        cardEl.innerHTML = `
+          <div class="sports-card-header">
+            <span>${label}${liveDot}</span>
+            <span>${subtitle}</span>
+          </div>
+          ${renderSingleGame(featured)}`;
+      } else {
+        const subtitle = `${games.length} games today`;
+        cardEl.innerHTML = `
+          <div class="sports-card-header">
+            <span>${label}</span>
+            <span>${subtitle}</span>
+          </div>
+          <div class="sports-games-list">${games.map(g => renderCompactGame(g)).join('')}</div>`;
+      }
     } else {
       cardEl.innerHTML = `
         <div class="sports-card-header">
