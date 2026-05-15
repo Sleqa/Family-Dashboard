@@ -1509,12 +1509,26 @@
     };
   }
 
+  function perthDateKey(date) {
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Australia/Perth',
+      year:  'numeric',
+      month: '2-digit',
+      day:   '2-digit',
+    }).format(date); // "YYYY-MM-DD"
+  }
+
   async function fetchLeagueData(sportPath, label) {
     try {
       const scoreRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${sportPath}/scoreboard`);
       if (!scoreRes.ok) return { label, games: [], standings: null };
       const scoreData = await scoreRes.json();
-      const events = scoreData.events || [];
+      const allEvents = scoreData.events || [];
+
+      // Only keep events that fall on today's Perth date — ESPN returns a
+      // window around "now" which may include yesterday/tomorrow's games.
+      const todayKey = perthDateKey(new Date());
+      const events = allEvents.filter(e => e.date && perthDateKey(new Date(e.date)) === todayKey);
 
       if (events.length > 0) {
         return { label, games: events.map(e => extractGameData(e, label)).filter(Boolean), standings: null };
