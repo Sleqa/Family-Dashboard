@@ -1501,55 +1501,63 @@
     }).format(date); // "YYYY-MM-DD"
   }
 
+  function ymd(date) {
+    const y = date.getUTCFullYear();
+    const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const d = String(date.getUTCDate()).padStart(2, '0');
+    return `${y}${m}${d}`;
+  }
+
   async function fetchLeagueData(sportPath, label) {
     try {
-      const scoreRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${sportPath}/scoreboard`);
-      if (!scoreRes.ok) return { label, games: [], standings: null };
+      // Pull a 10-day window: past 3 days through next 7. Works for both
+      // regular season and playoffs where games are sparser.
+      const now   = new Date();
+      const start = new Date(now.getTime() - 3 * 86400000);
+      const end   = new Date(now.getTime() + 7 * 86400000);
+      const url   = `https://site.api.espn.com/apis/site/v2/sports/${sportPath}/scoreboard?dates=${ymd(start)}-${ymd(end)}`;
+
+      const scoreRes = await fetch(url);
+      if (!scoreRes.ok) return { label, games: [], fallbackKind: null };
       const scoreData = await scoreRes.json();
-      const allEvents = scoreData.events || [];
+      const allEvents = (scoreData.events || []).filter(e => e.date);
 
-      // Only keep events that fall on today's Perth date — ESPN returns a
-      // window around "now" which may include yesterday/tomorrow's games.
-      const todayKey = perthDateKey(new Date());
-      const events = allEvents.filter(e => e.date && perthDateKey(new Date(e.date)) === todayKey);
+      const todayKey  = perthDateKey(new Date());
+      const todayGames = allEvents.filter(e => perthDateKey(new Date(e.date)) === todayKey);
 
-      if (events.length > 0) {
-        return { label, games: events.map(e => extractGameData(e, label)).filter(Boolean), standings: null };
+      if (todayGames.length > 0) {
+        return {
+          label,
+          games: todayGames.map(e => extractGameData(e, label)).filter(Boolean),
+          fallbackKind: null,
+        };
       }
 
-      // No games today — fetch standings ladder
-      const standRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${sportPath}/standings`);
-      if (!standRes.ok) return { label, games: [], standings: null };
-      const standData = await standRes.json();
+      // No games today — find next upcoming game (any future date)
+      const nowMs = now.getTime();
+      const upcoming = allEvents
+        .filter(e => new Date(e.date).getTime() > nowMs)
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-      // ESPN structures standings under children (conferences) or a top-level standings object.
-      // During NBA playoffs the regular children may be empty — flatten every nested level.
-      function extractEntries(node) {
-        const list = [];
-        for (const entry of node.standings?.entries || []) {
-          const stats = Object.fromEntries((entry.stats || []).map(s => [s.name, s]));
-          list.push({
-            team:       entry.team || {},
-            wins:       +(stats.wins?.value ?? 0),
-            losses:     +(stats.losses?.value ?? 0),
-            pct:        +(stats.winPercent?.value ?? 0),
-            pctDisplay: stats.winPercent?.displayValue || '',
-          });
-        }
-        for (const child of node.children || []) {
-          list.push(...extractEntries(child));
-        }
-        return list;
+      if (upcoming.length > 0) {
+        const game = extractGameData(upcoming[0], label);
+        return game ? { label, games: [game], fallbackKind: 'next' } : { label, games: [], fallbackKind: null };
       }
 
-      const entries = extractEntries(standData);
-      entries.sort((a, b) => b.pct - a.pct || b.wins - a.wins);
+      // No upcoming games — show most recent completed game
+      const recent = allEvents
+        .filter(e => new Date(e.date).getTime() <= nowMs)
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
 
-      if (entries.length === 0) return { label, games: [], standings: null };
-      return { label, games: [], standings: entries.slice(0, 14) };
+      if (recent.length > 0) {
+        const game = extractGameData(recent[0], label);
+        return game ? { label, games: [game], fallbackKind: 'recent' } : { label, games: [], fallbackKind: null };
+      }
+
+      return { label, games: [], fallbackKind: null };
     } catch (e) {
       console.warn(label + ' fetch failed:', e);
-      return { label, games: [], standings: null };
+      return { label, games: [], fallbackKind: null };
     }
   }
 
@@ -1709,43 +1717,36 @@
   }
 
   function renderLeagueCard(cardEl, data) {
-    if (!data || (!data.games.length && !data.standings)) {
+    if (!data || !data.games.length) {
       cardEl.innerHTML = emptyCard(data?.label || '');
       return;
     }
-    const { label, games, standings } = data;
+    const { label, games, fallbackKind } = data;
 
-    if (games.length > 0) {
-      const hasLive  = games.some(g => g.isLive);
-      const liveGame = games.find(g => g.isLive);
-      const liveDot  = hasLive ? '<span class="sports-live-dot"></span>' : '';
+    const hasLive  = games.some(g => g.isLive);
+    const liveGame = games.find(g => g.isLive);
+    const liveDot  = hasLive ? '<span class="sports-live-dot"></span>' : '';
 
-      // Full format: exactly 1 game today, OR at least one live game
-      if (games.length === 1 || hasLive) {
-        const featured = liveGame || games[0];
-        const subtitle = hasLive ? 'Live' : 'Today';
-        cardEl.innerHTML = `
-          <div class="sports-card-header">
-            <span>${label}${liveDot}</span>
-            <span>${subtitle}</span>
-          </div>
-          ${renderSingleGame(featured)}`;
-      } else {
-        const subtitle = `${games.length} games today`;
-        cardEl.innerHTML = `
-          <div class="sports-card-header">
-            <span>${label}</span>
-            <span>${subtitle}</span>
-          </div>
-          <div class="sports-games-list">${games.map(g => renderCompactGame(g)).join('')}</div>`;
-      }
+    // Full format: exactly 1 game (or fallback), OR at least one live game
+    if (games.length === 1 || hasLive) {
+      const featured = liveGame || games[0];
+      let subtitle = 'Today';
+      if (hasLive)                  subtitle = 'Live';
+      else if (fallbackKind === 'next')   subtitle = 'Next game';
+      else if (fallbackKind === 'recent') subtitle = 'Last game';
+      cardEl.innerHTML = `
+        <div class="sports-card-header">
+          <span>${label}${liveDot}</span>
+          <span>${subtitle}</span>
+        </div>
+        ${renderSingleGame(featured)}`;
     } else {
       cardEl.innerHTML = `
         <div class="sports-card-header">
           <span>${label}</span>
-          <span>Standings</span>
+          <span>${games.length} games today</span>
         </div>
-        <div class="sports-standings-list">${standings.map((s, i) => renderStandingRow(s, i + 1)).join('')}</div>`;
+        <div class="sports-games-list">${games.map(g => renderCompactGame(g)).join('')}</div>`;
     }
   }
 
