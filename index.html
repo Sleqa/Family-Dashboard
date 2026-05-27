@@ -939,8 +939,12 @@
   // ════════════════════════════════════════════════════════════
   // iCal Calendar Feeds — direct fetch + parse, no OAuth, no popups
   // ════════════════════════════════════════════════════════════
-  // Routed through corsproxy.io because browsers block cross-origin iCal requests.
-  const CORS_PROXY = 'https://corsproxy.io/?';
+  // Tried in order per feed; first success wins.
+  const CORS_PROXIES = [
+    url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    url => `https://cors.sh/?${url}`,
+  ];
   const ICAL_FEEDS = [
     {
       name:  'Personal',
@@ -1075,18 +1079,29 @@
   // iCal feed loader & parser (RFC 5545)
   // ════════════════════════════════════════════════════════════
 
+  async function fetchFeedWithFallback(feed) {
+    for (const proxy of CORS_PROXIES) {
+      try {
+        const res = await fetch(proxy(feed.url), { signal: AbortSignal.timeout(10000) });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const text = await res.text();
+        if (!text.includes('BEGIN:VCALENDAR')) throw new Error('not an iCal response');
+        return text;
+      } catch (e) {
+        console.warn(`${feed.name}: proxy ${proxy('').split('?')[0]} failed:`, e.message);
+      }
+    }
+    return null;
+  }
+
   async function fetchAllEvents() {
     const all = [];
     let okCount = 0;
     await Promise.all(ICAL_FEEDS.map(async (feed) => {
-      try {
-        const res = await fetch(CORS_PROXY + encodeURIComponent(feed.url));
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const text = await res.text();
+      const text = await fetchFeedWithFallback(feed);
+      if (text) {
         all.push(...parseICal(text, feed));
         okCount++;
-      } catch (e) {
-        console.warn('Could not load ' + feed.name + ' calendar:', e);
       }
     }));
     return { events: all, okCount };
