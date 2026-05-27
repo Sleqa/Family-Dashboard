@@ -1077,17 +1077,19 @@
 
   async function fetchAllEvents() {
     const all = [];
+    let okCount = 0;
     await Promise.all(ICAL_FEEDS.map(async (feed) => {
       try {
         const res = await fetch(CORS_PROXY + encodeURIComponent(feed.url));
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const text = await res.text();
         all.push(...parseICal(text, feed));
+        okCount++;
       } catch (e) {
         console.warn('Could not load ' + feed.name + ' calendar:', e);
       }
     }));
-    return all;
+    return { events: all, okCount };
   }
 
   function parseICal(text, feed) {
@@ -1391,16 +1393,25 @@
       </div>`;
   }
 
+  let hasRenderedCalendar = false;
+
   async function refreshCalendar() {
     const loading = document.getElementById('events-loading');
     const list    = document.getElementById('events-list');
     if (!list.innerHTML.trim()) loading.style.display = 'flex';
     try {
-      const events = await fetchAllEvents();
-      renderEvents(events);
+      const { events, okCount } = await fetchAllEvents();
+      // If every feed failed this cycle, keep the last good render rather than
+      // wiping it to "No upcoming events". Only render on a successful fetch.
+      if (okCount > 0) {
+        renderEvents(events);
+        hasRenderedCalendar = true;
+      } else if (!hasRenderedCalendar) {
+        list.innerHTML = '<div class="no-events"><div class="icon">⚠️</div><p>Could not load events</p></div>';
+      }
     } catch (e) {
       console.error('Calendar refresh failed:', e);
-      if (!list.innerHTML.trim()) {
+      if (!hasRenderedCalendar) {
         list.innerHTML = '<div class="no-events"><div class="icon">⚠️</div><p>Could not load events</p></div>';
       }
     } finally {
