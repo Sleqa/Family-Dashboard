@@ -71,6 +71,24 @@
       align-items: center;
       gap: 12px;
     }
+    .conn-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: var(--card-bg-2);
+      border: 1px solid var(--border);
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .conn-badge.offline {
+      border-color: rgba(245, 166, 35, 0.4);
+      background: rgba(245, 166, 35, 0.12);
+      color: var(--orange);
+    }
 
     /* ── Google Sign-In button ── */
     .google-btn {
@@ -841,7 +859,9 @@
     <div class="logo">Weldon<span>Hub</span></div>
     <div class="header-date" id="header-date">Thursday, March 19</div>
   </div>
-  <div class="header-right"></div>
+  <div class="header-right">
+    <span class="conn-badge" id="conn-badge" style="display:none"></span>
+  </div>
 </div>
 
 <!-- ════════ MAIN LAYOUT ════════ -->
@@ -969,6 +989,72 @@
     },
   ];
 
+  // ════════════════════════════════════════════════════════════
+  // Offline resilience — cache last-good data, only fetch on wifi
+  // ════════════════════════════════════════════════════════════
+  // The dashboard runs on a Chromecast with unreliable wifi. Everything
+  // rendered here survives a total network outage: data is cached in
+  // localStorage and re-rendered from the device clock, so dates, times and
+  // day labels stay correct even if nothing has been fetched for days.
+  const CACHE_PREFIX = 'fd:v1:';
+
+  function cacheSet(key, value) {
+    try {
+      localStorage.setItem(CACHE_PREFIX + key, JSON.stringify({ savedAt: Date.now(), value }));
+    } catch (e) { /* storage disabled or full — run from memory only */ }
+  }
+
+  function cacheGet(key) {
+    try {
+      const raw = localStorage.getItem(CACHE_PREFIX + key);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return (parsed && 'value' in parsed) ? parsed : null;
+    } catch (e) { return null; }
+  }
+
+  // navigator.onLine is false only when the device knows it has no link.
+  // It can report true on a wifi network with no internet — in that case the
+  // fetch simply fails and we keep showing cached data.
+  function isOnline() { return navigator.onLine !== false; }
+
+  let lastSyncAt = cacheGet('lastSync')?.value ?? null;
+
+  function markSynced() {
+    lastSyncAt = Date.now();
+    cacheSet('lastSync', lastSyncAt);
+    updateConnBadge();
+  }
+
+  function updateConnBadge() {
+    const el = document.getElementById('conn-badge');
+    if (!el) return;
+    const offline = !isOnline();
+    const stale   = lastSyncAt === null || (Date.now() - lastSyncAt) > 20 * 60 * 1000;
+
+    if (!offline && !stale) { el.style.display = 'none'; return; }
+
+    const since = lastSyncAt ? ' · ' + formatTime(new Date(lastSyncAt)) : '';
+    el.style.display = 'inline-flex';
+    el.className = 'conn-badge' + (offline ? ' offline' : '');
+    el.textContent = offline
+      ? (lastSyncAt ? 'Offline' + since : 'Offline')
+      : (lastSyncAt ? 'Last synced' + since : 'Connecting…');
+  }
+
+  // Only run a network task when the device reports a link. Everything the
+  // page displays is already on screen from cache, so skipping is harmless.
+  async function runIfOnline(name, fn) {
+    if (!isOnline()) { updateConnBadge(); return false; }
+    try {
+      return await fn();
+    } catch (e) {
+      console.warn(name + ' failed:', e);
+      updateConnBadge();
+      return false;
+    }
+  }
+
   // ── Clock & Date ──
   const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const MONTHS = ['January','February','March','April','May','June',
@@ -1010,25 +1096,53 @@
     95:'Thunderstorm',96:'Thunderstorm with hail',99:'Severe thunderstorm'
   };
 
+  function applyWeather(w) {
+    if (!w) return;
+    document.getElementById('weather-icon').textContent = WMO_ICONS[w.code] ?? '🌡️';
+    document.getElementById('weather-temp').textContent = w.temp + '°';
+    document.getElementById('weather-desc').textContent = WMO_DESC[w.code] ?? 'Unknown';
+    document.getElementById('feels-like').textContent   = w.feels + '°';
+    document.getElementById('humidity').textContent     = w.humidity + '%';
+    document.getElementById('wind').textContent         = w.wind + ' km/h';
+    document.getElementById('highlow').textContent      = w.hi + '° / ' + w.lo + '°';
+  }
+
+  let hasWeather = false;
+
+  // Paint last-known weather immediately — no network needed.
+  (function primeWeatherFromCache() {
+    const hit = cacheGet('weather');
+    if (hit) { applyWeather(hit.value); hasWeather = true; }
+  })();
+
   async function fetchWeather() {
-    try {
+    return runIfOnline('weather', async () => {
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}`
         + `&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code`
         + `&daily=temperature_2m_max,temperature_2m_min&timezone=Australia%2FPerth&forecast_days=1`;
-      const res  = await fetch(url);
+      const res  = await fetchWithTimeout(url, 12000);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
-      const c = data.current, d = data.daily, code = c.weather_code;
-      document.getElementById('weather-icon').textContent = WMO_ICONS[code] ?? '🌡️';
-      document.getElementById('weather-temp').textContent = Math.round(c.temperature_2m) + '°';
-      document.getElementById('weather-desc').textContent = WMO_DESC[code] ?? 'Unknown';
-      document.getElementById('feels-like').textContent   = Math.round(c.apparent_temperature) + '°';
-      document.getElementById('humidity').textContent      = c.relative_humidity_2m + '%';
-      document.getElementById('wind').textContent          = Math.round(c.wind_speed_10m) + ' km/h';
-      document.getElementById('highlow').textContent       =
-        Math.round(d.temperature_2m_max[0]) + '° / ' + Math.round(d.temperature_2m_min[0]) + '°';
-    } catch (e) {
-      document.getElementById('weather-desc').textContent = 'Unavailable';
-    }
+      const c = data.current, d = data.daily;
+      const w = {
+        code:     c.weather_code,
+        temp:     Math.round(c.temperature_2m),
+        feels:    Math.round(c.apparent_temperature),
+        humidity: c.relative_humidity_2m,
+        wind:     Math.round(c.wind_speed_10m),
+        hi:       Math.round(d.temperature_2m_max[0]),
+        lo:       Math.round(d.temperature_2m_min[0]),
+      };
+      applyWeather(w);
+      cacheSet('weather', w);
+      hasWeather = true;
+      markSynced();
+      return true;
+    }).then(ok => {
+      // Never blank out good cached readings just because a refresh failed.
+      if (!ok && !hasWeather) document.getElementById('weather-desc').textContent = 'Unavailable';
+      return ok;
+    });
   }
   fetchWeather();
   setInterval(fetchWeather, 10 * 60 * 1000);
@@ -1106,17 +1220,30 @@
     return null;
   }
 
-  async function fetchAllEvents() {
-    const all = [];
+  // Raw .ics text per feed, kept in memory and mirrored to localStorage.
+  // Storing the source text (rather than parsed events) means recurring events
+  // are re-expanded against the *current* date on every render, so the calendar
+  // keeps showing the right days indefinitely without a network connection.
+  const calendarTexts = new Map();
+
+  (function primeCalendarFromCache() {
+    for (const feed of ICAL_FEEDS) {
+      const hit = cacheGet('ical:' + feed.name);
+      if (hit && typeof hit.value === 'string') calendarTexts.set(feed.name, hit.value);
+    }
+  })();
+
+  async function fetchAllFeeds() {
     let okCount = 0;
     await Promise.all(ICAL_FEEDS.map(async (feed) => {
       const text = await fetchFeedWithFallback(feed);
       if (text) {
-        all.push(...parseICal(text, feed));
+        calendarTexts.set(feed.name, text);
+        cacheSet('ical:' + feed.name, text);
         okCount++;
       }
     }));
-    return { events: all, okCount };
+    return okCount;
   }
 
   function parseICal(text, feed) {
@@ -1421,25 +1548,46 @@
   }
 
   let hasRenderedCalendar = false;
+  let renderedDayKey      = null;
+
+  function localDayKey() {
+    const d = new Date();
+    return d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
+  }
+
+  // Parse whatever text we hold (fresh or cached) and paint the list.
+  function renderCalendarFromTexts() {
+    if (!calendarTexts.size) return false;
+    const all = [];
+    for (const feed of ICAL_FEEDS) {
+      const text = calendarTexts.get(feed.name);
+      if (!text) continue;
+      try {
+        all.push(...parseICal(text, feed));
+      } catch (e) {
+        console.warn('Could not parse ' + feed.name + ' calendar:', e);
+      }
+    }
+    renderEvents(all);
+    hasRenderedCalendar = true;
+    renderedDayKey = localDayKey();
+    return true;
+  }
 
   async function refreshCalendar() {
     const loading = document.getElementById('events-loading');
     const list    = document.getElementById('events-list');
-    if (!list.innerHTML.trim()) loading.style.display = 'flex';
+    if (!hasRenderedCalendar) loading.style.display = 'flex';
     try {
-      const { events, okCount } = await fetchAllEvents();
-      // If every feed failed this cycle, keep the last good render rather than
-      // wiping it to "No upcoming events". Only render on a successful fetch.
-      if (okCount > 0) {
-        renderEvents(events);
-        hasRenderedCalendar = true;
-      } else if (!hasRenderedCalendar) {
-        list.innerHTML = '<div class="no-events"><div class="icon">⚠️</div><p>Could not load events</p></div>';
-      }
-    } catch (e) {
-      console.error('Calendar refresh failed:', e);
-      if (!hasRenderedCalendar) {
-        list.innerHTML = '<div class="no-events"><div class="icon">⚠️</div><p>Could not load events</p></div>';
+      // Fetch only when there's a link; otherwise fall straight through to
+      // the cached text so the calendar still renders.
+      const okCount = await runIfOnline('calendar', fetchAllFeeds);
+      if (okCount > 0) markSynced();
+
+      if (!renderCalendarFromTexts() && !hasRenderedCalendar) {
+        list.innerHTML = isOnline()
+          ? '<div class="no-events"><div class="icon">⚠️</div><p>Could not load events</p></div>'
+          : '<div class="no-events"><div class="icon">📡</div><p>Waiting for connection</p></div>';
       }
     } finally {
       loading.style.display = 'none';
@@ -1448,6 +1596,12 @@
 
   refreshCalendar();
   setInterval(refreshCalendar, 15 * 60 * 1000);
+
+  // Re-render at midnight (and whenever the device date changes) so "Today",
+  // "Tomorrow" and the day breakers stay correct with no network at all.
+  setInterval(() => {
+    if (hasRenderedCalendar && renderedDayKey !== localDayKey()) renderCalendarFromTexts();
+  }, 30 * 1000);
 
   function formatTime(d) {
     let h = d.getHours();
@@ -1546,6 +1700,8 @@
     return `${y}${m}${d}`;
   }
 
+  // Returns null when the network call fails, so the caller can keep showing
+  // cached data instead of blanking the card.
   async function fetchLeagueData(sportPath, label) {
     try {
       // Pull a 10-day window: past 3 days through next 7. Works for both
@@ -1555,8 +1711,8 @@
       const end   = new Date(now.getTime() + 7 * 86400000);
       const url   = `https://site.api.espn.com/apis/site/v2/sports/${sportPath}/scoreboard?dates=${ymd(start)}-${ymd(end)}`;
 
-      const scoreRes = await fetch(url);
-      if (!scoreRes.ok) return { label, games: [], fallbackKind: null };
+      const scoreRes = await fetchWithTimeout(url, 12000);
+      if (!scoreRes.ok) throw new Error('HTTP ' + scoreRes.status);
       const scoreData = await scoreRes.json();
       const allEvents = (scoreData.events || []).filter(e => e.date);
 
@@ -1579,7 +1735,7 @@
 
       if (upcoming.length > 0) {
         const game = extractGameData(upcoming[0], label);
-        return game ? { label, games: [game], fallbackKind: 'next' } : { label, games: [], fallbackKind: null };
+        if (game) return { label, games: [game], fallbackKind: 'next' };
       }
 
       // No upcoming games — show most recent completed game
@@ -1589,13 +1745,13 @@
 
       if (recent.length > 0) {
         const game = extractGameData(recent[0], label);
-        return game ? { label, games: [game], fallbackKind: 'recent' } : { label, games: [], fallbackKind: null };
+        if (game) return { label, games: [game], fallbackKind: 'recent' };
       }
 
       return { label, games: [], fallbackKind: null };
     } catch (e) {
       console.warn(label + ' fetch failed:', e);
-      return { label, games: [], fallbackKind: null };
+      return null;
     }
   }
 
@@ -1605,8 +1761,8 @@
   async function fetchF1Data() {
     try {
       const [nextRes, standingsRes] = await Promise.all([
-        fetch('https://api.jolpi.ca/ergast/f1/current/next.json'),
-        fetch('https://api.jolpi.ca/ergast/f1/current/driverStandings.json'),
+        fetchWithTimeout('https://api.jolpi.ca/ergast/f1/current/next.json', 12000),
+        fetchWithTimeout('https://api.jolpi.ca/ergast/f1/current/driverStandings.json', 12000),
       ]);
       if (!nextRes.ok) return null;
       const nextData      = await nextRes.json();
@@ -1754,9 +1910,9 @@
       ${metaHtml}${lastPlayHtml}${winProbHtml}`;
   }
 
-  function renderLeagueCard(cardEl, data) {
-    if (!data || !data.games.length) {
-      cardEl.innerHTML = emptyCard(data?.label || '');
+  function renderLeagueCard(cardEl, data, fallbackLabel) {
+    if (!data || !data.games || !data.games.length) {
+      cardEl.innerHTML = emptyCard(data?.label || fallbackLabel || '');
       return;
     }
     const { label, games, fallbackKind } = data;
@@ -1829,19 +1985,68 @@
     `;
   }
 
+  // Last-known sports data. Hydrated from localStorage at boot so the cards
+  // are populated before (or entirely without) any network call. A failed
+  // fetch leaves the previous entry untouched.
+  const sportsState = { nba: null, afl: null, f1: null };
+
+  (function primeSportsFromCache() {
+    const nba = cacheGet('sports:nba');
+    const afl = cacheGet('sports:afl');
+    const f1  = cacheGet('sports:f1');
+    if (nba) sportsState.nba = nba.value;
+    if (afl) sportsState.afl = afl.value;
+    if (f1 && f1.value) {
+      const revived = { ...f1.value, date: new Date(f1.value.date) };
+      if (!isNaN(revived.date)) sportsState.f1 = revived;
+    }
+  })();
+
+  function renderSports() {
+    renderLeagueCard(document.getElementById('nba-card'), sportsState.nba, 'NBA');
+    renderLeagueCard(document.getElementById('afl-card'), sportsState.afl, 'AFL');
+    renderF1Card(sportsState.f1);
+  }
+
   async function refreshSports() {
+    // Paint whatever we already hold first — instant, and correct offline.
+    renderSports();
+
+    if (!isOnline()) { updateConnBadge(); return; }
+
     const [nba, afl, f1] = await Promise.all([
       fetchNBAData(),
       fetchAFLData(),
       fetchF1Data(),
     ]);
-    renderLeagueCard(document.getElementById('nba-card'), nba);
-    renderLeagueCard(document.getElementById('afl-card'), afl);
-    renderF1Card(f1);
+
+    if (nba) { sportsState.nba = nba; cacheSet('sports:nba', nba); }
+    if (afl) { sportsState.afl = afl; cacheSet('sports:afl', afl); }
+    if (f1)  {
+      sportsState.f1 = f1;
+      cacheSet('sports:f1', { ...f1, date: f1.date.toISOString() });
+    }
+
+    if (nba || afl || f1) markSynced(); else updateConnBadge();
+    renderSports();
   }
 
   refreshSports();
   setInterval(refreshSports, 60 * 1000);
+
+  // ── Connectivity handling ──
+  // Timers above all no-op while offline. As soon as the link returns, pull
+  // everything at once rather than waiting out the intervals.
+  function refreshAll() {
+    fetchWeather();
+    refreshCalendar();
+    refreshSports();
+  }
+
+  window.addEventListener('online',  () => { updateConnBadge(); refreshAll(); });
+  window.addEventListener('offline', updateConnBadge);
+  setInterval(updateConnBadge, 30 * 1000);
+  updateConnBadge();
 
 </script>
 
