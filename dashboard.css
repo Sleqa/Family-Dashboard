@@ -571,6 +571,63 @@ h2 {
   font-size:.7rem;
   color:var(--muted)
 }
+.f1-results {
+  border-top:1px solid var(--line);
+  padding:9px 16px 2px
+}
+.f1-results-label,.f1-live-race {
+  font-size:.6rem;
+  font-weight:700;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:5px
+}
+.f1-result-row,.f1-live-row {
+  display:grid;
+  grid-template-columns:16px 3px auto 1fr auto;
+  align-items:center;
+  gap:7px;
+  font-size:.74rem;
+  padding:3px 0
+}
+.f1-live-pos {
+  color:var(--muted);
+  font-variant-numeric:tabular-nums;
+  text-align:right
+}
+.f1-live-bar {
+  height:13px;
+  border-radius:2px
+}
+.f1-live-code {
+  font-weight:700;
+  letter-spacing:.02em
+}
+.f1-live-team {
+  color:var(--muted);
+  font-size:.68rem;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap
+}
+.f1-live-gap {
+  font-variant-numeric:tabular-nums;
+  color:var(--accent);
+  font-size:.7rem;
+  white-space:nowrap
+}
+.f1-live {
+  padding:4px 16px 12px
+}
+.f1-live-race {
+  margin:6px 0 0;
+  color:var(--text);
+  font-size:.8rem;
+  letter-spacing:0;
+  text-transform:none;
+  font-weight:600
+}
 .image-credit {
   font-size:.55rem;
   padding:4px 16px 7px;
@@ -904,6 +961,49 @@ h2 {
     flex:1;
     min-height:0;
     overflow:hidden
+  }
+  .sports-sidebar.is-solo .sports-marquee {
+    display:none
+  }
+  .sports-sidebar.is-solo .sports-pinned {
+    flex:1;
+    min-height:0;
+    overflow:hidden
+  }
+  .sports-sidebar.is-solo .sports-pinned>.sports-card {
+    flex:1;
+    min-height:0;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column
+  }
+  /* Let the field spread over whatever height the sidebar has: rows share
+     the space rather than bunching at the top. */
+  .sports-sidebar.is-solo .f1-live {
+    flex:1;
+    min-height:0;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column
+  }
+  .sports-sidebar.is-solo .f1-live-row {
+    flex:1 1 0;
+    min-height:0;
+    font-size:.86rem;
+    padding:0
+  }
+  .sports-sidebar.is-solo .f1-live-team {
+    font-size:.76rem
+  }
+  .sports-sidebar.is-solo .f1-live-gap {
+    font-size:.8rem
+  }
+  .sports-sidebar.is-solo .f1-live-bar {
+    height:60%;
+    min-height:12px
+  }
+  .sports-sidebar.is-solo .f1-live-race {
+    font-size:.95rem
   }
   /* Soften the two edges the loop passes through so cards fade out instead
      of being sliced off mid-row. */

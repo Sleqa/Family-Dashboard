@@ -149,14 +149,126 @@ async function refreshFuel() {
   renderFuel();
 }
 
+// ── F1 session timing (OpenF1) ───────────────────────────────────────────
+// session_result covers every session type, but shapes the times differently:
+// practice gives one best lap, qualifying an array of Q1/Q2/Q3 times, and the
+// race a total duration with gaps that may read "+1 LAP".
+function f1LapTime(seconds) {
+  if (typeof seconds !== 'number' || !Number.isFinite(seconds)) return '';
+  const minutes = Math.floor(seconds / 60);
+  const rest = seconds - minutes * 60;
+  return minutes ? minutes + ':' + rest.toFixed(3).padStart(6, '0') : rest.toFixed(3);
+}
+
+function f1Gap(gap) {
+  if (typeof gap === 'string') return gap;
+  if (typeof gap === 'number' && Number.isFinite(gap)) return gap ? '+' + gap.toFixed(3) : '';
+  return '';
+}
+
+function f1Best(value) {
+  // Qualifying reports [Q1, Q2, Q3]; the last time set is the one that counts.
+  if (Array.isArray(value)) {
+    const times = value.filter(v => typeof v === 'number' && Number.isFinite(v));
+    return times.length ? times[times.length - 1] : null;
+  }
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
+}
+
+function f1DriverLabel(driver, number) {
+  if (!driver) return '#' + number;
+  return driver.name_acronym || driver.last_name || driver.full_name || ('#' + number);
+}
+
+async function loadF1Session() {
+  try {
+    const sessions = await readJSON('https://api.openf1.org/v1/sessions?session_key=latest');
+    const session = Array.isArray(sessions) ? sessions[0] : null;
+    if (!session) return null;
+
+    const start = new Date(session.date_start).getTime();
+    const end = new Date(session.date_end).getTime();
+    const now = Date.now();
+    const live = now >= start && now <= end;
+    const name = session.session_name || session.session_type || '';
+
+    const drivers = await cachedJSON('f1:drivers:' + session.session_key,
+      'https://api.openf1.org/v1/drivers?session_key=' + session.session_key, 6 * 3600000).catch(() => []);
+    const byNumber = new Map((Array.isArray(drivers) ? drivers : []).map(d => [d.driver_number, d]));
+
+    if (live) {
+      // Positions are a change log, so the last entry per driver is the
+      // current order. Intervals are huge over a full race — ask only for the
+      // last few minutes and keep the newest row per driver.
+      const since = new Date(now - 5 * 60000).toISOString();
+      const [positions, intervals] = await Promise.all([
+        readJSON('https://api.openf1.org/v1/position?session_key=' + session.session_key),
+        readJSON('https://api.openf1.org/v1/intervals?session_key=' + session.session_key +
+          '&date%3E=' + encodeURIComponent(since)).catch(() => []),
+      ]);
+      const newest = (rows, key) => {
+        const latest = new Map();
+        for (const row of (Array.isArray(rows) ? rows : [])) {
+          const prev = latest.get(row.driver_number);
+          if (!prev || new Date(row.date) >= new Date(prev.date)) latest.set(row.driver_number, row);
+        }
+        return latest;
+      };
+      const places = newest(positions);
+      const gaps = newest(intervals);
+      const field = [...places.values()]
+        .filter(p => Number.isFinite(p.position))
+        .sort((a, b) => a.position - b.position)
+        .map(p => {
+          const driver = byNumber.get(p.driver_number);
+          const gap = gaps.get(p.driver_number);
+          return {
+            position: p.position,
+            code: f1DriverLabel(driver, p.driver_number),
+            team: driver?.team_name || '',
+            colour: driver?.team_colour ? '#' + driver.team_colour : '',
+            gap: p.position === 1 ? 'Leader' : f1Gap(gap?.gap_to_leader),
+          };
+        });
+      if (!field.length) return null;
+      return { live: true, name, field };
+    }
+
+    if (now < start) return null;   // nothing has run yet this weekend
+    const result = await readJSON('https://api.openf1.org/v1/session_result?session_key=' + session.session_key)
+      .catch(() => null);
+    if (!Array.isArray(result) || !result.length) return null;
+
+    const isRace = (session.session_type || '') === 'Race';
+    const top = result
+      .filter(r => Number.isFinite(r.position) && r.position <= 3)
+      .sort((a, b) => a.position - b.position)
+      .map(r => {
+        const driver = byNumber.get(r.driver_number);
+        const best = f1Best(r.duration);
+        return {
+          position: r.position,
+          code: f1DriverLabel(driver, r.driver_number),
+          team: driver?.team_name || '',
+          colour: driver?.team_colour ? '#' + driver.team_colour : '',
+          value: r.position === 1
+            ? (isRace ? 'Winner' : f1LapTime(best))
+            : f1Gap(Array.isArray(r.gap_to_leader) ? f1Best(r.gap_to_leader) : r.gap_to_leader),
+        };
+      });
+    return top.length ? { live: false, name, top } : null;
+  } catch { return null; }
+}
+
 async function loadF1Data() {
   try {
     const year = new Date().getFullYear();
-    const [next, standings, drivers, meetings] = await Promise.all([
+    const [next, standings, drivers, meetings, session] = await Promise.all([
       readJSON('https://api.jolpi.ca/ergast/f1/current/next.json'),
       readJSON('https://api.jolpi.ca/ergast/f1/current/driverStandings.json').catch(() => null),
       cachedJSON('f1:drivers','https://api.openf1.org/v1/drivers?session_key=latest',6*3600000).catch(() => []),
       cachedJSON('f1:meetings:'+year,'https://api.openf1.org/v1/meetings?year='+year,6*3600000).catch(() => []),
+      loadF1Session(),
     ]);
     const race = next.MRData?.RaceTable?.Races?.[0];
     if (!race) return {empty:true};
@@ -168,6 +280,7 @@ async function loadF1Data() {
       new Date(m.date_start) <= date && new Date(m.date_end).getTime()+86400000 >= date.getTime());
     const commons = !meeting?.circuit_image && race.Circuit?.circuitId === 'madring';
     return {
+      session,
       date, raceName:race.raceName || '', circuit:race.Circuit?.circuitName || '', country:race.Circuit?.Location?.country || '',
       circuitImage:safeImageUrl(meeting?.circuit_image) || (commons ? MADRING_IMAGE : ''), circuitCredit:commons ? 'commons':'openf1',
       sessions:['Qualifying','Sprint'].filter(key => race[key]?.date).map(key => ({name:key,date:race[key].date+'T'+(race[key].time || '00:00:00Z')})),
@@ -180,13 +293,52 @@ async function loadF1Data() {
   } catch { return null; }
 }
 
+// team_colour comes from the API, so only let a plain hex through to CSS.
+function f1Colour(value) {
+  return /^#[0-9a-f]{6}$/i.test(value || '') ? value : 'var(--muted)';
+}
+
+function f1LiveRows(field) {
+  return field.map(row =>
+    '<div class="f1-live-row"><span class="f1-live-pos">' + row.position +
+    '</span><span class="f1-live-bar" style="background:' + f1Colour(row.colour) +
+    '"></span><span class="f1-live-code">' + escapeHtml(row.code) +
+    '</span><span class="f1-live-team">' + escapeHtml(row.team) +
+    '</span><span class="f1-live-gap">' + escapeHtml(row.gap) + '</span></div>').join('');
+}
+
+function f1ResultRows(top) {
+  return top.map(row =>
+    '<div class="f1-result-row"><span class="f1-live-pos">' + row.position +
+    '</span><span class="f1-live-bar" style="background:' + f1Colour(row.colour) +
+    '"></span><span class="f1-live-code">' + escapeHtml(row.code) +
+    '</span><span class="f1-live-team">' + escapeHtml(row.team) +
+    '</span><span class="f1-live-gap">' + escapeHtml(row.value) + '</span></div>').join('');
+}
+
 function drawF1Card(data) {
   const card = document.getElementById('f1-card');
-  if (!data || data.empty || !data.date || Date.now()-new Date(data.date)>6*3600000) {card.hidden=true;card.dataset.live='0';card.innerHTML='';return;}
+  if (!data || data.empty || !data.date || Date.now()-new Date(data.date)>6*3600000) {card.hidden=true;card.dataset.live='0';card.dataset.solo='0';card.innerHTML='';return;}
   card.hidden=false;
+  const session = data.session;
+
+  // A session actually running takes over the card and, upstairs, the whole
+  // sidebar: full field, positions and gaps, nothing else competing for space.
+  if (session && session.live && session.field?.length) {
+    card.dataset.live = '1';
+    card.dataset.solo = '1';
+    card.innerHTML =
+      '<div class="f1-top"><div class="sports-card-header"><span>FORMULA 1<span class="sports-live-dot"></span></span>' +
+      '<span>' + escapeHtml(session.name) + ' · live</span></div>' +
+      '<div class="f1-live-race">' + escapeHtml(data.raceName) + '</div></div>' +
+      '<div class="f1-live">' + f1LiveRows(session.field) + '</div>';
+    return;
+  }
+
   const ms=new Date(data.date)-Date.now(), minutes=Math.max(0,Math.floor(ms/60000)),days=Math.floor(minutes/1440),hours=Math.floor(minutes/60)%24;
   // Lights out has happened but the race can't have finished yet — treat it as live.
   card.dataset.live = (ms < 0 && Date.now()-new Date(data.date) < 3*3600000) ? '1' : '0';
+  card.dataset.solo = '0';
   const countdown=ms<0?'Scheduled race time has passed':days?days+'d '+hours+'h to lights out':hours+'h '+minutes%60+'m to lights out';
   const time=date=>new Date(date).toLocaleString('en-AU',{timeZone:'Australia/Perth',weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'});
   const track=safeImageUrl(data.circuitImage),portrait=safeImageUrl(data.leader?.image || data.leader?.fallbackImage);
@@ -195,6 +347,10 @@ function drawF1Card(data) {
     '<div class="f1-race-info"><div class="sports-f1-race">'+escapeHtml(data.raceName)+'</div><div class="sports-f1-circuit">'+escapeHtml(data.circuit)+' · '+escapeHtml(data.country)+
     '</div><div class="sports-f1-time">'+time(data.date)+' AWST</div><div class="sports-f1-countdown">'+countdown+'</div><div class="f1-sessions">'+
     (data.sessions || []).map(s=>'<div><span>'+s.name+'</span>'+time(s.date)+'</div>').join('')+'</div></div>'+
+    (session && session.top?.length
+      ? '<div class="f1-results"><div class="f1-results-label">' + escapeHtml(session.name) + ' · top 3</div>' +
+        f1ResultRows(session.top) + '</div>'
+      : '')+
     (data.leader?'<div class="sports-f1-leader">'+(portrait?'<img class="driver-portrait" src="'+escapeHtml(portrait)+'" alt="'+escapeHtml(data.leader.name)+
       '" data-fallback="'+escapeHtml(safeImageUrl(data.leader.fallbackImage))+'" data-hide-on-error>':'')+
       '<div><div class="sports-f1-leader-label">Championship leader</div><div class="sports-f1-leader-name">'+escapeHtml(data.leader.name)+

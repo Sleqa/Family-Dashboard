@@ -8,7 +8,7 @@
   <meta name="description" content="The Weldon family dashboard — calendars, Burns Beach weather, nearby fuel and sport." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="dashboard.css?v=3" />
+  <link rel="stylesheet" href="dashboard.css?v=4" />
 </head>
 <body>
 <header class="header">
@@ -47,7 +47,7 @@
   </aside>
 </main>
 
-<script src="dashboard-extra.js?v=3"></script>
+<script src="dashboard-extra.js?v=4"></script>
 <script>
   // ════════════════════════════════════════════════════════════
   // iCal Calendar Feeds — direct fetch + parse, no OAuth, no popups
@@ -1066,13 +1066,20 @@
     const pinned  = document.getElementById('sports-pinned');
     const track   = document.getElementById('sports-track');
     const marquee = document.getElementById('sports-marquee');
+    const sidebar = document.getElementById('sports-sidebar');
 
-    const cards   = CARD_IDS.map(id => document.getElementById(id));
+    const cards = CARD_IDS.map(id => document.getElementById(id));
+    // A live F1 session asks for the whole sidebar, so the other cards step
+    // aside for as long as it is running.
+    const solo = cards.find(c => c.dataset.solo === '1' && !c.hidden) || null;
+    if (solo) cards.forEach(c => { if (c !== solo) c.hidden = true; });
+    sidebar.classList.toggle('is-solo', !!solo);
+
     const visible = cards.filter(c => !c.hidden);
-    const live    = visible.find(c => c.dataset.live === '1') || null;
+    const live    = solo || visible.find(c => c.dataset.live === '1') || null;
     const rolling = cards.filter(c => c !== live);
 
-    const zones = (live ? live.id : '-') + '|' + rolling.map(c => c.id).join(',');
+    const zones = (solo ? 'solo:' : '') + (live ? live.id : '-') + '|' + rolling.map(c => c.id).join(',');
     if (zones !== carouselZones) {
       carouselZones = zones;
       clearClones();
@@ -1128,7 +1135,8 @@
     if (!isOnline()) { updateConnBadge(); return; }
 
     sportsBusy = true;
-    const needsF1 = Date.now() - lastF1Fetch > 15 * 60000;
+    const f1Live = sportsState.f1?.session?.live === true;
+    const needsF1 = f1Live || Date.now() - lastF1Fetch > 15 * 60000;
     const [nba, afl, f1] = await Promise.all([
       fetchNBAData(),
       fetchAFLData(),
