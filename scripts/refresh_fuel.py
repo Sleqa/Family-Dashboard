@@ -7,6 +7,11 @@ from urllib.request import Request, urlopen
 import xml.etree.ElementTree as ET
 
 CENTRE = {"name": "Burns Beach", "latitude": -31.7206, "longitude": 115.7205}
+# The dashboard shows the cheapest price anywhere in the Perth metro area
+# alongside the cheapest ones close to home, so the snapshot keeps every
+# nearby station plus a short metro-wide leaderboard.
+LOCAL_RADIUS_KM = 20
+PERTH_KEEP = 12
 PERTH = timezone(timedelta(hours=8))
 OUTPUT = Path(__file__).resolve().parents[1] / "data" / "fuel.json"
 
@@ -36,8 +41,6 @@ def parse_prices(xml, expected_date):
         if not all(map(math.isfinite, [lat, lon, price])) or not (0 < price < 1000):
             continue
         distance = distance_km(lat, lon)
-        if distance > 30:
-            continue
         key = (field("trading-name"), field("address"))
         if key in seen:
             continue
@@ -52,13 +55,32 @@ def parse_prices(xml, expected_date):
     return sorted(stations, key=lambda s: (s["price"], s["distanceKm"], s["name"]))
 
 
+def select_stations(stations):
+    """Everything near home, plus the cheapest handful anywhere in the metro.
+
+    Keeping the whole metro list would bloat the public snapshot, but the card
+    needs a true Perth-wide cheapest price, so the leaderboard rides along.
+    Restricted (membership) prices are never eligible for that headline.
+    """
+    kept, seen = [], set()
+    local = [s for s in stations if s["distanceKm"] <= LOCAL_RADIUS_KM]
+    cheapest = [s for s in stations if not s["restrictions"]][:PERTH_KEEP]
+    for station in local + cheapest:
+        key = (station["name"], station["address"])
+        if key in seen:
+            continue
+        seen.add(key)
+        kept.append(station)
+    return sorted(kept, key=lambda s: (s["price"], s["distanceKm"], s["name"]))
+
+
 def fetch_day(day, expected_date):
     # No Region filter means all Perth metro regions; num prevents the default
-    # top-ten truncation *before* applying the 30 km radius.
+    # top-ten truncation before the metro-wide cheapest price is chosen.
     url = "https://www.fuelwatch.wa.gov.au/fuelwatch/fuelWatchRSS?Product=2&num=999&Day=" + day
     req = Request(url, headers={"User-Agent": "WeldonHub/2.0 (FuelWatch RSS consumer)"})
     with urlopen(req, timeout=15) as response:
-        return parse_prices(response.read(), expected_date)
+        return select_stations(parse_prices(response.read(), expected_date))
 
 
 def main():
@@ -72,12 +94,13 @@ def main():
         next_prices = fetch_day("tomorrow", tomorrow)
     data = {
         "updatedAt": now.isoformat(), "source": "FuelWatch WA", "product": 2,
-        "fuel": "Premium 95", "centre": CENTRE, "radiusKm": 30,
+        "fuel": "Premium 95", "centre": CENTRE, "localRadiusKm": LOCAL_RADIUS_KM,
         "days": {today: current, tomorrow: next_prices},
     }
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8", newline="\n")
-    print(f"Premium 95: {len(current)} stations today, {len(next_prices)} tomorrow, within 30 km")
+    near = sum(1 for s in current if s["distanceKm"] <= LOCAL_RADIUS_KM)
+    print(f"Premium 95: {len(current)} stations today ({near} within {LOCAL_RADIUS_KM} km), {len(next_prices)} tomorrow")
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 const MADRING_IMAGE = 'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/25/Madring_%282026%29.svg/960px-Madring_%282026%29.svg.png';
 const ANTONELLI_IMAGE = 'https://upload.wikimedia.org/wikipedia/commons/d/d3/Antonelli_Barcelona_2024.jpg';
 let fuelSnapshot = null;
-let fuelDay = 'today';
+const FUEL_LOCAL_RADIUS_KM = 20;
 let extrasBusy = false;
 
 function perthTime(date) {
@@ -70,39 +70,43 @@ function renderWeatherExtras(w) {
   document.getElementById('sun-strip').innerHTML = i < 0 ? '' :
     '<span>↑ ' + perthTime(new Date(daily.sunrise[i]+'+08:00')) + '</span><span>↓ ' + perthTime(new Date(daily.sunset[i]+'+08:00')) +
     ' sunset</span><span class="uv">UV ' + numberOrDash(daily.uv_index_max[i]) + ' max</span>';
-  document.getElementById('weather-updated').textContent = Date.now() - w.updatedAt > 3600000 ? 'Saved forecast' : 'Updated ' + perthTime(new Date(w.updatedAt));
 }
 
-function fuelDate() {
-  return perthDateKey(new Date(Date.now() + (fuelDay === 'tomorrow' ? 86400000 : 0)));
+function fuelRow(station, rank) {
+  const maps = 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(station.latitude + ',' + station.longitude);
+  return '<a class="fuel-row" href="' + maps + '" target="_blank" rel="noopener" title="Directions to ' + escapeHtml(station.name) +
+    '"><span class="fuel-rank">' + String(rank).padStart(2,'0') + '</span><div><div class="fuel-name">' + escapeHtml(station.name) +
+    '</div><div class="fuel-address">' + escapeHtml(station.suburb) + ' · ' + station.distanceKm.toFixed(1) + ' km</div></div><div class="fuel-price">' +
+    station.price.toFixed(1) + '<small>cents / litre</small></div></a>';
 }
 
 function renderFuel() {
   const el = document.getElementById('fuel-content');
-  const date = fuelDate();
-  const stations = fuelSnapshot?.days?.[date];
-  document.getElementById('fuel-today').classList.toggle('active', fuelDay === 'today');
-  document.getElementById('fuel-tomorrow').classList.toggle('active', fuelDay === 'tomorrow');
-  document.getElementById('fuel-today').setAttribute('aria-pressed', String(fuelDay === 'today'));
-  document.getElementById('fuel-tomorrow').setAttribute('aria-pressed', String(fuelDay === 'tomorrow'));
+  const stations = fuelSnapshot?.days?.[perthDateKey(new Date())];
   if (!stations?.length) {
-    el.innerHTML = '<p class="fuel-note">' + (fuelDay === 'tomorrow' ? 'Tomorrow’s prices appear after FuelWatch publishes them at 2:30 pm and the afternoon update runs.' :
-      'Today’s prices haven’t arrived yet. Check FuelWatch for the latest prices.') + '</p>';
+    el.innerHTML = '<p class="fuel-note">Today’s prices haven’t arrived yet.</p>';
     return;
   }
-  const eligible = stations.filter(s => !s.restrictions && s.distanceKm <= 30 && Number.isFinite(s.price));
-  const ranked = [...eligible].sort((a,b) => a.price - b.price || a.distanceKm - b.distanceKm);
-  if (!ranked.length) { el.innerHTML = '<p class="fuel-note">No unrestricted prices available nearby.</p>'; return; }
-  el.innerHTML = ranked.slice(0,3).map((s,i) => {
-    const maps = 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(s.latitude + ',' + s.longitude);
-    return '<a class="fuel-row" href="' + maps + '" target="_blank" rel="noopener" title="Directions to ' + escapeHtml(s.name) +
-      '"><span class="fuel-rank">' + String(i+1).padStart(2,'0') + '</span><div><div class="fuel-name">' + escapeHtml(s.name) +
-      '</div><div class="fuel-address">' + escapeHtml(s.suburb) + ' · ' + s.distanceKm.toFixed(1) + ' km</div></div><div class="fuel-price">' +
-      s.price.toFixed(1) + '<small>cents / litre</small></div></a>';
-  }).join('');
-  const label = new Date(date+'T12:00:00+08:00').toLocaleDateString('en-AU',{timeZone:'Australia/Perth',day:'numeric',month:'short'});
-  el.innerHTML += '<p class="fuel-note">' + ranked.length + ' stations compared · ' + label +
-    '<br>Standard prices; membership offers excluded.<br>Updated ' + perthTime(new Date(fuelSnapshot.updatedAt)) + ' · tap a station for directions.</p>';
+  // Membership-only deals aren't prices the family can actually pay.
+  const ranked = stations
+    .filter(s => !s.restrictions && Number.isFinite(s.price))
+    .sort((a,b) => a.price - b.price || a.distanceKm - b.distanceKm);
+  if (!ranked.length) { el.innerHTML = '<p class="fuel-note">No open prices available today.</p>'; return; }
+
+  const best = ranked[0];
+  // When the metro-wide cheapest is already nearby, listing it again under
+  // the local heading would read as a duplicate — show the rest instead, and
+  // say "also" so the heading stays true either way.
+  const bestIsLocal = best.distanceKm <= FUEL_LOCAL_RADIUS_KM;
+  const local = ranked.filter(s => s.distanceKm <= FUEL_LOCAL_RADIUS_KM && s !== best);
+
+  let html = '<div class="fuel-group-label">Cheapest in Perth</div>' + fuelRow(best, 1);
+  if (local.length) {
+    html += '<div class="fuel-group-label">' +
+      (bestIsLocal ? 'Also within ' : 'Cheapest within ') + FUEL_LOCAL_RADIUS_KM + ' km</div>' +
+      local.slice(0, 3).map((s, i) => fuelRow(s, i + 1)).join('');
+  }
+  el.innerHTML = html;
 }
 
 async function refreshFuel() {
@@ -116,7 +120,7 @@ async function refreshFuel() {
       if (data.product !== 2 || !data.days || !data.updatedAt) throw new Error('Invalid fuel snapshot');
       if (!fuelSnapshot || new Date(data.updatedAt) >= new Date(fuelSnapshot.updatedAt)) {
         fuelSnapshot = data;
-        cacheSet('fuel:95', data);
+        cacheSet('fuel:95:metro', data);
       }
       renderFuel();
       return;
@@ -175,8 +179,10 @@ function drawF1Card(data) {
       '" data-fallback="'+escapeHtml(safeImageUrl(data.leader.fallbackImage))+'" data-hide-on-error>':'')+
       '<div><div class="sports-f1-leader-label">Championship leader</div><div class="sports-f1-leader-name">'+escapeHtml(data.leader.name)+
       '</div><div class="sports-f1-leader-points">'+escapeHtml(data.leader.points)+' pts · '+escapeHtml(data.leader.team)+'</div></div></div>':'')+
-    '<div class="image-credit">'+(data.circuitCredit==='commons'?'<a href="https://commons.wikimedia.org/wiki/File:Madring_(2026).svg" target="_blank" rel="noopener">Circuit: GabrielStella · CC BY-SA 3.0</a> · ':'')+
-    'Images: F1 / OpenF1'+(data.leader?.fallbackImage?' · alternate portrait: Byxelized / CC0':'')+'</div>';
+    // Data-source notes are gone, but the Wikimedia circuit diagram is
+    // CC BY-SA 3.0 — displaying it without credit would breach the licence,
+    // so this one line stays whenever that particular image is shown.
+    (data.circuitCredit==='commons'&&track?'<div class="image-credit"><a href="https://commons.wikimedia.org/wiki/File:Madring_(2026).svg" target="_blank" rel="noopener">Circuit: GabrielStella · CC BY-SA 3.0</a></div>':'');
 }
 
 async function refreshHomeExtras() {
@@ -188,13 +194,11 @@ async function refreshHomeExtras() {
 }
 
 function initialiseHomeExtras() {
-  fuelSnapshot = cacheGet('fuel:95')?.value || null;
+  fuelSnapshot = cacheGet('fuel:95:metro')?.value || null;
   renderWeekStrip();
   refreshHomeExtras();
   setInterval(refreshHomeExtras, 15*60000);
   setInterval(renderFuel, 60000);
-  document.getElementById('fuel-today').addEventListener('click',()=>{fuelDay='today';renderFuel();});
-  document.getElementById('fuel-tomorrow').addEventListener('click',()=>{fuelDay='tomorrow';renderFuel();});
   let manualRefreshBusy=false;
   document.getElementById('refresh-button').addEventListener('click',async()=>{
     if(manualRefreshBusy)return;

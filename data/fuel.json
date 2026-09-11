@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-11T14:41:55.707911+08:00",
+  "updatedAt": "2026-09-11T18:18:44.521340+08:00",
   "source": "FuelWatch WA",
   "product": 2,
   "fuel": "Premium 95",
@@ -8,7 +8,7 @@
     "latitude": -31.7206,
     "longitude": 115.7205
   },
-  "radiusKm": 30,
+  "localRadiusKm": 20,
   "days": {
     "2026-09-11": [
       {
@@ -42,6 +42,56 @@
         "restrictions": ""
       },
       {
+        "name": "Metro Midvale",
+        "address": "83 Farrall Rd",
+        "suburb": "Midvale",
+        "price": 209.2,
+        "distanceKm": 34.7,
+        "latitude": -31.885552,
+        "longitude": 116.032753,
+        "restrictions": ""
+      },
+      {
+        "name": "Metro Canning Vale",
+        "address": "Lot 322 Ranford Rd",
+        "suburb": "Canning Vale",
+        "price": 209.2,
+        "distanceKm": 45.6,
+        "latitude": -32.092476,
+        "longitude": 115.923934,
+        "restrictions": ""
+      },
+      {
+        "name": "Atlas Fuel Ascot",
+        "address": "472 Great Eastern Hwy",
+        "suburb": "Ascot",
+        "price": 211.9,
+        "distanceKm": 31.6,
+        "latitude": -31.925213,
+        "longitude": 115.951987,
+        "restrictions": ""
+      },
+      {
+        "name": "Atlas Fuel Kwinana",
+        "address": "1 Mandurah Rd",
+        "suburb": "Kwinana Beach",
+        "price": 211.9,
+        "distanceKm": 57.6,
+        "latitude": -32.235848,
+        "longitude": 115.780215,
+        "restrictions": ""
+      },
+      {
+        "name": "Vibe Canning Vale",
+        "address": "6 Birnam Rd",
+        "suburb": "Canning Vale",
+        "price": 212.9,
+        "distanceKm": 43.8,
+        "latitude": -32.075096,
+        "longitude": 115.922947,
+        "restrictions": ""
+      },
+      {
         "name": "Burk Landsdale",
         "address": "274 Gnangara Rd",
         "suburb": "Landsdale",
@@ -49,6 +99,26 @@
         "distanceKm": 14.8,
         "latitude": -31.79903,
         "longitude": 115.847126,
+        "restrictions": ""
+      },
+      {
+        "name": "Burk Cannington",
+        "address": "1510 Albany Hwy",
+        "suburb": "Beckenham",
+        "price": 213.3,
+        "distanceKm": 40.4,
+        "latitude": -32.027183,
+        "longitude": 115.950013,
+        "restrictions": ""
+      },
+      {
+        "name": "Caltex Kwinana Truck Stop",
+        "address": "4 Ocean St",
+        "suburb": "Kwinana Beach",
+        "price": 213.7,
+        "distanceKm": 58.8,
+        "latitude": -32.247525,
+        "longitude": 115.773262,
         "restrictions": ""
       },
       {
@@ -62,16 +132,6 @@
         "restrictions": ""
       },
       {
-        "name": "Vibe Bayswater",
-        "address": "120 Beechboro Rd South",
-        "suburb": "Bayswater",
-        "price": 214.7,
-        "distanceKm": 27.6,
-        "latitude": -31.9046833,
-        "longitude": 115.9163268,
-        "restrictions": ""
-      },
-      {
         "name": "Burk Alkimos",
         "address": "12 Longstaff Ave",
         "suburb": "Alkimos",
@@ -79,26 +139,6 @@
         "distanceKm": 10.6,
         "latitude": -31.628239,
         "longitude": 115.69118,
-        "restrictions": ""
-      },
-      {
-        "name": "Burk Malaga",
-        "address": "1 Harlond Ave",
-        "suburb": "Malaga",
-        "price": 217.3,
-        "distanceKm": 22.1,
-        "latitude": -31.855778,
-        "longitude": 115.891559,
-        "restrictions": ""
-      },
-      {
-        "name": "Shell Reddy Express Mount Lawley",
-        "address": "253 Walcott St",
-        "suburb": "North Perth",
-        "price": 217.4,
-        "distanceKm": 26.1,
-        "latitude": -31.923821,
-        "longitude": 115.859281,
         "restrictions": ""
       },
       {
@@ -112,26 +152,6 @@
         "restrictions": ""
       },
       {
-        "name": "Atlas Fuel Caversham",
-        "address": "40 Bennett St",
-        "suburb": "Caversham",
-        "price": 218.8,
-        "distanceKm": 28.2,
-        "latitude": -31.8719994,
-        "longitude": 115.9599162,
-        "restrictions": ""
-      },
-      {
-        "name": "United Osborne Park",
-        "address": "479 Scarborough Beach Rd",
-        "suburb": "Osborne Park",
-        "price": 218.9,
-        "distanceKm": 22.0,
-        "latitude": -31.904837,
-        "longitude": 115.80609,
-        "restrictions": ""
-      },
-      {
         "name": "United Tapping",
         "address": "1369 Wanneroo Rd",
         "suburb": "Wanneroo",
@@ -139,26 +159,6 @@
         "distanceKm": 6.0,
         "latitude": -31.719744,
         "longitude": 115.783408,
-        "restrictions": ""
-      },
-      {
-        "name": "Solo Morley",
-        "address": "298 Benara Rd",
-        "suburb": "Morley",
-        "price": 219.5,
-        "distanceKm": 25.9,
-        "latitude": -31.875866,
-        "longitude": 115.925309,
-        "restrictions": ""
-      },
-      {
-        "name": "United Northbridge",
-        "address": "31 Fitzgerald St",
-        "suburb": "Northbridge",
-        "price": 219.9,
-        "distanceKm": 28.0,
-        "latitude": -31.945612,
-        "longitude": 115.852438,
         "restrictions": ""
       },
       {
@@ -172,16 +172,6 @@
         "restrictions": ""
       },
       {
-        "name": "Vibe Bullsbrook Northlink",
-        "address": "1769 Neaves Rd",
-        "suburb": "Bullsbrook",
-        "price": 220.3,
-        "distanceKm": 25.1,
-        "latitude": -31.654313,
-        "longitude": 115.974255,
-        "restrictions": ""
-      },
-      {
         "name": "Liberty Tapping",
         "address": "3 Herdsman Lane",
         "suburb": "Wanneroo",
@@ -192,16 +182,6 @@
         "restrictions": ""
       },
       {
-        "name": "Burk West Swan",
-        "address": "6639 West Swan Rd",
-        "suburb": "West Swan",
-        "price": 221.3,
-        "distanceKm": 28.7,
-        "latitude": -31.839036,
-        "longitude": 115.990655,
-        "restrictions": ""
-      },
-      {
         "name": "Better Choice Edgewater",
         "address": "21 Edgewater Dr",
         "suburb": "Edgewater",
@@ -209,16 +189,6 @@
         "distanceKm": 8.7,
         "latitude": -31.772036,
         "longitude": 115.789182,
-        "restrictions": ""
-      },
-      {
-        "name": "Vibe Nollamara",
-        "address": "66 Sylvia St",
-        "suburb": "Nollamara",
-        "price": 221.7,
-        "distanceKm": 21.1,
-        "latitude": -31.880514,
-        "longitude": 115.840339,
         "restrictions": ""
       },
       {
@@ -292,36 +262,6 @@
         "restrictions": ""
       },
       {
-        "name": "7-Eleven Malaga",
-        "address": "650 Marshall Rd",
-        "suburb": "Malaga",
-        "price": 222.9,
-        "distanceKm": 23.3,
-        "latitude": -31.856778,
-        "longitude": 115.908098,
-        "restrictions": ""
-      },
-      {
-        "name": "United Ellenbrook",
-        "address": "3 Locke Lane",
-        "suburb": "Ellenbrook",
-        "price": 222.9,
-        "distanceKm": 24.2,
-        "latitude": -31.77852,
-        "longitude": 115.96699,
-        "restrictions": ""
-      },
-      {
-        "name": "7-Eleven Bassendean",
-        "address": "302-318 Collier Rd",
-        "suburb": "Bassendean",
-        "price": 222.9,
-        "distanceKm": 28.7,
-        "latitude": -31.9063297,
-        "longitude": 115.9308682,
-        "restrictions": ""
-      },
-      {
         "name": "Shell Reddy Express Brighton",
         "address": "61 Butler Bvd",
         "suburb": "Butler",
@@ -339,66 +279,6 @@
         "distanceKm": 10.6,
         "latitude": -31.780031,
         "longitude": 115.808184,
-        "restrictions": ""
-      },
-      {
-        "name": "Shell Reddy Express Osborne Park",
-        "address": "11 Roberts St West",
-        "suburb": "Osborne Park",
-        "price": 223.4,
-        "distanceKm": 22.8,
-        "latitude": -31.907535,
-        "longitude": 115.819092,
-        "restrictions": ""
-      },
-      {
-        "name": "Shell Reddy Express Dianella",
-        "address": "67 Walter Rd West",
-        "suburb": "Dianella",
-        "price": 223.4,
-        "distanceKm": 25.7,
-        "latitude": -31.905801,
-        "longitude": 115.8827,
-        "restrictions": ""
-      },
-      {
-        "name": "Shell Reddy Express Perth",
-        "address": "480 William St",
-        "suburb": "Perth",
-        "price": 223.4,
-        "distanceKm": 28.0,
-        "latitude": -31.940953,
-        "longitude": 115.863904,
-        "restrictions": ""
-      },
-      {
-        "name": "Shell Reddy Express Bayswater",
-        "address": "34 Jackson St",
-        "suburb": "Bayswater",
-        "price": 223.4,
-        "distanceKm": 28.4,
-        "latitude": -31.906734,
-        "longitude": 115.92665,
-        "restrictions": ""
-      },
-      {
-        "name": "OTR Perth Pier Street",
-        "address": "17 Brisbane St",
-        "suburb": "Perth",
-        "price": 223.4,
-        "distanceKm": 28.5,
-        "latitude": -31.944162,
-        "longitude": 115.86904,
-        "restrictions": ""
-      },
-      {
-        "name": "Shell Reddy Express Upper Swan Roadhouse",
-        "address": "1333 Great Northern Hwy",
-        "suburb": "Upper Swan",
-        "price": 223.4,
-        "distanceKm": 29.5,
-        "latitude": -31.774597,
-        "longitude": 116.025849,
         "restrictions": ""
       },
       {
@@ -422,16 +302,6 @@
         "restrictions": ""
       },
       {
-        "name": "Vibe Subiaco",
-        "address": "123 Thomas St",
-        "suburb": "Subiaco",
-        "price": 223.7,
-        "distanceKm": 27.8,
-        "latitude": -31.952307,
-        "longitude": 115.83115,
-        "restrictions": ""
-      },
-      {
         "name": "Astron Neerabup",
         "address": "2038 Wanneroo Rd",
         "suburb": "Neerabup",
@@ -452,36 +322,6 @@
         "restrictions": ""
       },
       {
-        "name": "Caltex Mount Lawley",
-        "address": "81 Guildford Rd",
-        "suburb": "Mount Lawley",
-        "price": 223.9,
-        "distanceKm": 28.4,
-        "latitude": -31.934473,
-        "longitude": 115.884014,
-        "restrictions": ""
-      },
-      {
-        "name": "Caltex Upper Swan",
-        "address": "1383 Great Northern Hwy",
-        "suburb": "Upper Swan",
-        "price": 223.9,
-        "distanceKm": 29.7,
-        "latitude": -31.770891,
-        "longitude": 116.028679,
-        "restrictions": ""
-      },
-      {
-        "name": "Vibe Upper Swan",
-        "address": "1447 Great Northern Hwy",
-        "suburb": "Upper Swan",
-        "price": 224.7,
-        "distanceKm": 29.9,
-        "latitude": -31.765846,
-        "longitude": 116.031763,
-        "restrictions": ""
-      },
-      {
         "name": "Petro Fuels Westminster",
         "address": "436 Wanneroo Rd",
         "suburb": "Westminster",
@@ -499,36 +339,6 @@
         "distanceKm": 5.3,
         "latitude": -31.765279,
         "longitude": 115.741009,
-        "restrictions": ""
-      },
-      {
-        "name": "OMG Metro Dianella",
-        "address": "63 Walter Rd West",
-        "suburb": "Dianella",
-        "price": 224.9,
-        "distanceKm": 25.7,
-        "latitude": -31.906435,
-        "longitude": 115.881917,
-        "restrictions": ""
-      },
-      {
-        "name": "Better Choice Malaga",
-        "address": "3 Carson Rd",
-        "suburb": "Malaga",
-        "price": 225.5,
-        "distanceKm": 21.1,
-        "latitude": -31.855136,
-        "longitude": 115.878229,
-        "restrictions": ""
-      },
-      {
-        "name": "Better Choice Tuart Hill",
-        "address": "150 Wanneroo Rd",
-        "suburb": "Tuart Hill",
-        "price": 226.5,
-        "distanceKm": 22.7,
-        "latitude": -31.897268,
-        "longitude": 115.841447,
         "restrictions": ""
       },
       {
@@ -612,116 +422,6 @@
         "restrictions": ""
       },
       {
-        "name": "7-Eleven Yanchep",
-        "address": "2 Tamala Lane",
-        "suburb": "Yanchep",
-        "price": 226.9,
-        "distanceKm": 20.5,
-        "latitude": -31.550386,
-        "longitude": 115.638587,
-        "restrictions": ""
-      },
-      {
-        "name": "7-Eleven Ellenbrook Central",
-        "address": "Cnr Main St & Pinaster Pde",
-        "suburb": "Ellenbrook",
-        "price": 226.9,
-        "distanceKm": 24.5,
-        "latitude": -31.786444,
-        "longitude": 115.967273,
-        "restrictions": ""
-      },
-      {
-        "name": "EG Ampol Ellenbrook",
-        "address": "11 Main St",
-        "suburb": "Ellenbrook",
-        "price": 226.9,
-        "distanceKm": 24.5,
-        "latitude": -31.780889,
-        "longitude": 115.969189,
-        "restrictions": ""
-      },
-      {
-        "name": "7-Eleven Malvern Springs",
-        "address": "324 The Broadway",
-        "suburb": "Ellenbrook",
-        "price": 226.9,
-        "distanceKm": 25.6,
-        "latitude": -31.766075,
-        "longitude": 115.985544,
-        "restrictions": ""
-      },
-      {
-        "name": "EG Ampol Aveley",
-        "address": "317 Millhouse Rd",
-        "suburb": "Aveley",
-        "price": 226.9,
-        "distanceKm": 26.0,
-        "latitude": -31.777467,
-        "longitude": 115.987368,
-        "restrictions": ""
-      },
-      {
-        "name": "7-Eleven Brabham",
-        "address": "3 Marvel Ent",
-        "suburb": "Brabham",
-        "price": 226.9,
-        "distanceKm": 26.5,
-        "latitude": -31.83263,
-        "longitude": 115.968131,
-        "restrictions": ""
-      },
-      {
-        "name": "7-Eleven Morley",
-        "address": "162 Russell St",
-        "suburb": "Morley",
-        "price": 226.9,
-        "distanceKm": 26.7,
-        "latitude": -31.903344,
-        "longitude": 115.903047,
-        "restrictions": ""
-      },
-      {
-        "name": "7-Eleven Dayton",
-        "address": "10 Swaisdale Ent",
-        "suburb": "Dayton",
-        "price": 226.9,
-        "distanceKm": 27.3,
-        "latitude": -31.848009,
-        "longitude": 115.967584,
-        "restrictions": ""
-      },
-      {
-        "name": "Ampol Foodary Mt Lawley",
-        "address": "810 Beaufort St",
-        "suburb": "Mount Lawley",
-        "price": 226.9,
-        "distanceKm": 27.4,
-        "latitude": -31.925179,
-        "longitude": 115.881917,
-        "restrictions": ""
-      },
-      {
-        "name": "7-Eleven Two Rocks",
-        "address": "2 Dunraven Rd",
-        "suburb": "Two Rocks",
-        "price": 226.9,
-        "distanceKm": 28.1,
-        "latitude": -31.49097,
-        "longitude": 115.597517,
-        "restrictions": ""
-      },
-      {
-        "name": "7-Eleven Caversham",
-        "address": "2131 West Swan Rd",
-        "suburb": "Caversham",
-        "price": 226.9,
-        "distanceKm": 29.5,
-        "latitude": -31.875469,
-        "longitude": 115.974566,
-        "restrictions": ""
-      },
-      {
         "name": "Shell Reddy Express Clarkson",
         "address": "36 Ocean Keys Bvd",
         "suburb": "Clarkson",
@@ -802,66 +502,6 @@
         "restrictions": ""
       },
       {
-        "name": "S24 Yanchep",
-        "address": "1 Ikara Lane",
-        "suburb": "Yanchep",
-        "price": 227.4,
-        "distanceKm": 20.6,
-        "latitude": -31.547779,
-        "longitude": 115.641352,
-        "restrictions": ""
-      },
-      {
-        "name": "Shell Reddy Express Malaga",
-        "address": "492 Alexander Dr",
-        "suburb": "Malaga",
-        "price": 227.4,
-        "distanceKm": 21.9,
-        "latitude": -31.863512,
-        "longitude": 115.879279,
-        "restrictions": ""
-      },
-      {
-        "name": "Shell Reddy Express Ellenbrook",
-        "address": "3 Goodwood Cres",
-        "suburb": "Ellenbrook",
-        "price": 227.4,
-        "distanceKm": 23.4,
-        "latitude": -31.775,
-        "longitude": 115.96,
-        "restrictions": ""
-      },
-      {
-        "name": "Shell Reddy Express Jolimont",
-        "address": "6 Jersey St",
-        "suburb": "Jolimont",
-        "price": 227.4,
-        "distanceKm": 26.6,
-        "latitude": -31.947273,
-        "longitude": 115.811941,
-        "restrictions": ""
-      },
-      {
-        "name": "Shell Reddy Express West Perth",
-        "address": "30 Thomas St",
-        "suburb": "West Perth",
-        "price": 227.4,
-        "distanceKm": 27.4,
-        "latitude": -31.945494,
-        "longitude": 115.839719,
-        "restrictions": ""
-      },
-      {
-        "name": "Shell Reddy Express Claremont",
-        "address": "269 Stirling Hwy",
-        "suburb": "Claremont",
-        "price": 227.4,
-        "distanceKm": 29.7,
-        "latitude": -31.982195,
-        "longitude": 115.78389,
-        "restrictions": ""
-      },
-      {
         "name": "Caltex Neerabup",
         "address": "2056 Wanneroo Rd",
         "suburb": "Neerabup",
@@ -872,16 +512,6 @@
         "restrictions": ""
       },
       {
-        "name": "Vibe Bullsbrook",
-        "address": "2533 Great Northern Hwy",
-        "suburb": "Bullsbrook",
-        "price": 228.7,
-        "distanceKm": 29.9,
-        "latitude": -31.671935,
-        "longitude": 116.031427,
-        "restrictions": ""
-      },
-      {
         "name": "Astron Quinns Rocks",
         "address": "121 Quinns Rd",
         "suburb": "Quinns Rocks",
@@ -889,16 +519,6 @@
         "distanceKm": 5.5,
         "latitude": -31.672657,
         "longitude": 115.708282,
-        "restrictions": ""
-      },
-      {
-        "name": "Caltex Bayswater",
-        "address": "502 Guildford Rd",
-        "suburb": "Bayswater",
-        "price": 229.9,
-        "distanceKm": 29.6,
-        "latitude": -31.919556,
-        "longitude": 115.929069,
         "restrictions": ""
       },
       {
@@ -959,36 +579,6 @@
         "distanceKm": 18.9,
         "latitude": -31.826611,
         "longitude": 115.877278,
-        "restrictions": ""
-      },
-      {
-        "name": "Caltex Malaga",
-        "address": "1896 Beach Rd",
-        "suburb": "Malaga",
-        "price": 231.9,
-        "distanceKm": 21.2,
-        "latitude": -31.85295,
-        "longitude": 115.882059,
-        "restrictions": ""
-      },
-      {
-        "name": "Caltex Osborne Park",
-        "address": "8 Main St",
-        "suburb": "Osborne Park",
-        "price": 231.9,
-        "distanceKm": 23.8,
-        "latitude": -31.913639,
-        "longitude": 115.828363,
-        "restrictions": ""
-      },
-      {
-        "name": "Caltex Dayton",
-        "address": "8 Repton St",
-        "suburb": "Dayton",
-        "price": 231.9,
-        "distanceKm": 27.6,
-        "latitude": -31.851089,
-        "longitude": 115.968786,
         "restrictions": ""
       },
       {
@@ -1232,276 +822,6 @@
         "restrictions": ""
       },
       {
-        "name": "Ampol Foodary Yanchep",
-        "address": "1 Morwell St",
-        "suburb": "Yanchep",
-        "price": 236.9,
-        "distanceKm": 20.2,
-        "latitude": -31.552063,
-        "longitude": 115.639632,
-        "restrictions": ""
-      },
-      {
-        "name": "Ampol Foodary Malaga",
-        "address": "1 Capital Rd",
-        "suburb": "Malaga",
-        "price": 236.9,
-        "distanceKm": 20.6,
-        "latitude": -31.848235,
-        "longitude": 115.878484,
-        "restrictions": ""
-      },
-      {
-        "name": "Ampol Foodary Doubleview",
-        "address": "365 Scarborough Beach Rd",
-        "suburb": "Doubleview",
-        "price": 236.9,
-        "distanceKm": 21.3,
-        "latitude": -31.901328,
-        "longitude": 115.794203,
-        "restrictions": ""
-      },
-      {
-        "name": "BP Nookenburra",
-        "address": "386 Scarborough Beach Rd",
-        "suburb": "Innaloo",
-        "price": 236.9,
-        "distanceKm": 21.6,
-        "latitude": -31.902714,
-        "longitude": 115.799177,
-        "restrictions": ""
-      },
-      {
-        "name": "EG Ampol Mirrabooka",
-        "address": "53 Yirrigan Dr",
-        "suburb": "Mirrabooka",
-        "price": 236.9,
-        "distanceKm": 21.6,
-        "latitude": -31.873567,
-        "longitude": 115.861407,
-        "restrictions": ""
-      },
-      {
-        "name": "BP Connect Main Street",
-        "address": "218 Main St",
-        "suburb": "Osborne Park",
-        "price": 236.9,
-        "distanceKm": 22.0,
-        "latitude": -31.896277,
-        "longitude": 115.82855,
-        "restrictions": ""
-      },
-      {
-        "name": "EG Ampol Ballajura",
-        "address": "5 Hamelin Dr",
-        "suburb": "Ballajura",
-        "price": 236.9,
-        "distanceKm": 22.5,
-        "latitude": -31.847444,
-        "longitude": 115.906385,
-        "restrictions": ""
-      },
-      {
-        "name": "Ampol Foodary Malaga Drive",
-        "address": "76 Malaga Dr",
-        "suburb": "Malaga",
-        "price": 236.9,
-        "distanceKm": 22.8,
-        "latitude": -31.863189,
-        "longitude": 115.893921,
-        "restrictions": ""
-      },
-      {
-        "name": "BP Malaga",
-        "address": "370 Victoria Rd",
-        "suburb": "Malaga",
-        "price": 236.9,
-        "distanceKm": 22.8,
-        "latitude": -31.862067,
-        "longitude": 115.894445,
-        "restrictions": ""
-      },
-      {
-        "name": "EG Ampol Osborne Park",
-        "address": "401 Scarborough Beach Rd",
-        "suburb": "Osborne Park",
-        "price": 236.9,
-        "distanceKm": 22.9,
-        "latitude": -31.91058,
-        "longitude": 115.81401,
-        "restrictions": ""
-      },
-      {
-        "name": "BP Ellenbrook",
-        "address": "180 The Promenade",
-        "suburb": "Ellenbrook",
-        "price": 236.9,
-        "distanceKm": 23.7,
-        "latitude": -31.775436,
-        "longitude": 115.963073,
-        "restrictions": ""
-      },
-      {
-        "name": "BP 2go Noranda",
-        "address": "40 Benara Rd",
-        "suburb": "Noranda",
-        "price": 236.9,
-        "distanceKm": 23.8,
-        "latitude": -31.875859,
-        "longitude": 115.894223,
-        "restrictions": ""
-      },
-      {
-        "name": "Ampol Foodary Glendalough",
-        "address": "2 Jon Sanders Dr",
-        "suburb": "Glendalough",
-        "price": 236.9,
-        "distanceKm": 24.3,
-        "latitude": -31.922426,
-        "longitude": 115.819754,
-        "restrictions": ""
-      },
-      {
-        "name": "EG Ampol Dianella",
-        "address": "372 Grand Prom",
-        "suburb": "Dianella",
-        "price": 236.9,
-        "distanceKm": 24.3,
-        "latitude": -31.89674,
-        "longitude": 115.871865,
-        "restrictions": ""
-      },
-      {
-        "name": "EG Ampol Floreat",
-        "address": "5 Howtree Pl",
-        "suburb": "Floreat",
-        "price": 236.9,
-        "distanceKm": 25.0,
-        "latitude": -31.93672,
-        "longitude": 115.793911,
-        "restrictions": ""
-      },
-      {
-        "name": "BP Connect Wellington Rd",
-        "address": "261 Walter Rd West",
-        "suburb": "Morley",
-        "price": 236.9,
-        "distanceKm": 25.5,
-        "latitude": -31.894607,
-        "longitude": 115.896666,
-        "restrictions": ""
-      },
-      {
-        "name": "EG Ampol Morley Galleria",
-        "address": "60 Russell St",
-        "suburb": "Morley",
-        "price": 236.9,
-        "distanceKm": 25.6,
-        "latitude": -31.896262,
-        "longitude": 115.895092,
-        "restrictions": ""
-      },
-      {
-        "name": "BP Connect North Perth",
-        "address": "349 Charles St",
-        "suburb": "North Perth",
-        "price": 236.9,
-        "distanceKm": 26.1,
-        "latitude": -31.926673,
-        "longitude": 115.851901,
-        "restrictions": ""
-      },
-      {
-        "name": "BP Connect Wembley",
-        "address": "240 Cambridge St",
-        "suburb": "Wembley",
-        "price": 236.9,
-        "distanceKm": 26.2,
-        "latitude": -31.940547,
-        "longitude": 115.820095,
-        "restrictions": ""
-      },
-      {
-        "name": "EG Ampol Brabham",
-        "address": "3 Marvel Ent",
-        "suburb": "Brabham",
-        "price": 236.9,
-        "distanceKm": 26.4,
-        "latitude": -31.832944,
-        "longitude": 115.966916,
-        "restrictions": ""
-      },
-      {
-        "name": "Ampol Foodary Leederville",
-        "address": "319 Vincent St",
-        "suburb": "Leederville",
-        "price": 236.9,
-        "distanceKm": 26.6,
-        "latitude": -31.936816,
-        "longitude": 115.840025,
-        "restrictions": ""
-      },
-      {
-        "name": "BP Embleton",
-        "address": "484 Walter Rd East",
-        "suburb": "Embleton",
-        "price": 236.9,
-        "distanceKm": 27.3,
-        "latitude": -31.8951,
-        "longitude": 115.923206,
-        "restrictions": ""
-      },
-      {
-        "name": "Ampol Foodary Subiaco",
-        "address": "194 Rokeby Rd",
-        "suburb": "Subiaco",
-        "price": 236.9,
-        "distanceKm": 27.4,
-        "latitude": -31.950616,
-        "longitude": 115.824234,
-        "restrictions": ""
-      },
-      {
-        "name": "Ampol Foodary East Perth",
-        "address": "157 Lord St",
-        "suburb": "Perth",
-        "price": 236.9,
-        "distanceKm": 29.0,
-        "latitude": -31.948689,
-        "longitude": 115.869567,
-        "restrictions": ""
-      },
-      {
-        "name": "BP Connect East Perth",
-        "address": "68-70 Brown St",
-        "suburb": "East Perth",
-        "price": 236.9,
-        "distanceKm": 29.5,
-        "latitude": -31.95077,
-        "longitude": 115.876572,
-        "restrictions": ""
-      },
-      {
-        "name": "BP Rosegarden",
-        "address": "129 Stirling Hwy",
-        "suburb": "Nedlands",
-        "price": 236.9,
-        "distanceKm": 29.7,
-        "latitude": -31.979719,
-        "longitude": 115.798235,
-        "restrictions": ""
-      },
-      {
-        "name": "Ampol Foodary Nedlands",
-        "address": "7 Broadway",
-        "suburb": "Nedlands",
-        "price": 236.9,
-        "distanceKm": 29.9,
-        "latitude": -31.97762,
-        "longitude": 115.813656,
-        "restrictions": ""
-      },
-      {
         "name": "BP Balcatta",
         "address": "53 Erindale Rd",
         "suburb": "Balcatta",
@@ -1540,26 +860,6 @@
         "latitude": -31.832441,
         "longitude": 115.802091,
         "restrictions": ""
-      },
-      {
-        "name": "BP Henley Brook",
-        "address": "1520 Gnangara Rd",
-        "suburb": "Henley Brook",
-        "price": 239.9,
-        "distanceKm": 25.8,
-        "latitude": -31.795951,
-        "longitude": 115.978636,
-        "restrictions": ""
-      },
-      {
-        "name": "BP Highgate",
-        "address": "342 Beaufort St",
-        "suburb": "Perth",
-        "price": 239.9,
-        "distanceKm": 28.3,
-        "latitude": -31.942556,
-        "longitude": 115.867359,
-        "restrictions": ""
       }
     ],
     "2026-09-12": [
@@ -1594,6 +894,26 @@
         "restrictions": ""
       },
       {
+        "name": "Metro Midvale",
+        "address": "83 Farrall Rd",
+        "suburb": "Midvale",
+        "price": 209.2,
+        "distanceKm": 34.7,
+        "latitude": -31.885552,
+        "longitude": 116.032753,
+        "restrictions": ""
+      },
+      {
+        "name": "Metro Canning Vale",
+        "address": "Lot 322 Ranford Rd",
+        "suburb": "Canning Vale",
+        "price": 209.2,
+        "distanceKm": 45.6,
+        "latitude": -32.092476,
+        "longitude": 115.923934,
+        "restrictions": ""
+      },
+      {
         "name": "Burk Landsdale",
         "address": "274 Gnangara Rd",
         "suburb": "Landsdale",
@@ -1601,6 +921,46 @@
         "distanceKm": 14.8,
         "latitude": -31.79903,
         "longitude": 115.847126,
+        "restrictions": ""
+      },
+      {
+        "name": "Burk Cannington",
+        "address": "1510 Albany Hwy",
+        "suburb": "Beckenham",
+        "price": 213.3,
+        "distanceKm": 40.4,
+        "latitude": -32.027183,
+        "longitude": 115.950013,
+        "restrictions": ""
+      },
+      {
+        "name": "Vibe Canning Vale",
+        "address": "6 Birnam Rd",
+        "suburb": "Canning Vale",
+        "price": 213.7,
+        "distanceKm": 43.8,
+        "latitude": -32.075096,
+        "longitude": 115.922947,
+        "restrictions": ""
+      },
+      {
+        "name": "Caltex Kwinana Truck Stop",
+        "address": "4 Ocean St",
+        "suburb": "Kwinana Beach",
+        "price": 213.7,
+        "distanceKm": 58.8,
+        "latitude": -32.247525,
+        "longitude": 115.773262,
+        "restrictions": ""
+      },
+      {
+        "name": "Metro Geraldton",
+        "address": "1 Fortyn Ct",
+        "suburb": "Mahomets Flats",
+        "price": 215.2,
+        "distanceKm": 342.4,
+        "latitude": -28.792328,
+        "longitude": 114.616974,
         "restrictions": ""
       },
       {
@@ -1614,6 +974,16 @@
         "restrictions": ""
       },
       {
+        "name": "Vibe Ascot",
+        "address": "268 Great Eastern Hwy",
+        "suburb": "Ascot",
+        "price": 216.7,
+        "distanceKm": 31.3,
+        "latitude": -31.935968,
+        "longitude": 115.934361,
+        "restrictions": ""
+      },
+      {
         "name": "Burk Alkimos",
         "address": "12 Longstaff Ave",
         "suburb": "Alkimos",
@@ -1621,46 +991,6 @@
         "distanceKm": 10.6,
         "latitude": -31.628239,
         "longitude": 115.69118,
-        "restrictions": ""
-      },
-      {
-        "name": "Burk Malaga",
-        "address": "1 Harlond Ave",
-        "suburb": "Malaga",
-        "price": 217.3,
-        "distanceKm": 22.1,
-        "latitude": -31.855778,
-        "longitude": 115.891559,
-        "restrictions": ""
-      },
-      {
-        "name": "Shell Reddy Express Mount Lawley",
-        "address": "253 Walcott St",
-        "suburb": "North Perth",
-        "price": 217.4,
-        "distanceKm": 26.1,
-        "latitude": -31.923821,
-        "longitude": 115.859281,
-        "restrictions": ""
-      },
-      {
-        "name": "United Osborne Park",
-        "address": "479 Scarborough Beach Rd",
-        "suburb": "Osborne Park",
-        "price": 218.9,
-        "distanceKm": 22.0,
-        "latitude": -31.904837,
-        "longitude": 115.80609,
-        "restrictions": ""
-      },
-      {
-        "name": "Solo Morley",
-        "address": "298 Benara Rd",
-        "suburb": "Morley",
-        "price": 219.2,
-        "distanceKm": 25.9,
-        "latitude": -31.875866,
-        "longitude": 115.925309,
         "restrictions": ""
       },
       {
@@ -1684,26 +1014,6 @@
         "restrictions": ""
       },
       {
-        "name": "OMG Metro Dianella",
-        "address": "63 Walter Rd West",
-        "suburb": "Dianella",
-        "price": 219.9,
-        "distanceKm": 25.7,
-        "latitude": -31.906435,
-        "longitude": 115.881917,
-        "restrictions": ""
-      },
-      {
-        "name": "United Northbridge",
-        "address": "31 Fitzgerald St",
-        "suburb": "Northbridge",
-        "price": 219.9,
-        "distanceKm": 28.0,
-        "latitude": -31.945612,
-        "longitude": 115.852438,
-        "restrictions": ""
-      },
-      {
         "name": "Liberty Landsdale",
         "address": "2 Cowle St",
         "suburb": "Landsdale",
@@ -1711,46 +1021,6 @@
         "distanceKm": 14.4,
         "latitude": -31.802758,
         "longitude": 115.837737,
-        "restrictions": ""
-      },
-      {
-        "name": "Vibe Bullsbrook Northlink",
-        "address": "1769 Neaves Rd",
-        "suburb": "Bullsbrook",
-        "price": 220.3,
-        "distanceKm": 25.1,
-        "latitude": -31.654313,
-        "longitude": 115.974255,
-        "restrictions": ""
-      },
-      {
-        "name": "Vibe Nollamara",
-        "address": "66 Sylvia St",
-        "suburb": "Nollamara",
-        "price": 220.7,
-        "distanceKm": 21.1,
-        "latitude": -31.880514,
-        "longitude": 115.840339,
-        "restrictions": ""
-      },
-      {
-        "name": "Vibe Upper Swan",
-        "address": "1447 Great Northern Hwy",
-        "suburb": "Upper Swan",
-        "price": 220.7,
-        "distanceKm": 29.9,
-        "latitude": -31.765846,
-        "longitude": 116.031763,
-        "restrictions": ""
-      },
-      {
-        "name": "Burk West Swan",
-        "address": "6639 West Swan Rd",
-        "suburb": "West Swan",
-        "price": 221.3,
-        "distanceKm": 28.7,
-        "latitude": -31.839036,
-        "longitude": 115.990655,
         "restrictions": ""
       },
       {
@@ -1834,26 +1104,6 @@
         "restrictions": ""
       },
       {
-        "name": "7-Eleven Bassendean",
-        "address": "302-318 Collier Rd",
-        "suburb": "Bassendean",
-        "price": 222.9,
-        "distanceKm": 28.7,
-        "latitude": -31.9063297,
-        "longitude": 115.9308682,
-        "restrictions": ""
-      },
-      {
-        "name": "Atlas Fuel Caversham",
-        "address": "40 Bennett St",
-        "suburb": "Caversham",
-        "price": 223.8,
-        "distanceKm": 28.2,
-        "latitude": -31.8719994,
-        "longitude": 115.9599162,
-        "restrictions": ""
-      },
-      {
         "name": "United Hepburn Heights",
         "address": "4 Walter Padbury Bvd",
         "suburb": "Padbury",
@@ -1874,26 +1124,6 @@
         "restrictions": ""
       },
       {
-        "name": "United Ellenbrook",
-        "address": "3 Locke Lane",
-        "suburb": "Ellenbrook",
-        "price": 223.9,
-        "distanceKm": 24.2,
-        "latitude": -31.77852,
-        "longitude": 115.96699,
-        "restrictions": ""
-      },
-      {
-        "name": "Caltex Upper Swan",
-        "address": "1383 Great Northern Hwy",
-        "suburb": "Upper Swan",
-        "price": 223.9,
-        "distanceKm": 29.7,
-        "latitude": -31.770891,
-        "longitude": 116.028679,
-        "restrictions": ""
-      },
-      {
         "name": "Vibe Neerabup",
         "address": "1 Pinnacle Dr",
         "suburb": "Neerabup",
@@ -1901,26 +1131,6 @@
         "distanceKm": 7.0,
         "latitude": -31.686965,
         "longitude": 115.783501,
-        "restrictions": ""
-      },
-      {
-        "name": "Vibe Subiaco",
-        "address": "123 Thomas St",
-        "suburb": "Subiaco",
-        "price": 224.7,
-        "distanceKm": 27.8,
-        "latitude": -31.952307,
-        "longitude": 115.83115,
-        "restrictions": ""
-      },
-      {
-        "name": "Vibe Bullsbrook",
-        "address": "2533 Great Northern Hwy",
-        "suburb": "Bullsbrook",
-        "price": 224.7,
-        "distanceKm": 29.9,
-        "latitude": -31.671935,
-        "longitude": 116.031427,
         "restrictions": ""
       },
       {
@@ -1951,26 +1161,6 @@
         "distanceKm": 19.8,
         "latitude": -31.8734,
         "longitude": 115.828839,
-        "restrictions": ""
-      },
-      {
-        "name": "Better Choice Malaga",
-        "address": "3 Carson Rd",
-        "suburb": "Malaga",
-        "price": 226.5,
-        "distanceKm": 21.1,
-        "latitude": -31.855136,
-        "longitude": 115.878229,
-        "restrictions": ""
-      },
-      {
-        "name": "Better Choice Tuart Hill",
-        "address": "150 Wanneroo Rd",
-        "suburb": "Tuart Hill",
-        "price": 226.5,
-        "distanceKm": 22.7,
-        "latitude": -31.897268,
-        "longitude": 115.841447,
         "restrictions": ""
       },
       {
@@ -2194,246 +1384,6 @@
         "restrictions": ""
       },
       {
-        "name": "Ampol Foodary Yanchep",
-        "address": "1 Morwell St",
-        "suburb": "Yanchep",
-        "price": 226.9,
-        "distanceKm": 20.2,
-        "latitude": -31.552063,
-        "longitude": 115.639632,
-        "restrictions": ""
-      },
-      {
-        "name": "7-Eleven Yanchep",
-        "address": "2 Tamala Lane",
-        "suburb": "Yanchep",
-        "price": 226.9,
-        "distanceKm": 20.5,
-        "latitude": -31.550386,
-        "longitude": 115.638587,
-        "restrictions": ""
-      },
-      {
-        "name": "BP Nookenburra",
-        "address": "386 Scarborough Beach Rd",
-        "suburb": "Innaloo",
-        "price": 226.9,
-        "distanceKm": 21.6,
-        "latitude": -31.902714,
-        "longitude": 115.799177,
-        "restrictions": ""
-      },
-      {
-        "name": "BP Connect Main Street",
-        "address": "218 Main St",
-        "suburb": "Osborne Park",
-        "price": 226.9,
-        "distanceKm": 22.0,
-        "latitude": -31.896277,
-        "longitude": 115.82855,
-        "restrictions": ""
-      },
-      {
-        "name": "EG Ampol Ballajura",
-        "address": "5 Hamelin Dr",
-        "suburb": "Ballajura",
-        "price": 226.9,
-        "distanceKm": 22.5,
-        "latitude": -31.847444,
-        "longitude": 115.906385,
-        "restrictions": ""
-      },
-      {
-        "name": "BP Malaga",
-        "address": "370 Victoria Rd",
-        "suburb": "Malaga",
-        "price": 226.9,
-        "distanceKm": 22.8,
-        "latitude": -31.862067,
-        "longitude": 115.894445,
-        "restrictions": ""
-      },
-      {
-        "name": "7-Eleven Malaga",
-        "address": "650 Marshall Rd",
-        "suburb": "Malaga",
-        "price": 226.9,
-        "distanceKm": 23.3,
-        "latitude": -31.856778,
-        "longitude": 115.908098,
-        "restrictions": ""
-      },
-      {
-        "name": "BP Ellenbrook",
-        "address": "180 The Promenade",
-        "suburb": "Ellenbrook",
-        "price": 226.9,
-        "distanceKm": 23.7,
-        "latitude": -31.775436,
-        "longitude": 115.963073,
-        "restrictions": ""
-      },
-      {
-        "name": "BP 2go Noranda",
-        "address": "40 Benara Rd",
-        "suburb": "Noranda",
-        "price": 226.9,
-        "distanceKm": 23.8,
-        "latitude": -31.875859,
-        "longitude": 115.894223,
-        "restrictions": ""
-      },
-      {
-        "name": "7-Eleven Ellenbrook Central",
-        "address": "Cnr Main St & Pinaster Pde",
-        "suburb": "Ellenbrook",
-        "price": 226.9,
-        "distanceKm": 24.5,
-        "latitude": -31.786444,
-        "longitude": 115.967273,
-        "restrictions": ""
-      },
-      {
-        "name": "EG Ampol Ellenbrook",
-        "address": "11 Main St",
-        "suburb": "Ellenbrook",
-        "price": 226.9,
-        "distanceKm": 24.5,
-        "latitude": -31.780889,
-        "longitude": 115.969189,
-        "restrictions": ""
-      },
-      {
-        "name": "BP Connect Wellington Rd",
-        "address": "261 Walter Rd West",
-        "suburb": "Morley",
-        "price": 226.9,
-        "distanceKm": 25.5,
-        "latitude": -31.894607,
-        "longitude": 115.896666,
-        "restrictions": ""
-      },
-      {
-        "name": "7-Eleven Malvern Springs",
-        "address": "324 The Broadway",
-        "suburb": "Ellenbrook",
-        "price": 226.9,
-        "distanceKm": 25.6,
-        "latitude": -31.766075,
-        "longitude": 115.985544,
-        "restrictions": ""
-      },
-      {
-        "name": "EG Ampol Aveley",
-        "address": "317 Millhouse Rd",
-        "suburb": "Aveley",
-        "price": 226.9,
-        "distanceKm": 26.0,
-        "latitude": -31.777467,
-        "longitude": 115.987368,
-        "restrictions": ""
-      },
-      {
-        "name": "BP Connect North Perth",
-        "address": "349 Charles St",
-        "suburb": "North Perth",
-        "price": 226.9,
-        "distanceKm": 26.1,
-        "latitude": -31.926673,
-        "longitude": 115.851901,
-        "restrictions": ""
-      },
-      {
-        "name": "BP Connect Wembley",
-        "address": "240 Cambridge St",
-        "suburb": "Wembley",
-        "price": 226.9,
-        "distanceKm": 26.2,
-        "latitude": -31.940547,
-        "longitude": 115.820095,
-        "restrictions": ""
-      },
-      {
-        "name": "EG Ampol Brabham",
-        "address": "3 Marvel Ent",
-        "suburb": "Brabham",
-        "price": 226.9,
-        "distanceKm": 26.4,
-        "latitude": -31.832944,
-        "longitude": 115.966916,
-        "restrictions": ""
-      },
-      {
-        "name": "7-Eleven Dayton",
-        "address": "10 Swaisdale Ent",
-        "suburb": "Dayton",
-        "price": 226.9,
-        "distanceKm": 27.3,
-        "latitude": -31.848009,
-        "longitude": 115.967584,
-        "restrictions": ""
-      },
-      {
-        "name": "BP Embleton",
-        "address": "484 Walter Rd East",
-        "suburb": "Embleton",
-        "price": 226.9,
-        "distanceKm": 27.3,
-        "latitude": -31.8951,
-        "longitude": 115.923206,
-        "restrictions": ""
-      },
-      {
-        "name": "Ampol Foodary Mt Lawley",
-        "address": "810 Beaufort St",
-        "suburb": "Mount Lawley",
-        "price": 226.9,
-        "distanceKm": 27.4,
-        "latitude": -31.925179,
-        "longitude": 115.881917,
-        "restrictions": ""
-      },
-      {
-        "name": "7-Eleven Two Rocks",
-        "address": "2 Dunraven Rd",
-        "suburb": "Two Rocks",
-        "price": 226.9,
-        "distanceKm": 28.1,
-        "latitude": -31.49097,
-        "longitude": 115.597517,
-        "restrictions": ""
-      },
-      {
-        "name": "7-Eleven Caversham",
-        "address": "2131 West Swan Rd",
-        "suburb": "Caversham",
-        "price": 226.9,
-        "distanceKm": 29.5,
-        "latitude": -31.875469,
-        "longitude": 115.974566,
-        "restrictions": ""
-      },
-      {
-        "name": "BP Connect East Perth",
-        "address": "68-70 Brown St",
-        "suburb": "East Perth",
-        "price": 226.9,
-        "distanceKm": 29.5,
-        "latitude": -31.95077,
-        "longitude": 115.876572,
-        "restrictions": ""
-      },
-      {
-        "name": "BP Rosegarden",
-        "address": "129 Stirling Hwy",
-        "suburb": "Nedlands",
-        "price": 226.9,
-        "distanceKm": 29.7,
-        "latitude": -31.979719,
-        "longitude": 115.798235,
-        "restrictions": ""
-      },
-      {
         "name": "Astron Neerabup",
         "address": "2038 Wanneroo Rd",
         "suburb": "Neerabup",
@@ -2464,26 +1414,6 @@
         "restrictions": ""
       },
       {
-        "name": "Caltex Mount Lawley",
-        "address": "81 Guildford Rd",
-        "suburb": "Mount Lawley",
-        "price": 227.9,
-        "distanceKm": 28.4,
-        "latitude": -31.934473,
-        "longitude": 115.884014,
-        "restrictions": ""
-      },
-      {
-        "name": "Caltex Bayswater",
-        "address": "502 Guildford Rd",
-        "suburb": "Bayswater",
-        "price": 227.9,
-        "distanceKm": 29.6,
-        "latitude": -31.919556,
-        "longitude": 115.929069,
-        "restrictions": ""
-      },
-      {
         "name": "Shell Reddy Express Brighton",
         "address": "61 Butler Bvd",
         "suburb": "Butler",
@@ -2501,66 +1431,6 @@
         "distanceKm": 10.6,
         "latitude": -31.780031,
         "longitude": 115.808184,
-        "restrictions": ""
-      },
-      {
-        "name": "Shell Reddy Express Osborne Park",
-        "address": "11 Roberts St West",
-        "suburb": "Osborne Park",
-        "price": 228.4,
-        "distanceKm": 22.8,
-        "latitude": -31.907535,
-        "longitude": 115.819092,
-        "restrictions": ""
-      },
-      {
-        "name": "Shell Reddy Express Dianella",
-        "address": "67 Walter Rd West",
-        "suburb": "Dianella",
-        "price": 228.4,
-        "distanceKm": 25.7,
-        "latitude": -31.905801,
-        "longitude": 115.8827,
-        "restrictions": ""
-      },
-      {
-        "name": "Shell Reddy Express Perth",
-        "address": "480 William St",
-        "suburb": "Perth",
-        "price": 228.4,
-        "distanceKm": 28.0,
-        "latitude": -31.940953,
-        "longitude": 115.863904,
-        "restrictions": ""
-      },
-      {
-        "name": "Shell Reddy Express Bayswater",
-        "address": "34 Jackson St",
-        "suburb": "Bayswater",
-        "price": 228.4,
-        "distanceKm": 28.4,
-        "latitude": -31.906734,
-        "longitude": 115.92665,
-        "restrictions": ""
-      },
-      {
-        "name": "OTR Perth Pier Street",
-        "address": "17 Brisbane St",
-        "suburb": "Perth",
-        "price": 228.4,
-        "distanceKm": 28.5,
-        "latitude": -31.944162,
-        "longitude": 115.86904,
-        "restrictions": ""
-      },
-      {
-        "name": "Shell Reddy Express Upper Swan Roadhouse",
-        "address": "1333 Great Northern Hwy",
-        "suburb": "Upper Swan",
-        "price": 228.4,
-        "distanceKm": 29.5,
-        "latitude": -31.774597,
-        "longitude": 116.025849,
         "restrictions": ""
       },
       {
@@ -2611,106 +1481,6 @@
         "distanceKm": 19.7,
         "latitude": -31.893826,
         "longitude": 115.764402,
-        "restrictions": ""
-      },
-      {
-        "name": "Ampol Foodary Doubleview",
-        "address": "365 Scarborough Beach Rd",
-        "suburb": "Doubleview",
-        "price": 228.9,
-        "distanceKm": 21.3,
-        "latitude": -31.901328,
-        "longitude": 115.794203,
-        "restrictions": ""
-      },
-      {
-        "name": "EG Ampol Mirrabooka",
-        "address": "53 Yirrigan Dr",
-        "suburb": "Mirrabooka",
-        "price": 228.9,
-        "distanceKm": 21.6,
-        "latitude": -31.873567,
-        "longitude": 115.861407,
-        "restrictions": ""
-      },
-      {
-        "name": "Ampol Foodary Malaga Drive",
-        "address": "76 Malaga Dr",
-        "suburb": "Malaga",
-        "price": 228.9,
-        "distanceKm": 22.8,
-        "latitude": -31.863189,
-        "longitude": 115.893921,
-        "restrictions": ""
-      },
-      {
-        "name": "EG Ampol Osborne Park",
-        "address": "401 Scarborough Beach Rd",
-        "suburb": "Osborne Park",
-        "price": 228.9,
-        "distanceKm": 22.9,
-        "latitude": -31.91058,
-        "longitude": 115.81401,
-        "restrictions": ""
-      },
-      {
-        "name": "Ampol Foodary Glendalough",
-        "address": "2 Jon Sanders Dr",
-        "suburb": "Glendalough",
-        "price": 228.9,
-        "distanceKm": 24.3,
-        "latitude": -31.922426,
-        "longitude": 115.819754,
-        "restrictions": ""
-      },
-      {
-        "name": "EG Ampol Dianella",
-        "address": "372 Grand Prom",
-        "suburb": "Dianella",
-        "price": 228.9,
-        "distanceKm": 24.3,
-        "latitude": -31.89674,
-        "longitude": 115.871865,
-        "restrictions": ""
-      },
-      {
-        "name": "EG Ampol Floreat",
-        "address": "5 Howtree Pl",
-        "suburb": "Floreat",
-        "price": 228.9,
-        "distanceKm": 25.0,
-        "latitude": -31.93672,
-        "longitude": 115.793911,
-        "restrictions": ""
-      },
-      {
-        "name": "EG Ampol Morley Galleria",
-        "address": "60 Russell St",
-        "suburb": "Morley",
-        "price": 228.9,
-        "distanceKm": 25.6,
-        "latitude": -31.896262,
-        "longitude": 115.895092,
-        "restrictions": ""
-      },
-      {
-        "name": "Ampol Foodary Subiaco",
-        "address": "194 Rokeby Rd",
-        "suburb": "Subiaco",
-        "price": 228.9,
-        "distanceKm": 27.4,
-        "latitude": -31.950616,
-        "longitude": 115.824234,
-        "restrictions": ""
-      },
-      {
-        "name": "Ampol Foodary East Perth",
-        "address": "157 Lord St",
-        "suburb": "Perth",
-        "price": 228.9,
-        "distanceKm": 29.0,
-        "latitude": -31.948689,
-        "longitude": 115.869567,
         "restrictions": ""
       },
       {
@@ -2794,46 +1564,6 @@
         "restrictions": ""
       },
       {
-        "name": "BP Henley Brook",
-        "address": "1520 Gnangara Rd",
-        "suburb": "Henley Brook",
-        "price": 229.9,
-        "distanceKm": 25.8,
-        "latitude": -31.795951,
-        "longitude": 115.978636,
-        "restrictions": ""
-      },
-      {
-        "name": "7-Eleven Brabham",
-        "address": "3 Marvel Ent",
-        "suburb": "Brabham",
-        "price": 229.9,
-        "distanceKm": 26.5,
-        "latitude": -31.83263,
-        "longitude": 115.968131,
-        "restrictions": ""
-      },
-      {
-        "name": "7-Eleven Morley",
-        "address": "162 Russell St",
-        "suburb": "Morley",
-        "price": 229.9,
-        "distanceKm": 26.7,
-        "latitude": -31.903344,
-        "longitude": 115.903047,
-        "restrictions": ""
-      },
-      {
-        "name": "Caltex Dayton",
-        "address": "8 Repton St",
-        "suburb": "Dayton",
-        "price": 229.9,
-        "distanceKm": 27.6,
-        "latitude": -31.851089,
-        "longitude": 115.968786,
-        "restrictions": ""
-      },
-      {
         "name": "Caltex Mindarie",
         "address": "22 Anchorage Dr",
         "suburb": "Mindarie",
@@ -2861,26 +1591,6 @@
         "distanceKm": 18.8,
         "latitude": -31.876337,
         "longitude": 115.79678,
-        "restrictions": ""
-      },
-      {
-        "name": "Caltex Malaga",
-        "address": "1896 Beach Rd",
-        "suburb": "Malaga",
-        "price": 231.9,
-        "distanceKm": 21.2,
-        "latitude": -31.85295,
-        "longitude": 115.882059,
-        "restrictions": ""
-      },
-      {
-        "name": "Caltex Osborne Park",
-        "address": "8 Main St",
-        "suburb": "Osborne Park",
-        "price": 231.9,
-        "distanceKm": 23.8,
-        "latitude": -31.913639,
-        "longitude": 115.828363,
         "restrictions": ""
       },
       {
@@ -2974,66 +1684,6 @@
         "restrictions": ""
       },
       {
-        "name": "S24 Yanchep",
-        "address": "1 Ikara Lane",
-        "suburb": "Yanchep",
-        "price": 232.4,
-        "distanceKm": 20.6,
-        "latitude": -31.547779,
-        "longitude": 115.641352,
-        "restrictions": ""
-      },
-      {
-        "name": "Shell Reddy Express Malaga",
-        "address": "492 Alexander Dr",
-        "suburb": "Malaga",
-        "price": 232.4,
-        "distanceKm": 21.9,
-        "latitude": -31.863512,
-        "longitude": 115.879279,
-        "restrictions": ""
-      },
-      {
-        "name": "Shell Reddy Express Ellenbrook",
-        "address": "3 Goodwood Cres",
-        "suburb": "Ellenbrook",
-        "price": 232.4,
-        "distanceKm": 23.4,
-        "latitude": -31.775,
-        "longitude": 115.96,
-        "restrictions": ""
-      },
-      {
-        "name": "Shell Reddy Express Jolimont",
-        "address": "6 Jersey St",
-        "suburb": "Jolimont",
-        "price": 232.4,
-        "distanceKm": 26.6,
-        "latitude": -31.947273,
-        "longitude": 115.811941,
-        "restrictions": ""
-      },
-      {
-        "name": "Shell Reddy Express West Perth",
-        "address": "30 Thomas St",
-        "suburb": "West Perth",
-        "price": 232.4,
-        "distanceKm": 27.4,
-        "latitude": -31.945494,
-        "longitude": 115.839719,
-        "restrictions": ""
-      },
-      {
-        "name": "Shell Reddy Express Claremont",
-        "address": "269 Stirling Hwy",
-        "suburb": "Claremont",
-        "price": 232.4,
-        "distanceKm": 29.7,
-        "latitude": -31.982195,
-        "longitude": 115.78389,
-        "restrictions": ""
-      },
-      {
         "name": "EG Ampol Currambine Marketplace",
         "address": "1244 Marmion Ave",
         "suburb": "Currambine",
@@ -3061,46 +1711,6 @@
         "distanceKm": 19.3,
         "latitude": -31.882078,
         "longitude": 115.796245,
-        "restrictions": ""
-      },
-      {
-        "name": "Ampol Foodary Malaga",
-        "address": "1 Capital Rd",
-        "suburb": "Malaga",
-        "price": 232.9,
-        "distanceKm": 20.6,
-        "latitude": -31.848235,
-        "longitude": 115.878484,
-        "restrictions": ""
-      },
-      {
-        "name": "Ampol Foodary Leederville",
-        "address": "319 Vincent St",
-        "suburb": "Leederville",
-        "price": 232.9,
-        "distanceKm": 26.6,
-        "latitude": -31.936816,
-        "longitude": 115.840025,
-        "restrictions": ""
-      },
-      {
-        "name": "Ampol Foodary Nedlands",
-        "address": "7 Broadway",
-        "suburb": "Nedlands",
-        "price": 232.9,
-        "distanceKm": 29.9,
-        "latitude": -31.97762,
-        "longitude": 115.813656,
-        "restrictions": ""
-      },
-      {
-        "name": "BP Highgate",
-        "address": "342 Beaufort St",
-        "suburb": "Perth",
-        "price": 234.9,
-        "distanceKm": 28.3,
-        "latitude": -31.942556,
-        "longitude": 115.867359,
         "restrictions": ""
       },
       {

@@ -7,10 +7,19 @@ import assert from 'node:assert/strict';
 const html = fs.readFileSync('index.html', 'utf8');
 const extra = fs.readFileSync('dashboard-extra.js', 'utf8');
 const inline = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]).join('\n');
-const elements = new Map([...html.matchAll(/id="([^"]+)"/g)].map(m=>[m[1],{
-  hidden: /^(nba|afl|f1)-card$/.test(m[1]), innerHTML:'',textContent:'',style:{},dataset:{},
-  classList:{toggle(){}},setAttribute(){},addEventListener(){},
-}]));
+// Layout-dependent members report zero size: the carousel then takes its
+// "everything fits, stay still" path, which is what a headless check can
+// meaningfully assert.
+const stub = id => ({
+  hidden: /^(nba|afl|f1)-card$/.test(id), innerHTML:'',textContent:'',style:{},dataset:{},
+  children:[], clientHeight:0, scrollHeight:0, offsetTop:0,
+  classList:{toggle(){},add(){},remove(){},contains(){return false;}},
+  setAttribute(){},removeAttribute(){},addEventListener(){},appendChild(){},
+  querySelectorAll(){return [];},closest(){return null;},
+  cloneNode(){return stub('clone');},animate(){return {cancel(){}};},
+  getBoundingClientRect(){return {height:0,width:0,top:0,left:0};},
+});
+const elements = new Map([...html.matchAll(/id="([^"]+)"/g)].map(m=>[m[1],stub(m[1])]));
 const storage = new Map();
 const requests = [];
 const pending = new Set();
@@ -18,10 +27,12 @@ const live = process.argv.includes('--live');
 const context = vm.createContext({
   console, URL, Date, Intl, AbortController, setTimeout, clearTimeout,
   setInterval(){}, navigator:{onLine:live},
+  getComputedStyle(){return {rowGap:'18px'};},
   localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},
   window:{addEventListener(){}},
   document:{
     getElementById(id){assert.ok(elements.has(id),'Missing HTML element: '+id);return elements.get(id);},
+    querySelectorAll(){return [];},
     addEventListener(){},documentElement:{},
   },
   fetch:async(url,options)=>{

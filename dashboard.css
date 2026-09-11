@@ -274,15 +274,6 @@ h2 {
 .sun-strip .uv {
   color:var(--orange)
 }
-.source-line {
-  display:flex;
-  justify-content:space-between;
-  flex-wrap:wrap;
-  gap:5px;
-  font-size:.65rem;
-  color:#92a6b1;
-  margin-top:14px
-}
 .fuel-type {
   color:#19241b;
   background:#dbeda7;
@@ -290,26 +281,16 @@ h2 {
   padding:4px 9px;
   font:600 1rem 'Outfit'
 }
-.fuel-tabs {
-  display:flex;
-  gap:4px;
-  margin:16px 0 6px;
-  background:#0b171f;
-  border-radius:8px;
-  padding:4px
-}
-.fuel-tabs button {
-  flex:1;
-  background:transparent;
-  border:0;
+.fuel-group-label {
+  font-size:.62rem;
+  font-weight:700;
+  letter-spacing:.12em;
+  text-transform:uppercase;
   color:var(--muted);
-  padding:7px 10px;
-  border-radius:6px;
-  font-size:.8rem
+  margin:14px 0 2px
 }
-.fuel-tabs button.active {
-  background:#2a3a3d;
-  color:var(--text)
+.fuel-group-label:first-child {
+  margin-top:10px
 }
 .fuel-row {
   display:grid;
@@ -707,10 +688,6 @@ h2 {
   background:var(--red);
   margin-left:7px
 }
-.sports-source {
-  padding:0 3px;
-  margin-top:0
-}
 @media(min-width:1550px) {
   .header {
     padding:12px 44px
@@ -734,13 +711,21 @@ h2 {
   .weather-details strong {
     font-size:1rem
   }
-  .source-line {
-    font-size:.75rem
-  }
   .fuel-name {
     font-size:1rem
   }
-  .fuel-row {
+  .fuel-group-label {
+  font-size:.62rem;
+  font-weight:700;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin:14px 0 2px
+}
+.fuel-group-label:first-child {
+  margin-top:10px
+}
+.fuel-row {
     padding:16px 0
   }
   .weather-widget {
@@ -851,9 +836,6 @@ h2 {
   }
   h1 {
     font-size:2rem
-  }
-  .source-line {
-    font-size:.7rem
   }
   .section-heading>.eyebrow {
     font-size:.7rem
