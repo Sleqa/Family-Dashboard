@@ -1,0 +1,1004 @@
+:root {
+  color-scheme:dark;
+  --bg:#0b151c;
+  --panel:#111f28;
+  --line:#25343d;
+  --text:#f1f5f3;
+  --muted:#a0b1b9;
+  --accent:#a9e4ce;
+  --blue:#7cc4ed;
+  --red:#f1a2a1;
+  --green:#a9e4ce;
+  --orange:#efc47e;
+  --font:'Manrope',system-ui,sans-serif
+}
+
+* {
+  box-sizing:border-box
+}
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font);
+  font-size:16px;
+  line-height:1.45
+}
+button,a {
+  -webkit-tap-highlight-color:transparent
+}
+button {
+  font:inherit;
+  cursor:pointer
+}
+a {
+  color:inherit;
+  text-decoration:none
+}
+a:hover {
+  text-decoration:underline
+}
+button:focus-visible,a:focus-visible {
+  outline:2px solid var(--accent);
+  outline-offset:4px
+}
+[hidden] {
+  display:none!important
+}
+h1,h2,p {
+  margin:0
+}
+h1,h2 {
+  font-family:'Outfit',sans-serif;
+  font-weight:500
+}
+h1 {
+  font-size:clamp(1.7rem,2.6vw,2.8rem);
+  letter-spacing:-.045em;
+  line-height:1.15;
+  margin-top:8px
+}
+h2 {
+  font-size:1.25rem
+}
+.accent {
+  color:var(--accent)
+}
+.muted {
+  color:var(--muted);
+  font-size:.875rem
+}
+.eyebrow,.location-label {
+  font-size:.75rem;
+  font-weight:700;
+  letter-spacing:.13em
+}
+.header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+  padding:24px 32px;
+  border-bottom:1px solid var(--line)
+}
+.brand {
+  display:flex;
+  align-items:center;
+  gap:13px
+}
+.brand-mark {
+  width:46px;
+  height:46px;
+  background:var(--accent);
+  color:#102720;
+  border-radius:14px;
+  font:600 34px 'Outfit';
+  text-align:center;
+  line-height:46px
+}
+.logo {
+  font:500 26px 'Outfit';
+  letter-spacing:-1px
+}
+.logo span {
+  color:var(--accent);
+  margin-left:5px
+}
+.location-label {
+  font-size:10px;
+  margin-top:2px;
+  color:var(--muted)
+}
+.location-label span {
+  margin:0 5px;
+  color:var(--accent)
+}
+.header-date {
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  text-align:center;
+  font-size:.875rem;
+  color:var(--muted)
+}
+#greeting {
+  font:500 1.1rem 'Outfit';
+  color:var(--text)
+}
+.header-right {
+  display:flex;
+  gap:12px;
+  align-items:center
+}
+.clock-widget {
+  white-space:nowrap
+}
+#clock {
+  font:400 clamp(2rem,3vw,3rem) 'Outfit';
+  font-variant-numeric:tabular-nums;
+  letter-spacing:-.04em
+}
+#ampm {
+  color:var(--muted);
+  font-size:.75rem;
+  margin:0 8px
+}
+.icon-button {
+  background:transparent;
+  border:1px solid var(--line);
+  border-radius:50%;
+  width:34px;
+  height:34px;
+  color:var(--muted);
+  font-size:22px;
+  line-height:1
+}
+.icon-button:hover {
+  color:var(--text);
+  border-color:var(--accent)
+}
+.conn-badge {
+  font-size:.75rem;
+  color:var(--orange);
+  max-width:120px
+}
+.main {
+  display:grid;
+  grid-template-columns:minmax(280px,1fr) minmax(370px,1.42fr) minmax(280px,1fr);
+  gap:20px;
+  padding:24px 32px 16px;
+  align-items:start
+}
+.local-column,.sports-sidebar {
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+  min-width:0
+}
+.panel,.sports-card {
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:22px;
+  min-width:0
+}
+.section-heading {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px
+}
+.section-heading>.eyebrow {
+  color:var(--muted);
+  font-size:.65rem
+}
+.panel-subtitle {
+  font-size:.875rem;
+  color:var(--muted);
+  margin-top:4px
+}
+.weather-panel {
+  background:linear-gradient(145deg,#19343c,var(--panel) 75%)
+}
+.weather-widget {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 0 18px
+}
+#weather-temp {
+  font:400 4.6rem 'Outfit';
+  letter-spacing:-.06em;
+  line-height:1.1
+}
+#weather-desc {
+  font-size:.95rem;
+  color:#c0d4d7;
+  margin-top:6px
+}
+#weather-icon {
+  font-size:3.5rem
+}
+.weather-details {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  padding-bottom:16px
+}
+.weather-details div {
+  display:flex;
+  flex-direction:column;
+  gap:4px
+}
+.weather-details span {
+  font-size:.75rem;
+  color:var(--muted)
+}
+.weather-details strong {
+  font-size:.8rem;
+  font-weight:600;
+  white-space:nowrap
+}
+.forecast {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:4px;
+  border-block:1px solid var(--line);
+  padding:13px 0
+}
+.forecast-day {
+  display:flex;
+  align-items:center;
+  flex-direction:column;
+  gap:7px;
+  font-size:.8rem
+}
+.forecast-day span {
+  color:var(--muted)
+}
+.forecast-day .forecast-icon {
+  font-size:1.3rem
+}
+.forecast-day strong {
+  font-weight:600
+}
+.sun-strip {
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  gap:8px;
+  font-size:.8rem;
+  padding:14px 0 0;
+  color:#d7e3e4
+}
+.sun-strip .uv {
+  color:var(--orange)
+}
+.marine {
+  margin-top:14px;
+  padding:12px 0 0;
+  border-top:1px solid var(--line)
+}
+.marine-title {
+  color:var(--accent);
+  font-size:.75rem;
+  font-weight:700;
+  margin-bottom:8px
+}
+.marine-values {
+  display:flex;
+  gap:18px
+}
+.marine-values div {
+  font-size:.875rem
+}
+.marine-values span {
+  display:block;
+  color:var(--muted);
+  font-size:.75rem
+}
+.source-line {
+  display:flex;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:5px;
+  font-size:.65rem;
+  color:#92a6b1;
+  margin-top:14px
+}
+.fuel-type {
+  color:#19241b;
+  background:#dbeda7;
+  border-radius:9px;
+  padding:4px 9px;
+  font:600 1rem 'Outfit'
+}
+.fuel-tabs {
+  display:flex;
+  gap:4px;
+  margin:16px 0 6px;
+  background:#0b171f;
+  border-radius:8px;
+  padding:4px
+}
+.fuel-tabs button {
+  flex:1;
+  background:transparent;
+  border:0;
+  color:var(--muted);
+  padding:7px 10px;
+  border-radius:6px;
+  font-size:.8rem
+}
+.fuel-tabs button.active {
+  background:#2a3a3d;
+  color:var(--text)
+}
+.fuel-row {
+  display:grid;
+  grid-template-columns:24px 1fr auto;
+  gap:10px;
+  padding:13px 0;
+  border-bottom:1px solid var(--line);
+  align-items:center
+}
+.fuel-rank {
+  font:400 1rem 'Outfit';
+  color:var(--muted)
+}
+.fuel-row:first-child .fuel-rank {
+  color:#dbeda7
+}
+.fuel-name {
+  font-weight:700;
+  font-size:.875rem
+}
+.fuel-address {
+  font-size:.75rem;
+  color:var(--muted);
+  margin-top:3px
+}
+.fuel-price {
+  text-align:right;
+  font:500 1.6rem 'Outfit';
+  color:#dbeda7
+}
+.fuel-price small {
+  display:block;
+  font:400 .65rem var(--font);
+  color:var(--muted)
+}
+.fuel-note {
+  font-size:.75rem;
+  color:var(--muted);
+  margin-top:12px
+}
+.agenda-panel {
+  min-height:710px;
+  display:flex;
+  flex-direction:column;
+  padding:28px
+}
+.agenda-count {
+  background:#253a3b;
+  color:var(--accent);
+  border-radius:30px;
+  padding:7px 12px;
+  font-size:.75rem;
+  white-space:nowrap
+}
+.schedule-header {
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  margin:22px 0 16px;
+  font-size:.75rem
+}
+.calendar-legend {
+  display:flex;
+  gap:16px
+}
+.calendar-legend span:before {
+  content:'';
+  display:inline-block;
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  margin-right:6px
+}
+.legend-personal:before {
+  background:var(--blue)
+}
+.legend-family:before {
+  background:var(--red)
+}
+.week-strip {
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:4px;
+  margin-bottom:20px
+}
+.week-day {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:5px;
+  border-radius:12px;
+  padding:10px 3px;
+  color:var(--muted);
+  font-size:.75rem
+}
+.week-day strong {
+  font:400 1.3rem 'Outfit';
+  color:var(--text)
+}
+.week-day.today {
+  background:var(--accent);
+  color:#25483e
+}
+.week-day.today strong {
+  color:#102920
+}
+.week-day i {
+  height:4px;
+  width:4px;
+  border-radius:50%;
+  background:currentColor;
+  opacity:0
+}
+.week-day.busy i {
+  opacity:1
+}
+#calendar-content {
+  flex:1;
+  min-height:0
+}
+#events-container {
+  display:flex;
+  flex-direction:column
+}
+#events-list {
+  max-height:565px;
+  overflow:auto;
+  scrollbar-width:thin;
+  scrollbar-color:#344b54 transparent;
+  padding-right:4px
+}
+.day-section {
+  margin-bottom:20px
+}
+.day-label {
+  font-size:.75rem;
+  color:var(--muted);
+  font-weight:700;
+  letter-spacing:.08em;
+  margin-bottom:9px
+}
+.event-list {
+  display:flex;
+  flex-direction:column;
+  gap:6px
+}
+.event-item {
+  position:relative;
+  display:flex;
+  gap:12px;
+  padding:12px 13px;
+  background:#172730;
+  border-radius:10px;
+  align-items:stretch
+}
+.event-color-bar {
+  width:3px;
+  border-radius:3px;
+  flex-shrink:0
+}
+.event-content {
+  min-width:0;
+  flex:1;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:4px 8px
+}
+.event-title {
+  font-size:1rem;
+  font-weight:600;
+  overflow-wrap:anywhere
+}
+.event-time {
+  color:var(--muted);
+  font-size:.8rem;
+  grid-column:1
+}
+.event-tag {
+  font-size:.65rem;
+  align-self:center;
+  padding:3px 7px;
+  border-radius:20px;
+  grid-column:2;
+  grid-row:1 / 3
+}
+.event-item.is-current {
+  background:#25393a
+}
+.holiday-strip {
+  margin-top:20px;
+  border-top:1px solid var(--line);
+  padding-top:14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px
+}
+.holiday-strip strong {
+  font-size:.875rem
+}
+.holiday-strip span {
+  display:block;
+  font-size:.75rem;
+  color:var(--muted)
+}
+.holiday-count {
+  font:500 1.4rem 'Outfit';
+  color:var(--accent);
+  white-space:nowrap
+}
+.loading,.no-events {
+  padding:24px 0;
+  color:var(--muted);
+  font-size:.9rem
+}
+.no-events .icon {
+  font-size:2rem;
+  margin-bottom:10px
+}
+.sports-heading {
+  padding:0 3px
+}
+.sports-card-header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  text-transform:uppercase;
+  font-size:.7rem;
+  font-weight:800;
+  letter-spacing:.08em;
+  color:var(--muted);
+  margin-bottom:16px
+}
+.sports-card-header>span:first-child {
+  color:var(--text)
+}
+.sports-card-header>span:last-child {
+  font-size:.65rem
+}
+.f1-card {
+  padding:0;
+  overflow:hidden
+}
+.f1-top {
+  padding:20px 22px 0
+}
+.f1-top .sports-card-header>span:first-child {
+  font-style:italic;
+  font:700 1.25rem 'Outfit';
+  color:var(--red)
+}
+.f1-track {
+  height:140px;
+  width:100%;
+  object-fit:contain;
+  padding:7px 20px;
+  background:#0d1922
+}
+.f1-race-info {
+  padding:17px 22px
+}
+.sports-f1-race {
+  font:500 1.6rem 'Outfit';
+  letter-spacing:-.025em
+}
+.sports-f1-circuit {
+  font-size:.75rem;
+  color:var(--muted);
+  margin-top:3px
+}
+.sports-f1-time {
+  font-size:.85rem;
+  margin-top:12px
+}
+.sports-f1-countdown {
+  display:inline-block;
+  padding:5px 9px;
+  background:#2d3635;
+  color:var(--accent);
+  border-radius:6px;
+  font-size:.75rem;
+  margin-top:8px
+}
+.f1-sessions {
+  display:flex;
+  gap:14px;
+  margin-top:12px;
+  font-size:.75rem
+}
+.f1-sessions span {
+  display:block;
+  color:var(--muted);
+  font-size:.65rem
+}
+.sports-f1-leader {
+  background:#1c3037;
+  display:flex;
+  align-items:center;
+  min-height:115px;
+  gap:14px;
+  padding:15px 20px
+}
+.driver-portrait {
+  height:100px;
+  width:80px;
+  object-fit:cover;
+  object-position:50% 20%;
+  border-radius:8px;
+  flex-shrink:0
+}
+.sports-f1-leader-label {
+  color:var(--accent);
+  font-size:.65rem;
+  font-weight:700;
+  letter-spacing:.06em;
+  text-transform:uppercase
+}
+.sports-f1-leader-name {
+  font:500 1.3rem 'Outfit';
+  margin:5px 0 2px
+}
+.sports-f1-leader-points {
+  font-size:.75rem;
+  color:var(--muted)
+}
+.image-credit {
+  font-size:.6rem;
+  padding:5px 20px;
+  color:var(--muted)
+}
+.sports-teams-row {
+  display:flex;
+  justify-content:space-around;
+  gap:10px;
+  align-items:center
+}
+.sports-team-block {
+  text-align:center;
+  flex:1;
+  min-width:0
+}
+.sports-logo {
+  width:65px;
+  height:65px;
+  object-fit:contain
+}
+.sports-team-name {
+  font-size:.85rem;
+  font-weight:700;
+  margin-top:8px
+}
+.sports-team-record {
+  font-size:.75rem;
+  color:var(--muted);
+  margin-top:3px
+}
+.sports-score-center {
+  font:500 1.5rem 'Outfit';
+  white-space:nowrap
+}
+.sports-clock {
+  text-align:center;
+  margin-top:18px;
+  font-size:.8rem;
+  color:var(--muted)
+}
+.sports-clock.live {
+  color:var(--red)
+}
+.sports-meta-row {
+  font-size:.75rem;
+  color:var(--muted);
+  margin-top:12px;
+  display:flex;
+  justify-content:space-between
+}
+.sports-venue-city {
+  font-size:.65rem
+}
+.sports-lastplay {
+  font-size:.75rem;
+  border-top:1px solid var(--line);
+  padding-top:10px;
+  margin-top:10px
+}
+.sports-logo-sm {
+  width:34px;
+  height:34px;
+  object-fit:contain
+}
+.sports-game-row {
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  gap:10px;
+  padding:9px 0;
+  border-bottom:1px solid var(--line)
+}
+.sports-game-home {
+  text-align:right
+}
+.sports-game-status {
+  grid-column:1/-1;
+  color:var(--muted);
+  font-size:.75rem;
+  text-align:center
+}
+.sports-game-scores {
+  display:flex;
+  gap:8px;
+  font:500 1.25rem 'Outfit'
+}
+.sports-winprob {
+  margin-top:15px
+}
+.sports-winprob-bar {
+  height:4px;
+  display:flex;
+  border-radius:4px;
+  overflow:hidden
+}
+.sports-winprob-fill-a {
+  background:var(--blue)
+}
+.sports-winprob-fill-b {
+  background:var(--red)
+}
+.sports-winprob-labels {
+  display:flex;
+  justify-content:space-between;
+  font-size:.65rem;
+  color:var(--muted);
+  margin-top:5px
+}
+.sports-live-dot {
+  display:inline-block;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--red);
+  margin-left:7px
+}
+.sports-source {
+  padding:0 3px;
+  margin-top:0
+}
+.footer {
+  border-top:1px solid var(--line);
+  margin:0 32px;
+  padding:15px 0;
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  color:var(--muted);
+  font-size:.75rem
+}
+#word-of-day {
+  display:flex;
+  align-items:baseline;
+  flex-wrap:wrap;
+  gap:12px
+}
+.wod-label {
+  letter-spacing:.1em;
+  font-size:.65rem;
+  color:var(--accent)
+}
+#wod-word {
+  color:var(--text);
+  font-size:.875rem
+}
+#wod-pos {
+  font-style:italic
+}
+.footer-home {
+  white-space:nowrap
+}
+.footer-home .accent {
+  font:600 1.1rem 'Outfit';
+  margin-left:10px
+}
+
+@media(min-width:1550px) {
+  .header {
+    padding:28px 44px
+  }
+  .main {
+    padding:28px 44px;
+    gap:28px
+  }
+  .panel,.sports-card {
+    padding:26px
+  }
+  .f1-card {
+    padding:0
+  }
+  .agenda-panel {
+    min-height:800px
+  }
+  #events-list {
+    max-height:630px
+  }
+  .weather-details strong {
+    font-size:1rem
+  }
+  .source-line {
+    font-size:.75rem
+  }
+  .fuel-name {
+    font-size:1rem
+  }
+  .fuel-row {
+    padding:16px 0
+  }
+  .weather-widget {
+    padding:20px 0
+  }
+  .f1-track {
+    height:180px
+  }
+  .sports-f1-race {
+    font-size:1.9rem
+  }
+  .driver-portrait {
+    height:114px;
+    width:88px
+  }
+  .footer {
+    margin:0 44px
+  }
+  .forecast-day,.sun-strip {
+    font-size:.875rem
+  }
+
+}
+
+@media(max-width:1100px) {
+  .main {
+    grid-template-columns:minmax(265px,.9fr) minmax(360px,1.2fr);
+    padding:20px;
+    gap:16px
+  }
+  .sports-sidebar {
+    grid-column:1/-1;
+    display:grid;
+    grid-template-columns:repeat(3,1fr)
+  }
+  .sports-heading,.sports-source {
+    grid-column:1/-1
+  }
+  .header {
+    padding:18px 20px
+  }
+  .header-date {
+    display:none
+  }
+  .agenda-panel {
+    padding:22px
+  }
+  .f1-track {
+    height:110px
+  }
+  .footer {
+    margin:0 20px
+  }
+  .footer-home {
+    display:none
+  }
+
+}
+
+@media(max-width:700px) {
+  .main {
+    display:flex;
+    flex-direction:column;
+    padding:12px
+  }
+  .local-column,.agenda-panel,.sports-sidebar {
+    width:100%
+  }
+  .agenda-panel {
+    order:-1;
+    min-height:0;
+    padding:20px
+  }
+  #events-list {
+    max-height:400px
+  }
+  .sports-sidebar {
+    display:flex
+  }
+  .sports-heading {
+    margin-top:10px
+  }
+  .header {
+    padding:15px 14px;
+    gap:12px
+  }
+  .brand-mark {
+    display:none
+  }
+  .logo {
+    font-size:23px
+  }
+  .location-label {
+    font-size:8px
+  }
+  .header-right {
+    gap:5px
+  }
+  #clock {
+    font-size:2rem
+  }
+  #ampm {
+    font-size:.65rem;
+    margin:0 3px
+  }
+  .icon-button {
+    width:28px;
+    height:28px;
+    font-size:18px
+  }
+  #fullscreen-button {
+    display:none
+  }
+  .conn-badge {
+    display:none!important
+  }
+  .panel {
+    padding:20px
+  }
+  .weather-details strong {
+    font-size:.95rem
+  }
+  .footer {
+    margin:0 16px
+  }
+  .f1-track {
+    height:190px
+  }
+  h1 {
+    font-size:2rem
+  }
+  .source-line {
+    font-size:.7rem
+  }
+  .section-heading>.eyebrow {
+    font-size:.7rem
+  }
+  .event-title {
+    font-size:1rem
+  }
+  .event-tag {
+    font-size:.6rem
+  }
+  .sports-logo {
+    height:80px;
+    width:80px
+  }
+
+}
+
+@media(prefers-reduced-motion:reduce) {
+  * {
+    scroll-behavior:auto!important
+  }
+
+}

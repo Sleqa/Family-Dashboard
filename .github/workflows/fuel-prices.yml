@@ -1,0 +1,39 @@
+name: Refresh FuelWatch prices
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - scripts/refresh_fuel.py
+      - .github/workflows/fuel-prices.yml
+  schedule:
+    # AWST: 06:17 (new price day), 14:47 (tomorrow published), 16:17 (retry).
+    - cron: '17 22,8 * * *'
+    - cron: '47 6 * * *'
+permissions:
+  contents: write
+concurrency:
+  group: fuel-prices
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python scripts/refresh_fuel.py
+      - name: Publish public fuel snapshot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/fuel.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Refresh public FuelWatch prices"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi

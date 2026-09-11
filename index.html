@@ -3,958 +3,57 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Family Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg:          #0f1418;
-      --card-bg:     #1a1f25;
-      --card-bg-2:   #232831;
-      --text:        #e8e3de;
-      --muted:       #8a8a8a;
-      --border:      #2a3038;
-      --accent:      #4a90d9;
-      --red:         #e74c5e;
-      --orange:      #f5a623;
-      --green:       #5cb85c;
-      --purple:      #8b5cf6;
-      --blue:        #4a90d9;
-      --pink:        #ec4899;
-      --teal:        #14b8a6;
-      --font:        'Nunito', -apple-system, system-ui, sans-serif;
-      --radius:      16px;
-      --shadow:      0 2px 12px rgba(0,0,0,0.4);
-    }
-
-    html, body {
-      width: 100%; height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font);
-      overflow-x: hidden;
-      overflow-y: auto;
-    }
-
-    /* ── Top header bar ── */
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 28px;
-      background: var(--card-bg);
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-    .logo {
-      font-size: 1.4rem;
-      font-weight: 800;
-      color: var(--text);
-      letter-spacing: -0.02em;
-    }
-    .logo span { color: var(--accent); }
-    .header-date {
-      font-size: 0.9rem;
-      color: var(--muted);
-      font-weight: 600;
-    }
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .conn-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 5px 12px;
-      border-radius: 20px;
-      background: var(--card-bg-2);
-      border: 1px solid var(--border);
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: var(--muted);
-      white-space: nowrap;
-    }
-    .conn-badge.offline {
-      border-color: rgba(245, 166, 35, 0.4);
-      background: rgba(245, 166, 35, 0.12);
-      color: var(--orange);
-    }
-
-    /* ── Google Sign-In button ── */
-    .google-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 18px;
-      background: var(--card-bg);
-      border: 2px solid var(--border);
-      border-radius: 24px;
-      font-family: var(--font);
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--text);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .google-btn:hover {
-      border-color: var(--accent);
-      box-shadow: 0 2px 12px rgba(74,144,217,0.15);
-    }
-    .google-btn svg { width: 18px; height: 18px; }
-    .google-btn.signed-in {
-      border-color: var(--green);
-      background: rgba(92, 184, 92, 0.15);
-      color: var(--green);
-    }
-
-    /* ── Main layout ── */
-    .main {
-      display: grid;
-      grid-template-columns: 320px 1fr 320px;
-      gap: 0;
-      height: calc(100vh - 60px);
-    }
-
-    /* ── Left sidebar ── */
-    .sidebar {
-      background: var(--card-bg);
-      border-right: 1px solid var(--border);
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    /* ── Cards (sidebar widgets) ── */
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-      box-shadow: var(--shadow);
-    }
-    .sidebar .card {
-      border: none;
-      box-shadow: none;
-      padding: 0;
-    }
-    .card-title {
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 12px;
-    }
-
-    /* ── Clock widget ── */
-    .clock-widget {
-      text-align: center;
-      padding: 20px 0 12px;
-    }
-    #clock {
-      font-size: 3.8rem;
-      font-weight: 300;
-      letter-spacing: -0.03em;
-      line-height: 1;
-      color: var(--text);
-    }
-    #ampm {
-      font-size: 0.9rem;
-      font-weight: 700;
-      letter-spacing: 0.15em;
-      color: var(--muted);
-      margin-top: 4px;
-    }
-    #word-of-day {
-      margin-top: 12px;
-      padding: 10px 12px;
-      background: var(--card);
-      border-radius: 10px;
-      border-left: 3px solid var(--blue);
-    }
-    #word-of-day .wod-label {
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 4px;
-    }
-    #word-of-day .wod-word {
-      font-size: 1.1rem;
-      font-weight: 800;
-      color: var(--blue);
-    }
-    #word-of-day .wod-pos {
-      font-size: 0.7rem;
-      font-style: italic;
-      color: var(--muted);
-      margin-left: 4px;
-    }
-    #word-of-day .wod-def {
-      font-size: 0.78rem;
-      color: var(--text);
-      margin-top: 4px;
-      line-height: 1.4;
-    }
-
-    /* ── Weather widget ── */
-    .weather-widget {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 16px;
-      background: linear-gradient(135deg, rgba(74, 144, 217, 0.18), rgba(74, 144, 217, 0.08));
-      border-radius: 14px;
-    }
-    #weather-icon { font-size: 2.6rem; }
-    .weather-info { flex: 1; }
-    #weather-temp {
-      font-size: 2rem;
-      font-weight: 700;
-      line-height: 1;
-      color: var(--text);
-    }
-    #weather-desc {
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--muted);
-      text-transform: capitalize;
-      margin-top: 2px;
-    }
-    .weather-details {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 14px;
-    }
-    .weather-detail {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-    }
-    .weather-detail-label {
-      font-size: 0.62rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-    .weather-detail-value {
-      font-size: 0.92rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    /* ── Calendar area (right side) ── */
-    .calendar-area {
-      padding: 24px 28px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      overflow: hidden;
-    }
-    #calendar-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-      overflow: hidden;
-    }
-    #events-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-    }
-    #events-list {
-      flex: 1;
-      min-height: 0;
-      overflow-y: auto;
-      padding-right: 4px;
-    }
-    #events-list::-webkit-scrollbar { width: 6px; }
-    #events-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-    #events-list::-webkit-scrollbar-track { background: transparent; }
-
-    /* ── View toggle tabs ── */
-    .view-tabs {
-      display: flex;
-      gap: 4px;
-      background: var(--card-bg-2);
-      padding: 4px;
-      border-radius: 12px;
-      width: fit-content;
-    }
-    .view-tab {
-      padding: 8px 20px;
-      border: none;
-      background: none;
-      border-radius: 10px;
-      font-family: var(--font);
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--muted);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .view-tab.active {
-      background: var(--card-bg);
-      color: var(--text);
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-    }
-
-    /* ── Schedule / event list ── */
-    .schedule-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .schedule-title {
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: var(--text);
-    }
-
-    .day-section {
-      margin-bottom: 8px;
-    }
-    .day-label {
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 10px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .event-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .event-item {
-      display: flex;
-      align-items: stretch;
-      gap: 14px;
-      padding: 14px 16px;
-      background: var(--card-bg);
-      border-radius: 14px;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
-      transition: transform 0.15s, box-shadow 0.15s;
-    }
-    .event-item:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-    }
-    .event-color-bar {
-      width: 4px;
-      border-radius: 4px;
-      flex-shrink: 0;
-    }
-    .event-content { flex: 1; }
-    .event-title {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 3px;
-    }
-    .event-time {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--muted);
-    }
-    .event-tag {
-      display: inline-block;
-      font-size: 0.65rem;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 8px;
-      margin-top: 6px;
-    }
-
-    /* ── Month grid view ── */
-    .month-nav {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .month-nav-btn {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 4px 13px;
-      cursor: pointer;
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--text);
-      transition: all 0.15s;
-      line-height: 1.6;
-    }
-    .month-nav-btn:hover { background: var(--bg); }
-    .month-nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-    .month-nav-label {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: var(--text);
-      min-width: 130px;
-      text-align: center;
-    }
-    .month-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 1px;
-      background: var(--border);
-      border-radius: 14px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      height: 100%;
-    }
-    .month-day-header {
-      background: var(--bg);
-      text-align: center;
-      padding: 10px 4px;
-      font-size: 0.68rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--muted);
-    }
-    .month-day {
-      background: var(--card-bg);
-      padding: 6px 5px;
-      overflow: hidden;
-    }
-    .month-day.other-month { background: #14181d; opacity: 0.6; }
-    .month-day.today-cell  { background: rgba(74, 144, 217, 0.18); }
-    .month-day-num {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 4px;
-      width: 22px;
-      height: 22px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-    }
-    .month-day-num.today-num {
-      background: var(--accent);
-      color: #fff;
-    }
-    .month-event-pill {
-      font-size: 0.6rem;
-      font-weight: 700;
-      color: #fff;
-      border-radius: 3px;
-      padding: 1px 5px;
-      margin-bottom: 2px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .month-more {
-      font-size: 0.58rem;
-      font-weight: 600;
-      color: var(--muted);
-      padding-left: 3px;
-    }
-
-    /* ── Google Calendar connect prompt ── */
-    .cal-connect-prompt {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 60px 40px;
-      background: var(--card-bg);
-      border: 2px dashed var(--border);
-      border-radius: var(--radius);
-      gap: 16px;
-    }
-    .cal-connect-prompt .icon { font-size: 3rem; }
-    .cal-connect-prompt h3 {
-      font-size: 1.2rem;
-      font-weight: 800;
-      color: var(--text);
-    }
-    .cal-connect-prompt p {
-      font-size: 0.9rem;
-      color: var(--muted);
-      max-width: 400px;
-      line-height: 1.6;
-    }
-    .cal-connect-prompt code {
-      background: var(--card-bg-2);
-      padding: 2px 8px;
-      border-radius: 6px;
-      font-size: 0.82rem;
-    }
-
-    /* ── No events placeholder ── */
-    .no-events {
-      text-align: center;
-      padding: 40px;
-      color: var(--muted);
-    }
-    .no-events .icon { font-size: 2.5rem; margin-bottom: 10px; }
-    .no-events p { font-size: 0.9rem; font-weight: 600; }
-
-    /* ── Loading spinner ── */
-    .loading {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 40px;
-      gap: 10px;
-      color: var(--muted);
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-    .spinner {
-      width: 20px; height: 20px;
-      border: 3px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ── Sports Sidebar ── */
-    .sports-sidebar {
-      background: var(--bg);
-      border-left: 1px solid var(--border);
-      padding: 20px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      overflow-y: auto;
-    }
-    .sports-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 14px 16px;
-      position: relative;
-      overflow: hidden;
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      font-size: 0.85rem;
-    }
-    .sports-card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 0.68rem;
-      font-weight: 800;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-    .sports-teams-row {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      gap: 8px;
-    }
-    .sports-team-block {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      min-width: 0;
-    }
-    .sports-logo {
-      width: 52px;
-      height: 52px;
-      object-fit: contain;
-      filter:
-        drop-shadow(0 0 0.6px rgba(255,255,255,0.95))
-        drop-shadow(0 0 0.6px rgba(255,255,255,0.95))
-        drop-shadow(0 0 0.6px rgba(255,255,255,0.95));
-    }
-    .sports-logo-sm {
-      width: 26px;
-      height: 26px;
-      object-fit: contain;
-      flex-shrink: 0;
-      filter:
-        drop-shadow(0 0 0.5px rgba(255,255,255,0.9))
-        drop-shadow(0 0 0.5px rgba(255,255,255,0.9));
-    }
-    /* compact game row (multi-game view, logos only) */
-    .sports-games-list { display: flex; flex-direction: column; }
-    .sports-game-row {
-      display: grid;
-      grid-template-columns: auto auto auto auto;
-      align-items: center;
-      justify-content: space-between;
-      gap: 6px;
-      padding: 6px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.76rem;
-    }
-    .sports-game-row:last-child { border-bottom: none; }
-    .sports-game-row.is-live .sports-game-status { color: var(--red); }
-    .sports-game-away {
-      display: flex;
-      align-items: center;
-    }
-    .sports-game-home {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-    }
-    .sports-game-scores {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-weight: 800;
-      font-size: 0.82rem;
-      color: var(--text);
-      white-space: nowrap;
-    }
-    .sports-game-sep { color: var(--muted); font-weight: 400; }
-    .sports-game-vs { color: var(--muted); font-size: 0.7rem; font-weight: 600; }
-    .sports-game-status {
-      font-size: 0.62rem;
-      font-weight: 700;
-      color: var(--muted);
-      text-align: right;
-      white-space: nowrap;
-      min-width: 0;
-    }
-    /* standings (logos only, no team name text) */
-    .sports-standings-list { display: flex; flex-direction: column; }
-    .sports-standing-row {
-      display: grid;
-      grid-template-columns: 18px 26px auto auto;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.74rem;
-    }
-    .sports-standing-row:last-child { border-bottom: none; }
-    .sports-standing-rank {
-      color: var(--muted);
-      font-weight: 700;
-      text-align: right;
-      font-size: 0.66rem;
-    }
-    .sports-standing-record {
-      color: var(--muted);
-      font-size: 0.68rem;
-      white-space: nowrap;
-    }
-    .sports-standing-pct {
-      color: var(--muted);
-      font-size: 0.66rem;
-      text-align: right;
-      white-space: nowrap;
-    }
-    .sports-team-name {
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: var(--text);
-      text-align: center;
-      max-width: 90px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .sports-team-record {
-      font-size: 0.62rem;
-      font-weight: 600;
-      color: var(--muted);
-    }
-    .sports-score-center {
-      text-align: center;
-      font-size: 1.6rem;
-      font-weight: 800;
-      color: var(--text);
-      letter-spacing: -0.02em;
-      min-width: 70px;
-    }
-    .sports-clock {
-      text-align: center;
-      font-size: 0.78rem;
-      font-weight: 700;
-      color: var(--text);
-      padding: 4px 0;
-    }
-    .sports-clock.live {
-      color: var(--red);
-    }
-    .sports-meta-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 8px;
-      font-size: 0.7rem;
-      color: var(--muted);
-      border-top: 1px solid var(--border);
-      padding-top: 8px;
-    }
-    .sports-venue-block {
-      flex: 1;
-      min-width: 0;
-    }
-    .sports-venue-name {
-      font-weight: 700;
-      color: var(--text);
-      font-size: 0.72rem;
-    }
-    .sports-venue-city {
-      font-size: 0.66rem;
-    }
-    .sports-network {
-      font-weight: 700;
-      font-size: 0.66rem;
-      color: var(--accent);
-      flex-shrink: 0;
-    }
-    .sports-lastplay {
-      font-size: 0.7rem;
-      font-style: italic;
-      color: var(--muted);
-      line-height: 1.35;
-      border-top: 1px solid var(--border);
-      padding-top: 8px;
-    }
-    .sports-winprob {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .sports-winprob-bar {
-      display: flex;
-      height: 6px;
-      border-radius: 3px;
-      overflow: hidden;
-      background: var(--border);
-    }
-    .sports-winprob-fill-a { background: var(--blue); }
-    .sports-winprob-fill-b { background: var(--red);  }
-    .sports-winprob-labels {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.62rem;
-      font-weight: 700;
-      color: var(--muted);
-    }
-    .sports-live-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #ff4444;
-      animation: pulse-red 1.5s ease-in-out infinite;
-      display: inline-block;
-      margin-left: 6px;
-      vertical-align: middle;
-    }
-    .sports-f1-race {
-      text-align: center;
-      font-size: 1rem;
-      font-weight: 800;
-      color: var(--text);
-      line-height: 1.2;
-    }
-    .sports-f1-circuit {
-      text-align: center;
-      font-size: 0.74rem;
-      color: var(--muted);
-    }
-    .sports-f1-time {
-      text-align: center;
-      font-size: 1.15rem;
-      font-weight: 800;
-      color: var(--red);
-      padding: 4px 0;
-    }
-    .sports-f1-countdown {
-      text-align: center;
-      font-size: 0.7rem;
-      color: var(--muted);
-    }
-    .sports-f1-leader {
-      border-top: 1px solid var(--border);
-      padding-top: 8px;
-      text-align: center;
-    }
-    .sports-f1-leader-label {
-      font-size: 0.6rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 2px;
-    }
-    .sports-f1-leader-name {
-      font-weight: 800;
-      font-size: 0.85rem;
-      color: var(--text);
-    }
-    .sports-f1-leader-points {
-      font-size: 0.7rem;
-      color: var(--muted);
-    }
-    .sports-empty {
-      text-align: center;
-      color: var(--muted);
-      font-size: 0.78rem;
-      padding: 20px 0;
-    }
-    @keyframes pulse-red {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
-    }
-
-    /* ── Responsive ── */
-    @media (max-width: 900px) {
-      .main { grid-template-columns: 1fr; }
-      .sidebar {
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-        flex-direction: row;
-        flex-wrap: wrap;
-        padding: 16px;
-        gap: 16px;
-      }
-      .sidebar > * { flex: 1; min-width: 200px; }
-      .sports-sidebar { display: none; }
-    }
-    @media (max-width: 550px) {
-      .header { padding: 12px 16px; }
-      .calendar-area { padding: 16px; }
-      .sidebar { flex-direction: column; }
-      .sports-sidebar { display: none; }
-    }
-  </style>
+  <title>Weldon Hub · Burns Beach</title>
+  <meta name="theme-color" content="#0b151c" />
+  <meta name="description" content="The Weldon family dashboard — calendars, Burns Beach weather, nearby fuel and sport." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="dashboard.css?v=2" />
 </head>
 <body>
+<header class="header">
+  <div class="brand"><div class="brand-mark" aria-hidden="true">w.</div><div><div class="logo">Weldon<span>Hub</span></div><div class="location-label">BURNS BEACH <span> / </span> WESTERN AUSTRALIA</div></div></div>
+  <div class="header-date"><span id="greeting">Welcome home</span><span id="header-date"></span></div>
+  <div class="header-right"><span class="conn-badge" id="conn-badge" style="display:none"></span><div class="clock-widget"><span id="clock">00:00</span><span id="ampm">AM</span></div><button id="refresh-button" class="icon-button" aria-label="Refresh dashboard" title="Refresh dashboard">↻</button><button id="fullscreen-button" class="icon-button" aria-label="Toggle full screen" title="Full screen">⛶</button></div>
+</header>
+<main class="main">
+  <aside class="local-column" aria-label="Around Burns Beach">
+    <section class="panel weather-panel">
+      <div class="section-heading"><h2>Outside, right now</h2><span class="eyebrow">BURNS BEACH</span></div>
+      <div class="weather-widget"><div><div id="weather-temp">—°</div><div id="weather-desc">Checking the coast…</div></div><div id="weather-icon" aria-hidden="true">☀️</div></div>
+      <div class="weather-details"><div><span>Feels like</span><strong id="feels-like">—</strong></div><div><span>Wind</span><strong id="wind">—</strong></div><div><span>Humidity</span><strong id="humidity">—</strong></div><div><span>High / low</span><strong id="highlow">—</strong></div></div>
+      <div id="forecast" class="forecast"></div>
+      <div id="sun-strip" class="sun-strip"></div>
+      <div id="marine" class="marine" hidden></div>
+      <div class="source-line"><a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a><span id="weather-updated"></span></div>
+    </section>
+    <section class="panel fuel-panel" id="fuel-panel">
+      <div class="section-heading"><h2>Fill up for less</h2><span class="fuel-type">95</span></div>
+      <div class="panel-subtitle">Premium 95 · within 30 km</div>
+      <div class="fuel-tabs" role="group" aria-label="Fuel price day"><button class="active" id="fuel-today" aria-pressed="true">Today</button><button id="fuel-tomorrow" aria-pressed="false">Tomorrow</button></div>
+      <div id="fuel-content" aria-live="polite"><p class="muted">Finding nearby prices…</p></div>
+      <div class="source-line"><a href="https://www.fuelwatch.wa.gov.au/" target="_blank" rel="noopener">Source: FuelWatch WA</a><span>Radius, not driving distance</span></div>
+    </section>
+  </aside>
+  <section class="panel agenda-panel" aria-label="Family schedule">
+    <div class="section-heading"><div><div class="eyebrow accent">LIFE AT HOME</div><h1>Your days, together.</h1></div><span class="agenda-count" id="agenda-count"></span></div>
+    <div class="schedule-header"><div class="calendar-legend"><span class="legend-personal">Personal</span><span class="legend-family">Family</span></div><span class="muted">Next 30 days</span></div>
+    <div class="week-strip" id="week-strip"></div>
+    <div id="calendar-content"><div id="events-container"><div class="loading" id="events-loading">Loading calendars…</div><div id="events-list"></div></div></div>
+    <div class="holiday-strip" id="holiday-strip" hidden></div>
+    <div class="source-line"><span id="calendar-updated">Google Calendar · auto-refreshes</span><span>AWST</span></div>
+  </section>
+  <aside class="sports-sidebar" id="sports-sidebar" aria-label="Sport">
+    <div class="section-heading sports-heading"><h2>On the radar</h2><span class="eyebrow">SPORT</span></div>
+    <section class="sports-card f1-card" id="f1-card" hidden></section>
+    <section class="sports-card" id="afl-card" hidden></section>
+    <section class="sports-card" id="nba-card" hidden></section>
+    <div class="source-line sports-source"><span><a href="https://www.espn.com/" target="_blank" rel="noopener">ESPN</a> · <a href="https://api.jolpi.ca/ergast/" target="_blank" rel="noopener">Jolpica</a> · <a href="https://openf1.org/" target="_blank" rel="noopener">OpenF1</a></span><span>Times in Perth</span></div>
+  </aside>
+</main>
+<footer class="footer"><div id="word-of-day"><span class="wod-label">A WORD FOR TODAY</span><strong id="wod-word"></strong><span id="wod-pos"></span><span id="wod-def"></span></div><span class="footer-home">Made for home. <span class="accent">W.</span></span></footer>
 
-<!-- ════════ HEADER ════════ -->
-<div class="header">
-  <div class="header-left">
-    <div class="logo">Weldon<span>Hub</span></div>
-    <div class="header-date" id="header-date">Thursday, March 19</div>
-  </div>
-  <div class="header-right">
-    <span class="conn-badge" id="conn-badge" style="display:none"></span>
-  </div>
-</div>
-
-<!-- ════════ MAIN LAYOUT ════════ -->
-<div class="main">
-
-  <!-- ── Sidebar ── -->
-  <div class="sidebar">
-
-    <!-- Clock -->
-    <div>
-      <div class="clock-widget">
-        <div id="clock">00:00</div>
-        <div id="ampm">AM</div>
-        <div id="word-of-day">
-          <div class="wod-label">Word of the Day</div>
-          <div><span class="wod-word" id="wod-word">...</span><span class="wod-pos" id="wod-pos"></span></div>
-          <div class="wod-def" id="wod-def"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Weather -->
-    <div>
-      <div class="card-title">Perth, WA</div>
-      <div class="weather-widget">
-        <div id="weather-icon">⛅</div>
-        <div class="weather-info">
-          <div id="weather-temp">--°</div>
-          <div id="weather-desc">Loading...</div>
-        </div>
-      </div>
-      <div class="weather-details">
-        <div class="weather-detail">
-          <span class="weather-detail-label">Feels Like</span>
-          <span class="weather-detail-value" id="feels-like">--°</span>
-        </div>
-        <div class="weather-detail">
-          <span class="weather-detail-label">Humidity</span>
-          <span class="weather-detail-value" id="humidity">--%</span>
-        </div>
-        <div class="weather-detail">
-          <span class="weather-detail-label">Wind</span>
-          <span class="weather-detail-value" id="wind">--</span>
-        </div>
-        <div class="weather-detail">
-          <span class="weather-detail-label">High / Low</span>
-          <span class="weather-detail-value" id="highlow">-- / --°</span>
-        </div>
-      </div>
-    </div>
-
-
-  </div>
-
-  <!-- ── Calendar Area ── -->
-  <div class="calendar-area">
-
-    <div class="schedule-header">
-      <div class="schedule-title">Schedule</div>
-    </div>
-
-    <div id="calendar-content">
-      <div id="events-container" style="display: flex;">
-        <div class="loading" id="events-loading">
-          <div class="spinner"></div>
-          Loading calendars...
-        </div>
-        <div id="events-list"></div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ── Sports Sidebar ── -->
-  <div class="sports-sidebar">
-    <div class="sports-card" id="nba-card">
-      <div class="sports-card-header"><span>NBA</span></div>
-      <div class="sports-empty">Loading...</div>
-    </div>
-
-    <div class="sports-card" id="afl-card">
-      <div class="sports-card-header"><span>AFL</span></div>
-      <div class="sports-empty">Loading...</div>
-    </div>
-
-    <div class="sports-card" id="f1-card">
-      <div class="sports-card-header"><span>F1</span></div>
-      <div class="sports-empty">Loading...</div>
-    </div>
-  </div>
-
-</div>
-
+<script src="dashboard-extra.js?v=2"></script>
 <script>
   // ════════════════════════════════════════════════════════════
   // iCal Calendar Feeds — direct fetch + parse, no OAuth, no popups
@@ -1063,7 +162,9 @@
 
   function updateClock() {
     const now = new Date();
-    let h = now.getHours();
+    const hour = Number(now.toLocaleString('en-GB', {timeZone:'Australia/Perth', hour:'2-digit', hour12:false}));
+    document.getElementById('greeting').textContent = hour < 12 ? 'Good morning, Weldons.' : hour < 18 ? 'Good afternoon, Weldons.' : 'Good evening, Weldons.';
+    let h = hour;
     const m = now.getMinutes();
     const ampm = h >= 12 ? 'PM' : 'AM';
     h = h % 12 || 12;
@@ -1074,13 +175,13 @@
     const dayName = DAYS[now.getDay()];
     const monthName = MONTHS[now.getMonth()];
     document.getElementById('header-date').textContent =
-      dayName + ', ' + monthName + ' ' + now.getDate();
+      now.toLocaleDateString('en-AU', {timeZone:'Australia/Perth', weekday:'long',day:'numeric',month:'long'});
   }
   updateClock();
   setInterval(updateClock, 1000);
 
   // ── Weather (Open-Meteo) ──
-  const LAT = -31.9505, LON = 115.8605;
+  const LAT = -31.7206, LON = 115.7205;
   const WMO_ICONS = {
     0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',
     51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',
@@ -1106,13 +207,14 @@
     document.getElementById('humidity').textContent     = w.humidity + '%';
     document.getElementById('wind').textContent         = w.wind + ' km/h';
     document.getElementById('highlow').textContent      = w.hi + '° / ' + w.lo + '°';
+    renderWeatherExtras(w);
   }
 
   let hasWeather = false;
 
   // Paint last-known weather immediately — no network needed.
   (function primeWeatherFromCache() {
-    const hit = cacheGet('weather');
+    const hit = cacheGet('weather:burns-beach');
     if (hit) { applyWeather(hit.value); hasWeather = true; }
   })();
 
@@ -1120,7 +222,7 @@
     return runIfOnline('weather', async () => {
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}`
         + `&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code`
-        + `&daily=temperature_2m_max,temperature_2m_min&timezone=Australia%2FPerth&forecast_days=1`;
+        + `&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max,uv_index_max,sunrise,sunset&timezone=Australia%2FPerth&forecast_days=4`;
       const res  = await fetchWithTimeout(url, 12000);
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
@@ -1133,9 +235,10 @@
         wind:     Math.round(c.wind_speed_10m),
         hi:       Math.round(d.temperature_2m_max[0]),
         lo:       Math.round(d.temperature_2m_min[0]),
+        daily: d, updatedAt: Date.now(),
       };
       applyWeather(w);
-      cacheSet('weather', w);
+      cacheSet('weather:burns-beach', w);
       hasWeather = true;
       markSynced();
       return true;
@@ -1498,6 +601,8 @@
       .sort((a, b) => a.start - b.start)
       .slice(0, 20);
 
+    renderWeekStrip(events);
+    document.getElementById('agenda-count').textContent = events.filter(ev => ev.start < tomorrowStart && (ev.end || ev.start) >= todayStart).length + ' today';
     const list = document.getElementById('events-list');
     if (!visible.length) {
       list.innerHTML = '<div class="no-events"><div class="icon">🎉</div><p>No upcoming events</p></div>';
@@ -1538,7 +643,7 @@
       if (ev.end && ev.end > ev.start) timeStr += ' – ' + formatTime(ev.end);
     }
     return `
-      <div class="event-item event-${ev.feed.type}">
+      <div class="event-item event-${ev.feed.type}${!ev.allDay && ev.start <= new Date() && ev.end > new Date() ? ' is-current' : ''}">
         <div class="event-color-bar" style="background: ${color}"></div>
         <div class="event-content">
           <div class="event-title">${escapeHtml(ev.summary)}</div>
@@ -1578,12 +683,18 @@
   async function refreshCalendar() {
     const loading = document.getElementById('events-loading');
     const list    = document.getElementById('events-list');
+    renderCalendarFromTexts();
     if (!hasRenderedCalendar) loading.style.display = 'flex';
     try {
       // Fetch only when there's a link; otherwise fall straight through to
       // the cached text so the calendar still renders.
       const okCount = await runIfOnline('calendar', fetchAllFeeds);
-      if (okCount > 0) markSynced();
+      if (okCount > 0) {
+        markSynced();
+        document.getElementById('calendar-updated').textContent = okCount === ICAL_FEEDS.length ? 'Calendars synced · ' + perthTime(new Date()) : 'Some calendars offline · showing saved events';
+      } else {
+        document.getElementById('calendar-updated').textContent = calendarTexts.size ? 'Saved calendar · refresh unavailable' : 'Calendar connection unavailable';
+      }
 
       if (!renderCalendarFromTexts() && !hasRenderedCalendar) {
         list.innerHTML = isOnline()
@@ -1613,9 +724,8 @@
   }
 
   function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
+    return String(str == null ? '' : str).replace(/[&<>"']/g, c =>
+      ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
   // ════════════════════════════════════════════════════════════
@@ -1633,7 +743,7 @@
     const status = comp.status?.type || event.status?.type || {};
     const state  = status.state || '';   // 'pre' | 'in' | 'post'
     const isLive = state === 'in';
-    const venueAddr = event.venue?.address || {};
+    const venueAddr = comp.venue?.address || event.venue?.address || {};
     const sit = comp.situation || {};
 
     const cityState = [venueAddr.city, venueAddr.state].filter(Boolean).join(', ');
@@ -1675,7 +785,7 @@
       isLive,
       isFinal:    state === 'post',
       isUpcoming: state === 'pre',
-      venueName:  event.venue?.fullName || '',
+      venueName:  comp.venue?.fullName || event.venue?.fullName || '',
       venueCity:  cityState,
       network:    comp.broadcasts?.[0]?.names?.[0] || '',
       lastPlay:   sit.lastPlay?.text || '',
@@ -1759,42 +869,7 @@
   async function fetchNBAData() { return fetchLeagueData('basketball/nba', 'NBA'); }
   async function fetchAFLData() { return fetchLeagueData('australian-football/afl', 'AFL'); }
 
-  async function fetchF1Data() {
-    try {
-      const [nextRes, standingsRes] = await Promise.all([
-        fetchWithTimeout('https://api.jolpi.ca/ergast/f1/current/next.json', 12000),
-        fetchWithTimeout('https://api.jolpi.ca/ergast/f1/current/driverStandings.json', 12000),
-      ]);
-      if (!nextRes.ok) return null;
-      const nextData      = await nextRes.json();
-      const standingsData = standingsRes.ok ? await standingsRes.json() : null;
-
-      const race = nextData.MRData?.RaceTable?.Races?.[0];
-      if (!race) return null;
-
-      // Strip trailing Z so we don't double it; Ergast returns time like "06:00:00Z"
-      const timeStr  = (race.time || '00:00:00Z').replace(/Z$/, '') + 'Z';
-      const raceDate = new Date(race.date + 'T' + timeStr);
-      if (isNaN(raceDate)) return null;
-
-      const leader = standingsData?.MRData?.StandingsTable?.StandingsLists?.[0]?.DriverStandings?.[0];
-
-      return {
-        raceName: race.raceName || race.name || '',
-        circuit:  race.Circuit?.circuitName || '',
-        country:  race.Circuit?.Location?.country || '',
-        date:     raceDate,
-        leader:   leader ? {
-          name:   `${leader.Driver?.givenName} ${leader.Driver?.familyName}`,
-          points: leader.points,
-          team:   leader.Constructors?.[0]?.name,
-        } : null,
-      };
-    } catch (e) {
-      console.warn('F1 fetch failed:', e);
-      return null;
-    }
-  }
+  async function fetchF1Data() { return loadF1Data(); }
 
   // ── Renderers ────────────────────────────────────────────────────────────
 
@@ -1913,10 +988,14 @@
 
   function renderLeagueCard(cardEl, data, fallbackLabel) {
     if (!data || !data.games || !data.games.length) {
-      cardEl.innerHTML = emptyCard(data?.label || fallbackLabel || '');
+      cardEl.hidden = true;
+      cardEl.innerHTML = '';
       return;
     }
-    const { label, games, fallbackKind } = data;
+    const games = data.games.filter(g => new Date(g.date).getTime() > Date.now() - 3 * 86400000);
+    if (!games.length) { cardEl.hidden = true; return; }
+    cardEl.hidden = false;
+    const { label, fallbackKind } = data;
 
     const hasLive  = games.some(g => g.isLive);
     const liveGame = games.find(g => g.isLive);
@@ -1945,46 +1024,7 @@
     }
   }
 
-  function renderF1Card(data) {
-    const card = document.getElementById('f1-card');
-    if (!data) { card.innerHTML = emptyCard('F1'); return; }
-
-    const now = new Date();
-    const msUntil = data.date - now;
-    let countdown;
-    if (msUntil < 0) {
-      countdown = 'Race in progress or just finished';
-    } else {
-      const totalH = Math.floor(msUntil / 3600000);
-      const days   = Math.floor(totalH / 24);
-      const hours  = totalH % 24;
-      countdown = days > 0 ? `Starts in ${days}d ${hours}h` : `Starts in ${hours}h`;
-    }
-
-    const raceTime = data.date.toLocaleString('en-AU', {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-      timeZone: 'Australia/Perth',
-    });
-
-    card.innerHTML = `
-      <div class="sports-card-header"><span>F1</span><span>Next Race</span></div>
-      <div class="sports-f1-race">${escapeHtml(data.raceName)}</div>
-      <div class="sports-f1-circuit">${escapeHtml(data.circuit)}${data.country ? ' • ' + escapeHtml(data.country) : ''}</div>
-      <div class="sports-f1-time">${raceTime} AWST</div>
-      <div class="sports-f1-countdown">${countdown}</div>
-      ${data.leader ? `
-        <div class="sports-f1-leader">
-          <div class="sports-f1-leader-label">Championship Leader</div>
-          <div class="sports-f1-leader-name">${escapeHtml(data.leader.name)}</div>
-          <div class="sports-f1-leader-points">${escapeHtml(data.leader.points)} pts${data.leader.team ? ' • ' + escapeHtml(data.leader.team) : ''}</div>
-        </div>` : ''}
-    `;
-  }
+  function renderF1Card(data) { drawF1Card(data); }
 
   // Last-known sports data. Hydrated from localStorage at boot so the cards
   // are populated before (or entirely without) any network call. A failed
@@ -1995,11 +1035,11 @@
     const nba = cacheGet('sports:nba');
     const afl = cacheGet('sports:afl');
     const f1  = cacheGet('sports:f1');
-    if (nba) sportsState.nba = nba.value;
-    if (afl) sportsState.afl = afl.value;
+    if (nba && Date.now() - nba.savedAt < 6 * 3600000) sportsState.nba = nba.value;
+    if (afl && Date.now() - afl.savedAt < 6 * 3600000) sportsState.afl = afl.value;
     if (f1 && f1.value) {
       const revived = { ...f1.value, date: new Date(f1.value.date) };
-      if (!isNaN(revived.date)) sportsState.f1 = revived;
+      if (!isNaN(revived.date) && Date.now() - f1.savedAt < 12 * 3600000) sportsState.f1 = revived;
     }
   })();
 
@@ -2007,33 +1047,42 @@
     renderLeagueCard(document.getElementById('nba-card'), sportsState.nba, 'NBA');
     renderLeagueCard(document.getElementById('afl-card'), sportsState.afl, 'AFL');
     renderF1Card(sportsState.f1);
+    document.getElementById('sports-sidebar').hidden = ['nba-card','afl-card','f1-card'].every(id => document.getElementById(id).hidden);
   }
 
+  let sportsBusy = false;
+  let lastF1Fetch = 0;
   async function refreshSports() {
+    if (sportsBusy) return;
     // Paint whatever we already hold first — instant, and correct offline.
     renderSports();
 
     if (!isOnline()) { updateConnBadge(); return; }
 
+    sportsBusy = true;
+    const needsF1 = Date.now() - lastF1Fetch > 15 * 60000;
     const [nba, afl, f1] = await Promise.all([
       fetchNBAData(),
       fetchAFLData(),
-      fetchF1Data(),
+      needsF1 ? fetchF1Data() : Promise.resolve(null),
     ]);
 
     if (nba) { sportsState.nba = nba; cacheSet('sports:nba', nba); }
     if (afl) { sportsState.afl = afl; cacheSet('sports:afl', afl); }
-    if (f1)  {
-      sportsState.f1 = f1;
-      cacheSet('sports:f1', { ...f1, date: f1.date.toISOString() });
+    if (needsF1) lastF1Fetch = Date.now();
+    if (f1) {
+      sportsState.f1 = f1.empty ? null : f1;
+      cacheSet('sports:f1', f1.empty ? null : { ...f1, date: f1.date.toISOString() });
     }
+    sportsBusy = false;
 
     if (nba || afl || f1) markSynced(); else updateConnBadge();
     renderSports();
   }
 
   refreshSports();
-  setInterval(refreshSports, 60 * 1000);
+  setInterval(refreshSports, 2 * 60 * 1000);
+  initialiseHomeExtras();
 
   // ── Connectivity handling ──
   // Timers above all no-op while offline. As soon as the link returns, pull
@@ -2042,6 +1091,7 @@
     fetchWeather();
     refreshCalendar();
     refreshSports();
+    refreshHomeExtras();
   }
 
   window.addEventListener('online',  () => { updateConnBadge(); refreshAll(); });
