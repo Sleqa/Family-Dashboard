@@ -59,7 +59,7 @@ h1 {
   margin-top:8px
 }
 h2 {
-  font-size:1.25rem
+  font-size:1.08rem
 }
 .accent {
   color:var(--accent)
@@ -179,7 +179,7 @@ h2 {
   background:var(--panel);
   border:1px solid var(--line);
   border-radius:18px;
-  padding:22px;
+  padding:16px;
   min-width:0
 }
 .section-heading {
@@ -193,9 +193,9 @@ h2 {
   font-size:.65rem
 }
 .panel-subtitle {
-  font-size:.875rem;
+  font-size:.8rem;
   color:var(--muted);
-  margin-top:4px
+  margin-top:2px
 }
 .weather-panel {
   background:linear-gradient(145deg,#19343c,var(--panel) 75%)
@@ -204,31 +204,31 @@ h2 {
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:12px 0 18px
+  padding:6px 0 12px
 }
 #weather-temp {
-  font:400 4.6rem 'Outfit';
+  font:400 3.4rem 'Outfit';
   letter-spacing:-.06em;
   line-height:1.1
 }
 #weather-desc {
-  font-size:.95rem;
+  font-size:.85rem;
   color:#c0d4d7;
-  margin-top:6px
+  margin-top:3px
 }
 #weather-icon {
-  font-size:3.5rem
+  font-size:2.7rem
 }
 .weather-details {
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  gap:8px;
-  padding-bottom:16px
+  gap:6px;
+  padding-bottom:10px
 }
 .weather-details div {
   display:flex;
   flex-direction:column;
-  gap:4px
+  gap:1px
 }
 .weather-details span {
   font-size:.75rem;
@@ -244,20 +244,20 @@ h2 {
   grid-template-columns:repeat(4,1fr);
   gap:4px;
   border-block:1px solid var(--line);
-  padding:13px 0
+  padding:9px 0
 }
 .forecast-day {
   display:flex;
   align-items:center;
   flex-direction:column;
-  gap:7px;
-  font-size:.8rem
+  gap:3px;
+  font-size:.78rem
 }
 .forecast-day span {
   color:var(--muted)
 }
 .forecast-day .forecast-icon {
-  font-size:1.3rem
+  font-size:1.05rem
 }
 .forecast-day strong {
   font-weight:600
@@ -267,8 +267,8 @@ h2 {
   flex-wrap:wrap;
   justify-content:space-between;
   gap:8px;
-  font-size:.8rem;
-  padding:14px 0 0;
+  font-size:.76rem;
+  padding:9px 0 0;
   color:#d7e3e4
 }
 .sun-strip .uv {
@@ -287,21 +287,21 @@ h2 {
   letter-spacing:.12em;
   text-transform:uppercase;
   color:var(--muted);
-  margin:14px 0 2px
+  margin:9px 0 1px
 }
-.fuel-group-label:first-child {
-  margin-top:10px
+.fuel-group:first-child>.fuel-group-label {
+  margin-top:6px
 }
 .fuel-row {
   display:grid;
-  grid-template-columns:24px 1fr auto;
+  grid-template-columns:22px 1fr auto;
   gap:10px;
-  padding:13px 0;
+  padding:8px 0;
   border-bottom:1px solid var(--line);
   align-items:center
 }
 .fuel-rank {
-  font:400 1rem 'Outfit';
+  font:400 .9rem 'Outfit';
   color:var(--muted)
 }
 .fuel-row:first-child .fuel-rank {
@@ -309,21 +309,21 @@ h2 {
 }
 .fuel-name {
   font-weight:700;
-  font-size:.875rem
+  font-size:.82rem
 }
 .fuel-address {
-  font-size:.75rem;
+  font-size:.72rem;
   color:var(--muted);
-  margin-top:3px
+  margin-top:1px
 }
 .fuel-price {
   text-align:right;
-  font:500 1.6rem 'Outfit';
+  font:500 1.25rem 'Outfit';
   color:#dbeda7
 }
 .fuel-price small {
   display:block;
-  font:400 .65rem var(--font);
+  font:400 .6rem var(--font);
   color:var(--muted)
 }
 .fuel-note {
@@ -697,7 +697,7 @@ h2 {
     gap:28px
   }
   .panel,.sports-card {
-    padding:26px
+    padding:19px
   }
   .f1-card {
     padding:0
@@ -709,27 +709,16 @@ h2 {
     max-height:630px
   }
   .weather-details strong {
-    font-size:1rem
+    font-size:.92rem
   }
   .fuel-name {
     font-size:1rem
   }
-  .fuel-group-label {
-  font-size:.62rem;
-  font-weight:700;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  color:var(--muted);
-  margin:14px 0 2px
-}
-.fuel-group-label:first-child {
-  margin-top:10px
-}
-.fuel-row {
-    padding:16px 0
+  .fuel-row {
+    padding:10px 0
   }
   .weather-widget {
-    padding:20px 0
+    padding:10px 0
   }
   .f1-track {
     height:110px

@@ -70,6 +70,7 @@ function renderWeatherExtras(w) {
   document.getElementById('sun-strip').innerHTML = i < 0 ? '' :
     '<span>↑ ' + perthTime(new Date(daily.sunrise[i]+'+08:00')) + '</span><span>↓ ' + perthTime(new Date(daily.sunset[i]+'+08:00')) +
     ' sunset</span><span class="uv">UV ' + numberOrDash(daily.uv_index_max[i]) + ' max</span>';
+  fitFuelRows();
 }
 
 function fuelRow(station, rank) {
@@ -100,13 +101,32 @@ function renderFuel() {
   const bestIsLocal = best.distanceKm <= FUEL_LOCAL_RADIUS_KM;
   const local = ranked.filter(s => s.distanceKm <= FUEL_LOCAL_RADIUS_KM && s !== best);
 
-  let html = '<div class="fuel-group-label">Cheapest in Perth</div>' + fuelRow(best, 1);
+  let html = '<div class="fuel-group"><div class="fuel-group-label">Cheapest in Perth</div>' + fuelRow(best, 1) + '</div>';
   if (local.length) {
-    html += '<div class="fuel-group-label">' +
+    html += '<div class="fuel-group" id="fuel-local"><div class="fuel-group-label">' +
       (bestIsLocal ? 'Also within ' : 'Cheapest within ') + FUEL_LOCAL_RADIUS_KM + ' km</div>' +
-      local.slice(0, 3).map((s, i) => fuelRow(s, i + 1)).join('');
+      local.slice(0, 5).map((s, i) => fuelRow(s, i + 1)).join('') + '</div>';
   }
   el.innerHTML = html;
+  fitFuelRows();
+}
+
+// TV overscan and shorter cast resolutions leave less room than a 1080p
+// window, and the column clips whatever spills. Drop whole local rows from
+// the end until the card fits, so a row is never sliced in half. The
+// Perth-wide row always survives.
+function fitFuelRows() {
+  const column = document.querySelector('.local-column');
+  const group = document.getElementById('fuel-local');
+  if (!column || !group) return;
+  const rows = [...group.querySelectorAll('.fuel-row')];
+  group.hidden = false;
+  rows.forEach(row => { row.hidden = false; });
+  for (let i = rows.length - 1; i >= 0; i--) {
+    if (column.scrollHeight <= column.clientHeight) break;
+    rows[i].hidden = true;
+  }
+  if (rows.every(row => row.hidden)) group.hidden = true;
 }
 
 async function refreshFuel() {
@@ -210,6 +230,8 @@ function initialiseHomeExtras() {
   document.getElementById('fullscreen-button').addEventListener('click',async()=>{
     try{if(document.fullscreenElement)await document.exitFullscreen();else if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();}catch{/* device does not support full screen */}
   });
+  window.addEventListener('resize', fitFuelRows);
+  if (document.fonts?.ready) document.fonts.ready.then(fitFuelRows);
   document.addEventListener('error',event=>{
     const image=event.target;
     if(image.tagName!=='IMG')return;
