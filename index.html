@@ -959,12 +959,13 @@
   // ════════════════════════════════════════════════════════════
   // iCal Calendar Feeds — direct fetch + parse, no OAuth, no popups
   // ════════════════════════════════════════════════════════════
-  // Tried in order per feed; first success wins.
-  const CORS_PROXIES = [
-    url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-    url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-    url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-    url => `https://thingproxy.freeboard.io/fetch/${url}`,
+  // Google does not send CORS headers for iCal feeds, so the browser needs a
+  // gateway.  The previous public proxy chain stopped working: corsproxy.io
+  // now requires an API key and the remaining services no longer retrieve
+  // Google Calendar feeds reliably.  Jina Reader currently provides a
+  // CORS-enabled pass-through for these read-only feeds.
+  const ICAL_GATEWAYS = [
+    { name: 'Jina Reader', buildUrl: url => `https://r.jina.ai/${url}` },
   ];
 
   // AbortSignal.timeout() is not in older TV/Smart-TV browsers.
@@ -1203,20 +1204,20 @@
   // ════════════════════════════════════════════════════════════
 
   async function fetchFeedWithFallback(feed) {
-    for (const proxy of CORS_PROXIES) {
-      const proxyUrl = proxy(feed.url);
+    for (const gateway of ICAL_GATEWAYS) {
+      const gatewayUrl = gateway.buildUrl(feed.url);
       try {
-        const res = await fetchWithTimeout(proxyUrl, 12000);
+        const res = await fetchWithTimeout(gatewayUrl, 12000);
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const text = await res.text();
         if (!text.includes('BEGIN:VCALENDAR')) throw new Error('not iCal');
-        console.log(`${feed.name}: loaded via ${proxyUrl.split('?')[0].split('/').slice(0,3).join('/')}`);
+        console.log(`${feed.name}: loaded via ${gateway.name}`);
         return text;
       } catch (e) {
-        console.warn(`${feed.name}: ${proxyUrl.split('?')[0]} failed: ${e.message}`);
+        console.warn(`${feed.name}: ${gateway.name} failed: ${e.message}`);
       }
     }
-    console.error(`${feed.name}: all proxies failed`);
+    console.error(`${feed.name}: all calendar gateways failed`);
     return null;
   }
 
