@@ -1002,3 +1002,61 @@ h2 {
   }
 
 }
+
+/* ────────────────────────────────────────────────────────────────
+   Kiosk display (Chromecast/TV): the whole page fits one screen with
+   no scrollbars and no interactive controls, since a cast session has
+   no pointer to scroll or click with. Scoped to the same width where
+   the 3-column desktop grid applies — phone/tablet layouts below keep
+   their normal scrolling page as designed for a hand-held device.
+   ──────────────────────────────────────────────────────────────── */
+@media(min-width:1101px) {
+  body {
+    height:100vh;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column
+  }
+  .header,.footer {
+    flex:0 0 auto
+  }
+  .main {
+    flex:1;
+    min-height:0;
+    overflow:hidden;
+    align-items:stretch;
+    grid-template-rows:minmax(0,1fr)
+  }
+  .local-column,.agenda-panel,.sports-sidebar {
+    min-height:0;
+    overflow:hidden
+  }
+  /* Panels/cards must not flex-shrink: some (e.g. .f1-card) already set
+     overflow:hidden for their own corner-clipping, which gives them an
+     automatic flex min-height of 0 and lets the shrink algorithm crush
+     them to nothing while siblings resist. Keeping every panel at its
+     natural height and letting the column's own overflow:hidden clip
+     whichever ones don't fit is the predictable behaviour we want. */
+  .local-column>.panel,.sports-sidebar>.sports-card {
+    flex-shrink:0
+  }
+  #calendar-content {
+    display:flex;
+    flex-direction:column
+  }
+  #events-container {
+    flex:1;
+    min-height:0;
+    display:flex;
+    flex-direction:column
+  }
+  #events-list {
+    flex:1;
+    min-height:0;
+    max-height:none;
+    overflow:hidden
+  }
+  #refresh-button,#fullscreen-button {
+    display:none
+  }
+}
