@@ -886,6 +886,14 @@ h2 {
   .local-column>.panel,.sports-pinned>.sports-card,.sports-track>.sports-card {
     flex-shrink:0
   }
+  /* The fuel card stretches to the foot of the column, so its bottom edge
+     lines up with the calendar card beside it and its content can never
+     spill past the clip. renderFuel trims rows to whatever fits inside. */
+  .local-column>.fuel-panel {
+    flex:1 1 auto;
+    min-height:0;
+    overflow:hidden
+  }
   /* The sports cards are taller than the sidebar, so they ride a looping
      track inside this viewport. A live card is pinned above it and the
      rest keep scrolling underneath. */

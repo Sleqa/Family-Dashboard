@@ -105,25 +105,25 @@ function renderFuel() {
   if (local.length) {
     html += '<div class="fuel-group" id="fuel-local"><div class="fuel-group-label">' +
       (bestIsLocal ? 'Also within ' : 'Cheapest within ') + FUEL_LOCAL_RADIUS_KM + ' km</div>' +
-      local.slice(0, 5).map((s, i) => fuelRow(s, i + 1)).join('') + '</div>';
+      local.slice(0, 7).map((s, i) => fuelRow(s, i + 1)).join('') + '</div>';
   }
   el.innerHTML = html;
   fitFuelRows();
 }
 
-// TV overscan and shorter cast resolutions leave less room than a 1080p
-// window, and the column clips whatever spills. Drop whole local rows from
-// the end until the card fits, so a row is never sliced in half. The
+// The card is stretched to the foot of the column, so how many rows fit
+// depends on the screen. Drop whole local rows from the end until the
+// content sits inside the card, so a row is never sliced in half. The
 // Perth-wide row always survives.
 function fitFuelRows() {
-  const column = document.querySelector('.local-column');
+  const panel = document.getElementById('fuel-panel');
   const group = document.getElementById('fuel-local');
-  if (!column || !group) return;
+  if (!panel || !group) return;
   const rows = [...group.querySelectorAll('.fuel-row')];
   group.hidden = false;
   rows.forEach(row => { row.hidden = false; });
   for (let i = rows.length - 1; i >= 0; i--) {
-    if (column.scrollHeight <= column.clientHeight) break;
+    if (panel.scrollHeight <= panel.clientHeight) break;
     rows[i].hidden = true;
   }
   if (rows.every(row => row.hidden)) group.hidden = true;
