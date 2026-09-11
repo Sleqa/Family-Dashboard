@@ -4,7 +4,6 @@ const ANTONELLI_IMAGE = 'https://upload.wikimedia.org/wikipedia/commons/d/d3/Ant
 let fuelSnapshot = null;
 let fuelDay = 'today';
 let extrasBusy = false;
-let holidayList = [];
 
 function perthTime(date) {
   return date.toLocaleTimeString('en-AU', {timeZone:'Australia/Perth', hour:'numeric', minute:'2-digit'});
@@ -74,26 +73,6 @@ function renderWeatherExtras(w) {
   document.getElementById('weather-updated').textContent = Date.now() - w.updatedAt > 3600000 ? 'Saved forecast' : 'Updated ' + perthTime(new Date(w.updatedAt));
 }
 
-function renderMarine(data) {
-  const el = document.getElementById('marine');
-  const c = data?.current;
-  if (!c || !Number.isFinite(c.wave_height) || Date.now() - data.savedAt > 6 * 3600000) { el.hidden = true; return; }
-  el.hidden = false;
-  const rounded = value => typeof value === 'number' ? Math.round(value * 10) / 10 : null;
-  el.innerHTML = '<div class="marine-title">ALONG THE COAST</div><div class="marine-values"><div>' + numberOrDash(rounded(c.wave_height),' m') +
-    '<span>Wave height</span></div><div>' + numberOrDash(rounded(c.wave_period),' s') + '<span>Wave period</span></div><div>' +
-    numberOrDash(rounded(c.sea_surface_temperature),'°') + '<span>Sea temperature</span></div></div><div class="source-line">Offshore model estimate · ' +
-    perthTime(new Date(data.savedAt)) + '</div>';
-}
-
-async function refreshMarine() {
-  try {
-    const data = await cachedJSON('marine:burns', 'https://marine-api.open-meteo.com/v1/marine?latitude=-31.7206&longitude=115.71&current=wave_height,wave_period,sea_surface_temperature&timezone=Australia%2FPerth', 30 * 60000);
-    const hit = cacheGet('marine:burns');
-    renderMarine({...data, savedAt:hit?.savedAt || Date.now()});
-  } catch { document.getElementById('marine').hidden = true; }
-}
-
 function fuelDate() {
   return perthDateKey(new Date(Date.now() + (fuelDay === 'tomorrow' ? 86400000 : 0)));
 }
@@ -146,29 +125,6 @@ async function refreshFuel() {
   renderFuel();
 }
 
-function renderHoliday() {
-  const today = perthDateKey(new Date());
-  const next = holidayList.filter(h => h.date >= today && (h.global || h.counties?.includes('AU-WA')) && h.types?.includes('Public')).sort((a,b) => a.date.localeCompare(b.date))[0];
-  const el = document.getElementById('holiday-strip');
-  if (!next) { el.hidden = true; return; }
-  el.hidden = false;
-  const days = Math.round((new Date(next.date+'T00:00:00+08:00') - new Date(today+'T00:00:00+08:00')) / 86400000);
-  el.innerHTML = '<div><span>NEXT WA PUBLIC HOLIDAY · <a href="https://date.nager.at/" target="_blank" rel="noopener">Nager.Date</a></span><strong>' + escapeHtml(next.localName) +
-    '</strong><span>' + new Date(next.date+'T12:00:00+08:00').toLocaleDateString('en-AU',{timeZone:'Australia/Perth',weekday:'long',day:'numeric',month:'long'}) +
-    '</span></div><div class="holiday-count">' + (days ? days+' days' : 'Today') + '</div>';
-}
-
-async function refreshHolidays() {
-  const year = Number(perthDateKey(new Date()).slice(0,4));
-  try {
-    holidayList = await cachedJSON('holidays:' + year, 'https://date.nager.at/api/v3/PublicHolidays/' + year + '/AU', 7 * 86400000);
-    if (!holidayList.some(h => h.date >= perthDateKey(new Date()) && (h.global || h.counties?.includes('AU-WA')))) {
-      holidayList = holidayList.concat(await cachedJSON('holidays:'+(year+1), 'https://date.nager.at/api/v3/PublicHolidays/'+(year+1)+'/AU',7*86400000));
-    }
-    renderHoliday();
-  } catch { /* retain the last known date */ }
-}
-
 async function loadF1Data() {
   try {
     const year = new Date().getFullYear();
@@ -202,9 +158,11 @@ async function loadF1Data() {
 
 function drawF1Card(data) {
   const card = document.getElementById('f1-card');
-  if (!data || data.empty || !data.date || Date.now()-new Date(data.date)>6*3600000) {card.hidden=true;card.innerHTML='';return;}
+  if (!data || data.empty || !data.date || Date.now()-new Date(data.date)>6*3600000) {card.hidden=true;card.dataset.live='0';card.innerHTML='';return;}
   card.hidden=false;
   const ms=new Date(data.date)-Date.now(), minutes=Math.max(0,Math.floor(ms/60000)),days=Math.floor(minutes/1440),hours=Math.floor(minutes/60)%24;
+  // Lights out has happened but the race can't have finished yet — treat it as live.
+  card.dataset.live = (ms < 0 && Date.now()-new Date(data.date) < 3*3600000) ? '1' : '0';
   const countdown=ms<0?'Scheduled race time has passed':days?days+'d '+hours+'h to lights out':hours+'h '+minutes%60+'m to lights out';
   const time=date=>new Date(date).toLocaleString('en-AU',{timeZone:'Australia/Perth',weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'});
   const track=safeImageUrl(data.circuitImage),portrait=safeImageUrl(data.leader?.image || data.leader?.fallbackImage);
@@ -222,10 +180,10 @@ function drawF1Card(data) {
 }
 
 async function refreshHomeExtras() {
-  renderFuel(); renderHoliday();
+  renderFuel();
   if (extrasBusy || !isOnline()) return;
   extrasBusy = true;
-  try { await Promise.allSettled([refreshFuel(),refreshMarine(),refreshHolidays()]); }
+  try { await refreshFuel(); }
   finally { extrasBusy = false; }
 }
 
@@ -234,7 +192,7 @@ function initialiseHomeExtras() {
   renderWeekStrip();
   refreshHomeExtras();
   setInterval(refreshHomeExtras, 15*60000);
-  setInterval(() => { renderFuel();renderHoliday();showWordOfDay(); }, 60000);
+  setInterval(renderFuel, 60000);
   document.getElementById('fuel-today').addEventListener('click',()=>{fuelDay='today';renderFuel();});
   document.getElementById('fuel-tomorrow').addEventListener('click',()=>{fuelDay='tomorrow';renderFuel();});
   let manualRefreshBusy=false;

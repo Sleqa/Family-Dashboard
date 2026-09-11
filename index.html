@@ -24,7 +24,6 @@
       <div class="weather-details"><div><span>Feels like</span><strong id="feels-like">—</strong></div><div><span>Wind</span><strong id="wind">—</strong></div><div><span>Humidity</span><strong id="humidity">—</strong></div><div><span>High / low</span><strong id="highlow">—</strong></div></div>
       <div id="forecast" class="forecast"></div>
       <div id="sun-strip" class="sun-strip"></div>
-      <div id="marine" class="marine" hidden></div>
       <div class="source-line"><a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a><span id="weather-updated"></span></div>
     </section>
     <section class="panel fuel-panel" id="fuel-panel">
@@ -36,22 +35,21 @@
     </section>
   </aside>
   <section class="panel agenda-panel" aria-label="Family schedule">
-    <div class="section-heading"><div><div class="eyebrow accent">LIFE AT HOME</div><h1>Your days, together.</h1></div><span class="agenda-count" id="agenda-count"></span></div>
-    <div class="schedule-header"><div class="calendar-legend"><span class="legend-personal">Personal</span><span class="legend-family">Family</span></div><span class="muted">Next 30 days</span></div>
     <div class="week-strip" id="week-strip"></div>
     <div id="calendar-content"><div id="events-container"><div class="loading" id="events-loading">Loading calendars…</div><div id="events-list"></div></div></div>
-    <div class="holiday-strip" id="holiday-strip" hidden></div>
-    <div class="source-line"><span id="calendar-updated">Google Calendar · auto-refreshes</span><span>AWST</span></div>
   </section>
   <aside class="sports-sidebar" id="sports-sidebar" aria-label="Sport">
-    <div class="section-heading sports-heading"><h2>On the radar</h2><span class="eyebrow">SPORT</span></div>
-    <section class="sports-card f1-card" id="f1-card" hidden></section>
-    <section class="sports-card" id="afl-card" hidden></section>
-    <section class="sports-card" id="nba-card" hidden></section>
+    <div class="sports-pinned" id="sports-pinned" hidden></div>
+    <div class="sports-marquee" id="sports-marquee">
+      <div class="sports-track" id="sports-track">
+        <section class="sports-card f1-card" id="f1-card" hidden></section>
+        <section class="sports-card" id="afl-card" hidden></section>
+        <section class="sports-card" id="nba-card" hidden></section>
+      </div>
+    </div>
     <div class="source-line sports-source"><span><a href="https://www.espn.com/" target="_blank" rel="noopener">ESPN</a> · <a href="https://api.jolpi.ca/ergast/" target="_blank" rel="noopener">Jolpica</a> · <a href="https://openf1.org/" target="_blank" rel="noopener">OpenF1</a></span><span>Times in Perth</span></div>
   </aside>
 </main>
-<footer class="footer"><div id="word-of-day"><span class="wod-label">A WORD FOR TODAY</span><strong id="wod-word"></strong><span id="wod-pos"></span><span id="wod-def"></span></div><span class="footer-home">Made for home. <span class="accent">W.</span></span></footer>
 
 <script src="dashboard-extra.js?v=2"></script>
 <script>
@@ -252,55 +250,6 @@
   setInterval(fetchWeather, 10 * 60 * 1000);
 
   // ── Word of the Day ──
-  const WORDS = [
-    { word: 'Serendipity',  pos: 'noun',      def: 'The occurrence of happy events by chance in a delightful way.' },
-    { word: 'Ephemeral',    pos: 'adjective', def: 'Lasting for a very short time.' },
-    { word: 'Luminous',     pos: 'adjective', def: 'Radiating or reflecting light; bright or glowing.' },
-    { word: 'Mellifluous',  pos: 'adjective', def: 'Sweet or musical; pleasant to hear.' },
-    { word: 'Sanguine',     pos: 'adjective', def: 'Optimistic, especially in difficult situations.' },
-    { word: 'Eloquent',     pos: 'adjective', def: 'Fluent or persuasive in speaking or writing.' },
-    { word: 'Tranquil',     pos: 'adjective', def: 'Free from disturbance; calm and peaceful.' },
-    { word: 'Resilient',    pos: 'adjective', def: 'Able to recover quickly from difficulties; tough.' },
-    { word: 'Wanderlust',   pos: 'noun',      def: 'A strong desire to travel and explore the world.' },
-    { word: 'Effervescent', pos: 'adjective', def: 'Vivacious and enthusiastic; bubbly.' },
-    { word: 'Tenacious',    pos: 'adjective', def: 'Holding firmly to a purpose; persistent.' },
-    { word: 'Halcyon',      pos: 'adjective', def: 'Denoting a period of happiness and prosperity.' },
-    { word: 'Magnanimous',  pos: 'adjective', def: 'Generous and forgiving, especially toward a rival.' },
-    { word: 'Petrichor',    pos: 'noun',      def: 'The pleasant smell of rain on dry earth.' },
-    { word: 'Quixotic',     pos: 'adjective', def: 'Exceedingly idealistic; unrealistic and impractical.' },
-    { word: 'Solace',       pos: 'noun',      def: 'Comfort or consolation in a time of distress.' },
-    { word: 'Vivacious',    pos: 'adjective', def: 'Attractively lively and animated.' },
-    { word: 'Whimsical',    pos: 'adjective', def: 'Playfully quaint or fanciful; appealing in an unusual way.' },
-    { word: 'Zeal',         pos: 'noun',      def: 'Great energy or enthusiasm in pursuit of a cause.' },
-    { word: 'Benevolent',   pos: 'adjective', def: 'Well-meaning and kindly; generous.' },
-    { word: 'Candor',       pos: 'noun',      def: 'The quality of being open and honest.' },
-    { word: 'Dauntless',    pos: 'adjective', def: 'Showing fearlessness and determination.' },
-    { word: 'Exuberant',    pos: 'adjective', def: 'Filled with lively energy and excitement.' },
-    { word: 'Felicity',     pos: 'noun',      def: 'Intense happiness; the ability to find expression.' },
-    { word: 'Gracious',     pos: 'adjective', def: 'Courteous, kind, and pleasant.' },
-    { word: 'Harbinger',    pos: 'noun',      def: 'A person or thing that signals what is to come.' },
-    { word: 'Ingenious',    pos: 'adjective', def: 'Clever, original, and inventive.' },
-    { word: 'Jubilant',     pos: 'adjective', def: 'Feeling or expressing great happiness and triumph.' },
-    { word: 'Kinetic',      pos: 'adjective', def: 'Relating to or resulting from motion; lively and dynamic.' },
-    { word: 'Loquacious',   pos: 'adjective', def: 'Tending to talk a great deal.' },
-    { word: 'Mirth',        pos: 'noun',      def: 'Amusement expressed in laughter; joyfulness.' },
-    { word: 'Nimble',       pos: 'adjective', def: 'Quick and light in movement or thought.' },
-    { word: 'Opulent',      pos: 'adjective', def: 'Ostentatiously rich and luxurious.' },
-    { word: 'Prudent',      pos: 'adjective', def: 'Acting with care and thought for the future.' },
-    { word: 'Radiant',      pos: 'adjective', def: 'Sending out light; looking joyful and happy.' },
-    { word: 'Sagacious',    pos: 'adjective', def: 'Having good judgement; wise and perceptive.' },
-    { word: 'Tenacity',     pos: 'noun',      def: 'The quality of being very determined and persistent.' },
-  ];
-  function showWordOfDay() {
-    const start = new Date(2026, 0, 1);
-    const today = new Date();
-    const dayIndex = Math.floor((today - start) / 86400000);
-    const entry = WORDS[dayIndex % WORDS.length];
-    document.getElementById('wod-word').textContent = entry.word;
-    document.getElementById('wod-pos').textContent = entry.pos;
-    document.getElementById('wod-def').textContent = entry.def;
-  }
-  showWordOfDay();
 
   // ════════════════════════════════════════════════════════════
   // iCal feed loader & parser (RFC 5545)
@@ -602,7 +551,6 @@
       .slice(0, 20);
 
     renderWeekStrip(events);
-    document.getElementById('agenda-count').textContent = events.filter(ev => ev.start < tomorrowStart && (ev.end || ev.start) >= todayStart).length + ' today';
     const list = document.getElementById('events-list');
     if (!visible.length) {
       list.innerHTML = '<div class="no-events"><div class="icon">🎉</div><p>No upcoming events</p></div>';
@@ -689,12 +637,7 @@
       // Fetch only when there's a link; otherwise fall straight through to
       // the cached text so the calendar still renders.
       const okCount = await runIfOnline('calendar', fetchAllFeeds);
-      if (okCount > 0) {
-        markSynced();
-        document.getElementById('calendar-updated').textContent = okCount === ICAL_FEEDS.length ? 'Calendars synced · ' + perthTime(new Date()) : 'Some calendars offline · showing saved events';
-      } else {
-        document.getElementById('calendar-updated').textContent = calendarTexts.size ? 'Saved calendar · refresh unavailable' : 'Calendar connection unavailable';
-      }
+      if (okCount > 0) markSynced();
 
       if (!renderCalendarFromTexts() && !hasRenderedCalendar) {
         list.innerHTML = isOnline()
@@ -989,15 +932,17 @@
   function renderLeagueCard(cardEl, data, fallbackLabel) {
     if (!data || !data.games || !data.games.length) {
       cardEl.hidden = true;
+      cardEl.dataset.live = '0';
       cardEl.innerHTML = '';
       return;
     }
     const games = data.games.filter(g => new Date(g.date).getTime() > Date.now() - 3 * 86400000);
-    if (!games.length) { cardEl.hidden = true; return; }
+    if (!games.length) { cardEl.hidden = true; cardEl.dataset.live = '0'; return; }
     cardEl.hidden = false;
     const { label, fallbackKind } = data;
 
     const hasLive  = games.some(g => g.isLive);
+    cardEl.dataset.live = hasLive ? '1' : '0';
     const liveGame = games.find(g => g.isLive);
     const liveDot  = hasLive ? '<span class="sports-live-dot"></span>' : '';
 
@@ -1043,12 +988,139 @@
     }
   })();
 
+  // ── Sports carousel ──────────────────────────────────────────────────────
+  // Three cards don't fit the sidebar, so they ride a continuous vertical
+  // loop. A card showing a live game is pinned above the loop instead, and
+  // the remaining cards keep scrolling underneath it.
+  const CAROUSEL_SPEED = 22;   // pixels per second
+  const CARD_IDS = ['f1-card', 'afl-card', 'nba-card'];
+  let carouselAnim = null;
+  let carouselZones = '';
+  let carouselLoop = 0;
+
+  function trackGap() {
+    const track = document.getElementById('sports-track');
+    return parseFloat(getComputedStyle(track).rowGap) || 0;
+  }
+
+  // Distance the track must travel for the first clone to land exactly where
+  // the first original started — i.e. one seamless lap.
+  function measureLoop() {
+    const track = document.getElementById('sports-track');
+    const shown = [...track.children].filter(c => !c.hidden);
+    const originals = shown.filter(c => !c.dataset.cloneOf);
+    const clones    = shown.filter(c =>  c.dataset.cloneOf);
+    if (clones.length && originals.length) return clones[0].offsetTop - originals[0].offsetTop;
+    return track.scrollHeight + trackGap();
+  }
+
+  function clearClones() {
+    document.querySelectorAll('#sports-track [data-clone-of]').forEach(n => n.remove());
+  }
+
+  function stopCarousel() {
+    if (carouselAnim) { carouselAnim.cancel(); carouselAnim = null; }
+    document.getElementById('sports-track').style.transform = '';
+    document.getElementById('sports-marquee').classList.remove('is-looping');
+    carouselLoop = 0;
+  }
+
+  // Mirror each original's content into its clone so the trailing copy never
+  // shows a stale score while the loop is mid-flight.
+  function syncClones() {
+    document.querySelectorAll('#sports-track [data-clone-of]').forEach(clone => {
+      const src = document.getElementById(clone.dataset.cloneOf);
+      if (!src) { clone.remove(); return; }
+      clone.hidden    = src.hidden;
+      clone.className = src.className;
+      clone.innerHTML = src.innerHTML;
+    });
+  }
+
+  function buildCarousel() {
+    const marquee = document.getElementById('sports-marquee');
+    const track   = document.getElementById('sports-track');
+
+    stopCarousel();
+    clearClones();
+
+    const originals = [...track.children].filter(c => !c.hidden);
+    const viewport  = marquee.clientHeight;
+    // One card, or everything already fits: leave it sitting still.
+    if (originals.length < 2 || !viewport || track.scrollHeight <= viewport + 4) return;
+
+    for (const card of originals) {
+      const clone = card.cloneNode(true);
+      clone.removeAttribute('id');
+      clone.dataset.cloneOf = card.id;
+      clone.setAttribute('aria-hidden', 'true');
+      track.appendChild(clone);
+    }
+
+    carouselLoop = measureLoop();
+    if (carouselLoop <= 0) { clearClones(); return; }
+    carouselAnim = track.animate(
+      [{ transform: 'translateY(0)' }, { transform: `translateY(${-carouselLoop}px)` }],
+      { duration: (carouselLoop / CAROUSEL_SPEED) * 1000, iterations: Infinity, easing: 'linear' }
+    );
+    marquee.classList.add('is-looping');
+  }
+
+  function layoutSports() {
+    const pinned  = document.getElementById('sports-pinned');
+    const track   = document.getElementById('sports-track');
+    const marquee = document.getElementById('sports-marquee');
+
+    const cards   = CARD_IDS.map(id => document.getElementById(id));
+    const visible = cards.filter(c => !c.hidden);
+    const live    = visible.find(c => c.dataset.live === '1') || null;
+    const rolling = cards.filter(c => c !== live);
+
+    const zones = (live ? live.id : '-') + '|' + rolling.map(c => c.id).join(',');
+    if (zones !== carouselZones) {
+      carouselZones = zones;
+      clearClones();
+      if (live) pinned.appendChild(live);
+      rolling.forEach(c => track.appendChild(c));
+      pinned.hidden = !live;
+      buildCarousel();
+      return;
+    }
+
+    syncClones();
+
+    // Content changed size (a game went final, a card grew): re-time the lap
+    // rather than let the clone drift out of alignment.
+    const loop     = measureLoop();
+    const viewport = marquee.clientHeight;
+    const contentH = loop - trackGap();
+    if (carouselAnim && contentH <= viewport + 4) { stopCarousel(); clearClones(); return; }
+    if (!carouselAnim && contentH > viewport + 4) { buildCarousel(); return; }
+    if (carouselAnim && Math.abs(loop - carouselLoop) > 8) buildCarousel();
+  }
+
   function renderSports() {
     renderLeagueCard(document.getElementById('nba-card'), sportsState.nba, 'NBA');
     renderLeagueCard(document.getElementById('afl-card'), sportsState.afl, 'AFL');
     renderF1Card(sportsState.f1);
-    document.getElementById('sports-sidebar').hidden = ['nba-card','afl-card','f1-card'].every(id => document.getElementById(id).hidden);
+    document.getElementById('sports-sidebar').hidden = CARD_IDS.every(id => document.getElementById(id).hidden);
+    layoutSports();
   }
+
+  // Circuit art and driver portraits arrive after their card is rendered and
+  // change its height — and so the lap distance. Re-measure once they settle.
+  // Clone images are ignored, or rebuilding would retrigger itself forever.
+  let relayoutTimer = null;
+  function relayoutSoon(event) {
+    if (event.target.tagName !== 'IMG' || event.target.closest('[data-clone-of]')) return;
+    clearTimeout(relayoutTimer);
+    relayoutTimer = setTimeout(() => { carouselZones = ''; layoutSports(); }, 150);
+  }
+  const sidebarEl = document.getElementById('sports-sidebar');
+  sidebarEl.addEventListener('load', relayoutSoon, true);
+  sidebarEl.addEventListener('error', relayoutSoon, true);
+
+  window.addEventListener('resize', () => { carouselZones = ''; layoutSports(); });
 
   let sportsBusy = false;
   let lastF1Fetch = 0;

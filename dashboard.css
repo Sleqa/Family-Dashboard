@@ -78,7 +78,7 @@ h2 {
   align-items:center;
   justify-content:space-between;
   gap:24px;
-  padding:24px 32px;
+  padding:10px 32px;
   border-bottom:1px solid var(--line)
 }
 .brand {
@@ -87,17 +87,17 @@ h2 {
   gap:13px
 }
 .brand-mark {
-  width:46px;
-  height:46px;
+  width:36px;
+  height:36px;
   background:var(--accent);
   color:#102720;
-  border-radius:14px;
-  font:600 34px 'Outfit';
+  border-radius:11px;
+  font:600 26px 'Outfit';
   text-align:center;
-  line-height:46px
+  line-height:36px
 }
 .logo {
-  font:500 26px 'Outfit';
+  font:500 21px 'Outfit';
   letter-spacing:-1px
 }
 .logo span {
@@ -116,13 +116,13 @@ h2 {
 .header-date {
   display:flex;
   flex-direction:column;
-  gap:2px;
+  gap:0;
   text-align:center;
   font-size:.875rem;
   color:var(--muted)
 }
 #greeting {
-  font:500 1.1rem 'Outfit';
+  font:500 .95rem 'Outfit';
   color:var(--text)
 }
 .header-right {
@@ -134,7 +134,7 @@ h2 {
   white-space:nowrap
 }
 #clock {
-  font:400 clamp(2rem,3vw,3rem) 'Outfit';
+  font:400 clamp(1.6rem,2.1vw,2.1rem) 'Outfit';
   font-variant-numeric:tabular-nums;
   letter-spacing:-.04em
 }
@@ -147,8 +147,8 @@ h2 {
   background:transparent;
   border:1px solid var(--line);
   border-radius:50%;
-  width:34px;
-  height:34px;
+  width:30px;
+  height:30px;
   color:var(--muted);
   font-size:22px;
   line-height:1
@@ -166,7 +166,7 @@ h2 {
   display:grid;
   grid-template-columns:minmax(280px,1fr) minmax(370px,1.42fr) minmax(280px,1fr);
   gap:20px;
-  padding:24px 32px 16px;
+  padding:14px 32px 16px;
   align-items:start
 }
 .local-column,.sports-sidebar {
@@ -274,29 +274,6 @@ h2 {
 .sun-strip .uv {
   color:var(--orange)
 }
-.marine {
-  margin-top:14px;
-  padding:12px 0 0;
-  border-top:1px solid var(--line)
-}
-.marine-title {
-  color:var(--accent);
-  font-size:.75rem;
-  font-weight:700;
-  margin-bottom:8px
-}
-.marine-values {
-  display:flex;
-  gap:18px
-}
-.marine-values div {
-  font-size:.875rem
-}
-.marine-values span {
-  display:block;
-  color:var(--muted);
-  font-size:.75rem
-}
 .source-line {
   display:flex;
   justify-content:space-between;
@@ -377,40 +354,7 @@ h2 {
   min-height:710px;
   display:flex;
   flex-direction:column;
-  padding:28px
-}
-.agenda-count {
-  background:#253a3b;
-  color:var(--accent);
-  border-radius:30px;
-  padding:7px 12px;
-  font-size:.75rem;
-  white-space:nowrap
-}
-.schedule-header {
-  display:flex;
-  justify-content:space-between;
-  gap:8px;
-  margin:22px 0 16px;
-  font-size:.75rem
-}
-.calendar-legend {
-  display:flex;
-  gap:16px
-}
-.calendar-legend span:before {
-  content:'';
-  display:inline-block;
-  width:7px;
-  height:7px;
-  border-radius:50%;
-  margin-right:6px
-}
-.legend-personal:before {
-  background:var(--blue)
-}
-.legend-family:before {
-  background:var(--red)
+  padding:20px 22px
 }
 .week-strip {
   display:grid;
@@ -521,28 +465,6 @@ h2 {
 .event-item.is-current {
   background:#25393a
 }
-.holiday-strip {
-  margin-top:20px;
-  border-top:1px solid var(--line);
-  padding-top:14px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px
-}
-.holiday-strip strong {
-  font-size:.875rem
-}
-.holiday-strip span {
-  display:block;
-  font-size:.75rem;
-  color:var(--muted)
-}
-.holiday-count {
-  font:500 1.4rem 'Outfit';
-  color:var(--accent);
-  white-space:nowrap
-}
 .loading,.no-events {
   padding:24px 0;
   color:var(--muted);
@@ -552,8 +474,18 @@ h2 {
   font-size:2rem;
   margin-bottom:10px
 }
-.sports-heading {
-  padding:0 3px
+.sports-pinned {
+  display:flex;
+  flex-direction:column
+}
+.sports-marquee {
+  position:relative
+}
+.sports-track {
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+  will-change:transform
 }
 .sports-card-header {
   display:flex;
@@ -578,25 +510,25 @@ h2 {
   overflow:hidden
 }
 .f1-top {
-  padding:20px 22px 0
+  padding:14px 16px 0
 }
 .f1-top .sports-card-header>span:first-child {
   font-style:italic;
-  font:700 1.25rem 'Outfit';
+  font:700 1rem 'Outfit';
   color:var(--red)
 }
 .f1-track {
-  height:140px;
+  height:86px;
   width:100%;
   object-fit:contain;
-  padding:7px 20px;
+  padding:4px 16px;
   background:#0d1922
 }
 .f1-race-info {
-  padding:17px 22px
+  padding:10px 16px
 }
 .sports-f1-race {
-  font:500 1.6rem 'Outfit';
+  font:500 1.15rem 'Outfit';
   letter-spacing:-.025em
 }
 .sports-f1-circuit {
@@ -605,23 +537,23 @@ h2 {
   margin-top:3px
 }
 .sports-f1-time {
-  font-size:.85rem;
-  margin-top:12px
+  font-size:.78rem;
+  margin-top:6px
 }
 .sports-f1-countdown {
   display:inline-block;
-  padding:5px 9px;
+  padding:3px 8px;
   background:#2d3635;
   color:var(--accent);
   border-radius:6px;
-  font-size:.75rem;
-  margin-top:8px
+  font-size:.7rem;
+  margin-top:6px
 }
 .f1-sessions {
   display:flex;
-  gap:14px;
-  margin-top:12px;
-  font-size:.75rem
+  gap:12px;
+  margin-top:8px;
+  font-size:.7rem
 }
 .f1-sessions span {
   display:block;
@@ -632,13 +564,12 @@ h2 {
   background:#1c3037;
   display:flex;
   align-items:center;
-  min-height:115px;
-  gap:14px;
-  padding:15px 20px
+  gap:11px;
+  padding:10px 16px
 }
 .driver-portrait {
-  height:100px;
-  width:80px;
+  height:54px;
+  width:44px;
   object-fit:cover;
   object-position:50% 20%;
   border-radius:8px;
@@ -652,16 +583,16 @@ h2 {
   text-transform:uppercase
 }
 .sports-f1-leader-name {
-  font:500 1.3rem 'Outfit';
-  margin:5px 0 2px
+  font:500 1rem 'Outfit';
+  margin:2px 0 1px
 }
 .sports-f1-leader-points {
-  font-size:.75rem;
+  font-size:.7rem;
   color:var(--muted)
 }
 .image-credit {
-  font-size:.6rem;
-  padding:5px 20px;
+  font-size:.55rem;
+  padding:4px 16px 7px;
   color:var(--muted)
 }
 .sports-teams-row {
@@ -780,48 +711,12 @@ h2 {
   padding:0 3px;
   margin-top:0
 }
-.footer {
-  border-top:1px solid var(--line);
-  margin:0 32px;
-  padding:15px 0;
-  display:flex;
-  justify-content:space-between;
-  gap:20px;
-  color:var(--muted);
-  font-size:.75rem
-}
-#word-of-day {
-  display:flex;
-  align-items:baseline;
-  flex-wrap:wrap;
-  gap:12px
-}
-.wod-label {
-  letter-spacing:.1em;
-  font-size:.65rem;
-  color:var(--accent)
-}
-#wod-word {
-  color:var(--text);
-  font-size:.875rem
-}
-#wod-pos {
-  font-style:italic
-}
-.footer-home {
-  white-space:nowrap
-}
-.footer-home .accent {
-  font:600 1.1rem 'Outfit';
-  margin-left:10px
-}
-
 @media(min-width:1550px) {
   .header {
-    padding:28px 44px
+    padding:12px 44px
   }
   .main {
-    padding:28px 44px;
+    padding:16px 44px 18px;
     gap:28px
   }
   .panel,.sports-card {
@@ -852,17 +747,14 @@ h2 {
     padding:20px 0
   }
   .f1-track {
-    height:180px
+    height:110px
   }
   .sports-f1-race {
-    font-size:1.9rem
+    font-size:1.35rem
   }
   .driver-portrait {
-    height:114px;
-    width:88px
-  }
-  .footer {
-    margin:0 44px
+    height:64px;
+    width:52px
   }
   .forecast-day,.sun-strip {
     font-size:.875rem
@@ -877,11 +769,6 @@ h2 {
     gap:16px
   }
   .sports-sidebar {
-    grid-column:1/-1;
-    display:grid;
-    grid-template-columns:repeat(3,1fr)
-  }
-  .sports-heading,.sports-source {
     grid-column:1/-1
   }
   .header {
@@ -895,12 +782,6 @@ h2 {
   }
   .f1-track {
     height:110px
-  }
-  .footer {
-    margin:0 20px
-  }
-  .footer-home {
-    display:none
   }
 
 }
@@ -924,9 +805,6 @@ h2 {
   }
   .sports-sidebar {
     display:flex
-  }
-  .sports-heading {
-    margin-top:10px
   }
   .header {
     padding:15px 14px;
@@ -967,9 +845,6 @@ h2 {
   }
   .weather-details strong {
     font-size:.95rem
-  }
-  .footer {
-    margin:0 16px
   }
   .f1-track {
     height:190px
@@ -1017,7 +892,7 @@ h2 {
     display:flex;
     flex-direction:column
   }
-  .header,.footer {
+  .header {
     flex:0 0 auto
   }
   .main {
@@ -1037,8 +912,25 @@ h2 {
      them to nothing while siblings resist. Keeping every panel at its
      natural height and letting the column's own overflow:hidden clip
      whichever ones don't fit is the predictable behaviour we want. */
-  .local-column>.panel,.sports-sidebar>.sports-card {
+  .local-column>.panel,.sports-pinned>.sports-card,.sports-track>.sports-card {
     flex-shrink:0
+  }
+  /* The sports cards are taller than the sidebar, so they ride a looping
+     track inside this viewport. A live card is pinned above it and the
+     rest keep scrolling underneath. */
+  .sports-pinned {
+    flex:0 0 auto
+  }
+  .sports-marquee {
+    flex:1;
+    min-height:0;
+    overflow:hidden
+  }
+  /* Soften the two edges the loop passes through so cards fade out instead
+     of being sliced off mid-row. */
+  .sports-marquee.is-looping {
+    -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 26px,#000 calc(100% - 26px),transparent 100%);
+    mask-image:linear-gradient(180deg,transparent 0,#000 26px,#000 calc(100% - 26px),transparent 100%)
   }
   #calendar-content {
     display:flex;
