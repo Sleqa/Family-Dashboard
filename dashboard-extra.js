@@ -375,17 +375,6 @@ function initialiseHomeExtras() {
   refreshHomeExtras();
   setInterval(refreshHomeExtras, 15*60000);
   setInterval(renderFuel, 60000);
-  let manualRefreshBusy=false;
-  document.getElementById('refresh-button').addEventListener('click',async()=>{
-    if(manualRefreshBusy)return;
-    manualRefreshBusy=true;
-    const button=document.getElementById('refresh-button');button.disabled=true;
-    try{await Promise.allSettled([fetchWeather(),refreshCalendar(),refreshSports(),refreshHomeExtras()]);}
-    finally{manualRefreshBusy=false;button.disabled=false;}
-  });
-  document.getElementById('fullscreen-button').addEventListener('click',async()=>{
-    try{if(document.fullscreenElement)await document.exitFullscreen();else if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();}catch{/* device does not support full screen */}
-  });
   window.addEventListener('resize', fitFuelRows);
   if (document.fonts?.ready) document.fonts.ready.then(fitFuelRows);
   document.addEventListener('error',event=>{

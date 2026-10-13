@@ -8,14 +8,9 @@
   <meta name="description" content="The Weldon family dashboard — calendars, Burns Beach weather, nearby fuel and sport." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="dashboard.css?v=5" />
+  <link rel="stylesheet" href="dashboard.css?v=6" />
 </head>
 <body>
-<header class="header">
-  <div class="brand"><div class="brand-mark" aria-hidden="true">w.</div><div><div class="logo">Weldon<span>Hub</span></div><div class="location-label">BURNS BEACH <span> / </span> WESTERN AUSTRALIA</div></div></div>
-  <div class="header-date"><span id="greeting">Welcome home</span><span id="header-date"></span></div>
-  <div class="header-right"><span class="conn-badge" id="conn-badge" style="display:none"></span><div class="clock-widget"><span id="clock">00:00</span><span id="ampm">AM</span></div><button id="refresh-button" class="icon-button" aria-label="Refresh dashboard" title="Refresh dashboard">↻</button><button id="fullscreen-button" class="icon-button" aria-label="Toggle full screen" title="Full screen">⛶</button></div>
-</header>
 <main class="main">
   <aside class="local-column" aria-label="Around Burns Beach">
     <section class="panel weather-panel">
@@ -31,10 +26,17 @@
       <div id="fuel-content" aria-live="polite"><p class="muted">Finding nearby prices…</p></div>
     </section>
   </aside>
+  <div class="center-column">
+  <section class="panel clock-card" aria-label="Date and time">
+    <span class="conn-badge" id="conn-badge" style="display:none"></span>
+    <div class="clock-time"><span id="clock">00:00</span><span id="ampm">AM</span></div>
+    <div class="clock-date" id="header-date"></div>
+  </section>
   <section class="panel agenda-panel" aria-label="Family schedule">
     <div class="week-strip" id="week-strip"></div>
     <div id="calendar-content"><div id="events-container"><div class="loading" id="events-loading">Loading calendars…</div><div id="events-list"></div></div></div>
   </section>
+  </div>
   <aside class="sports-sidebar" id="sports-sidebar" aria-label="Sport">
     <div class="sports-pinned" id="sports-pinned" hidden></div>
     <div class="sports-marquee" id="sports-marquee">
@@ -47,7 +49,7 @@
   </aside>
 </main>
 
-<script src="dashboard-extra.js?v=5"></script>
+<script src="dashboard-extra.js?v=6"></script>
 <script>
   // ════════════════════════════════════════════════════════════
   // iCal Calendar Feeds — direct fetch + parse, no OAuth, no popups
@@ -157,7 +159,6 @@
   function updateClock() {
     const now = new Date();
     const hour = Number(now.toLocaleString('en-GB', {timeZone:'Australia/Perth', hour:'2-digit', hour12:false}));
-    document.getElementById('greeting').textContent = hour < 12 ? 'Good morning, Weldons.' : hour < 18 ? 'Good afternoon, Weldons.' : 'Good evening, Weldons.';
     let h = hour;
     const m = now.getMinutes();
     const ampm = h >= 12 ? 'PM' : 'AM';

@@ -68,99 +68,56 @@ h2 {
   color:var(--muted);
   font-size:.875rem
 }
-.eyebrow,.location-label {
+.eyebrow {
   font-size:.75rem;
   font-weight:700;
   letter-spacing:.13em
 }
-.header {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:24px;
-  padding:10px 32px;
-  border-bottom:1px solid var(--line)
-}
-.brand {
-  display:flex;
-  align-items:center;
-  gap:13px
-}
-.brand-mark {
-  width:36px;
-  height:36px;
-  background:var(--accent);
-  color:#1f1300;
-  border-radius:11px;
-  font:600 26px 'Outfit';
-  text-align:center;
-  line-height:36px
-}
-.logo {
-  font:500 21px 'Outfit';
-  letter-spacing:-1px
-}
-.logo span {
-  color:var(--accent);
-  margin-left:5px
-}
-.location-label {
-  font-size:10px;
-  margin-top:2px;
-  color:var(--muted)
-}
-.location-label span {
-  margin:0 5px;
-  color:var(--accent)
-}
-.header-date {
+.center-column {
   display:flex;
   flex-direction:column;
-  gap:0;
-  text-align:center;
-  font-size:.875rem;
-  color:var(--muted)
+  gap:18px;
+  min-width:0;
+  min-height:0
 }
-#greeting {
-  font:500 .95rem 'Outfit';
-  color:var(--text)
-}
-.header-right {
+.clock-card {
+  position:relative;
   display:flex;
-  gap:12px;
-  align-items:center
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:22px 16px 20px;
+  background:linear-gradient(145deg,#2f2c28,var(--panel) 75%)
 }
-.clock-widget {
-  white-space:nowrap
-}
-#clock {
-  font:400 clamp(1.6rem,2.1vw,2.1rem) 'Outfit';
+.clock-time {
+  display:flex;
+  align-items:baseline;
+  justify-content:center;
+  gap:.18em;
+  white-space:nowrap;
+  font:400 clamp(5rem,9vw,9.5rem) 'Outfit';
   font-variant-numeric:tabular-nums;
-  letter-spacing:-.04em
-}
-#ampm {
-  color:var(--muted);
-  font-size:.75rem;
-  margin:0 8px
-}
-.icon-button {
-  background:transparent;
-  border:1px solid var(--line);
-  border-radius:50%;
-  width:30px;
-  height:30px;
-  color:var(--muted);
-  font-size:22px;
+  letter-spacing:-.04em;
   line-height:1
 }
-.icon-button:hover {
-  color:var(--text);
-  border-color:var(--accent)
+#ampm {
+  font-size:.34em;
+  letter-spacing:0;
+  color:var(--accent)
+}
+.clock-date {
+  margin-top:.35em;
+  font:500 clamp(1.7rem,3vw,3.1rem) 'Outfit';
+  letter-spacing:-.01em;
+  line-height:1.1
 }
 .conn-badge {
-  font-size:.75rem;
-  color:var(--orange);
-  max-width:120px
+  position:absolute;
+  top:10px;
+  right:14px;
+  font-size:.7rem;
+  color:var(--orange)
 }
 .main {
   display:grid;
@@ -746,9 +703,6 @@ h2 {
   margin-left:7px
 }
 @media(min-width:1550px) {
-  .header {
-    padding:12px 44px
-  }
   .main {
     padding:16px 44px 18px;
     gap:28px
@@ -802,12 +756,6 @@ h2 {
   .sports-sidebar {
     grid-column:1/-1
   }
-  .header {
-    padding:18px 20px
-  }
-  .header-date {
-    display:none
-  }
   .agenda-panel {
     padding:22px
   }
@@ -823,11 +771,13 @@ h2 {
     flex-direction:column;
     padding:12px
   }
-  .local-column,.agenda-panel,.sports-sidebar {
+  .local-column,.center-column,.sports-sidebar {
     width:100%
   }
+  .center-column {
+    order:-1
+  }
   .agenda-panel {
-    order:-1;
     min-height:0;
     padding:20px
   }
@@ -836,40 +786,6 @@ h2 {
   }
   .sports-sidebar {
     display:flex
-  }
-  .header {
-    padding:15px 14px;
-    gap:12px
-  }
-  .brand-mark {
-    display:none
-  }
-  .logo {
-    font-size:23px
-  }
-  .location-label {
-    font-size:8px
-  }
-  .header-right {
-    gap:5px
-  }
-  #clock {
-    font-size:2rem
-  }
-  #ampm {
-    font-size:.65rem;
-    margin:0 3px
-  }
-  .icon-button {
-    width:28px;
-    height:28px;
-    font-size:18px
-  }
-  #fullscreen-button {
-    display:none
-  }
-  .conn-badge {
-    display:none!important
   }
   .panel {
     padding:20px
@@ -920,9 +836,6 @@ h2 {
     display:flex;
     flex-direction:column
   }
-  .header {
-    flex:0 0 auto
-  }
   .main {
     flex:1;
     min-height:0;
@@ -930,9 +843,17 @@ h2 {
     align-items:stretch;
     grid-template-rows:minmax(0,1fr)
   }
-  .local-column,.agenda-panel,.sports-sidebar {
+  .local-column,.center-column,.sports-sidebar {
     min-height:0;
     overflow:hidden
+  }
+  .center-column>.agenda-panel {
+    flex:1 1 auto;
+    min-height:0;
+    overflow:hidden
+  }
+  .center-column>.clock-card {
+    flex-shrink:0
   }
   /* Panels/cards must not flex-shrink: some (e.g. .f1-card) already set
      overflow:hidden for their own corner-clipping, which gives them an
