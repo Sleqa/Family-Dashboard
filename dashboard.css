@@ -1,15 +1,15 @@
 :root {
   color-scheme:dark;
-  --bg:#0b151c;
-  --panel:#111f28;
-  --line:#25343d;
-  --text:#f1f5f3;
-  --muted:#a0b1b9;
-  --accent:#a9e4ce;
-  --blue:#7cc4ed;
-  --red:#f1a2a1;
-  --green:#a9e4ce;
-  --orange:#efc47e;
+  --bg:#141516;
+  --panel:#1f2123;
+  --line:#33373a;
+  --text:#ececec;
+  --muted:#9b9fa3;
+  --accent:#ffa726;
+  --blue:#c9ccce;
+  --red:#ff8a65;
+  --green:#ffa726;
+  --orange:#ffcc80;
   --font:'Manrope',system-ui,sans-serif
 }
 
@@ -90,7 +90,7 @@ h2 {
   width:36px;
   height:36px;
   background:var(--accent);
-  color:#102720;
+  color:#1f1300;
   border-radius:11px;
   font:600 26px 'Outfit';
   text-align:center;
@@ -198,7 +198,7 @@ h2 {
   margin-top:2px
 }
 .weather-panel {
-  background:linear-gradient(145deg,#19343c,var(--panel) 75%)
+  background:linear-gradient(145deg,#2f2c28,var(--panel) 75%)
 }
 .weather-widget {
   display:flex;
@@ -213,7 +213,7 @@ h2 {
 }
 #weather-desc {
   font-size:.85rem;
-  color:#c0d4d7;
+  color:#cfd1d3;
   margin-top:3px
 }
 #weather-icon {
@@ -269,14 +269,14 @@ h2 {
   gap:8px;
   font-size:.76rem;
   padding:9px 0 0;
-  color:#d7e3e4
+  color:#dcdddf
 }
 .sun-strip .uv {
   color:var(--orange)
 }
 .fuel-type {
-  color:#19241b;
-  background:#dbeda7;
+  color:#2a1c04;
+  background:#ffc857;
   border-radius:9px;
   padding:4px 9px;
   font:600 1rem 'Outfit'
@@ -305,7 +305,7 @@ h2 {
   color:var(--muted)
 }
 .fuel-row:first-child .fuel-rank {
-  color:#dbeda7
+  color:#ffc857
 }
 .fuel-name {
   font-weight:700;
@@ -319,7 +319,7 @@ h2 {
 .fuel-price {
   text-align:right;
   font:500 1.25rem 'Outfit';
-  color:#dbeda7
+  color:#ffc857
 }
 .fuel-price small {
   display:block;
@@ -359,10 +359,10 @@ h2 {
 }
 .week-day.today {
   background:var(--accent);
-  color:#25483e
+  color:#3b2704
 }
 .week-day.today strong {
-  color:#102920
+  color:#1f1300
 }
 .week-day i {
   height:4px;
@@ -386,7 +386,7 @@ h2 {
   max-height:565px;
   overflow:auto;
   scrollbar-width:thin;
-  scrollbar-color:#344b54 transparent;
+  scrollbar-color:#494d51 transparent;
   padding-right:4px
 }
 .day-section {
@@ -409,7 +409,7 @@ h2 {
   display:flex;
   gap:12px;
   padding:12px 13px;
-  background:#172730;
+  background:#272a2c;
   border-radius:10px;
   align-items:stretch
 }
@@ -444,7 +444,7 @@ h2 {
   grid-row:1 / 3
 }
 .event-item.is-current {
-  background:#25393a
+  background:#3a3226
 }
 .loading,.no-events {
   padding:24px 0;
@@ -503,7 +503,7 @@ h2 {
   width:100%;
   object-fit:contain;
   padding:4px 16px;
-  background:#0d1922
+  background:#191b1c
 }
 .f1-race-info {
   padding:10px 16px
@@ -524,7 +524,7 @@ h2 {
 .sports-f1-countdown {
   display:inline-block;
   padding:3px 8px;
-  background:#2d3635;
+  background:#3a3226;
   color:var(--accent);
   border-radius:6px;
   font-size:.7rem;
@@ -542,7 +542,7 @@ h2 {
   font-size:.65rem
 }
 .sports-f1-leader {
-  background:#1c3037;
+  background:#2a2d2f;
   display:flex;
   align-items:center;
   gap:11px;
