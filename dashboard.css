@@ -87,7 +87,7 @@ h2 {
   align-items:center;
   justify-content:center;
   text-align:center;
-  padding:22px 16px 20px;
+  padding:16px;
   background:linear-gradient(145deg,#2f2c28,var(--panel) 75%)
 }
 .clock-time {
@@ -96,7 +96,7 @@ h2 {
   justify-content:center;
   gap:.18em;
   white-space:nowrap;
-  font:400 clamp(5rem,9vw,9.5rem) 'Outfit';
+  font:400 clamp(4.2rem,7.4vw,7.8rem) 'Outfit';
   font-variant-numeric:tabular-nums;
   letter-spacing:-.04em;
   line-height:1
@@ -108,7 +108,7 @@ h2 {
 }
 .clock-date {
   margin-top:.35em;
-  font:500 clamp(1.7rem,3vw,3.1rem) 'Outfit';
+  font:500 clamp(1.25rem,2vw,2rem) 'Outfit';
   letter-spacing:-.01em;
   line-height:1.1
 }
