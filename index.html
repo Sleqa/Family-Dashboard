@@ -8,7 +8,7 @@
   <meta name="description" content="The Weldon family dashboard — calendars, Burns Beach weather, nearby fuel and sport." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="dashboard.css?v=7" />
+  <link rel="stylesheet" href="dashboard.css?v=8" />
 </head>
 <body>
 <main class="main">
@@ -49,7 +49,7 @@
   </aside>
 </main>
 
-<script src="dashboard-extra.js?v=7"></script>
+<script src="dashboard-extra.js?v=8"></script>
 <script>
   // ════════════════════════════════════════════════════════════
   // iCal Calendar Feeds — direct fetch + parse, no OAuth, no popups
@@ -755,17 +755,24 @@
   // cached data instead of blanking the card.
   async function fetchLeagueData(sportPath, label) {
     try {
-      // Pull a 10-day window: past 3 days through next 7. Works for both
-      // regular season and playoffs where games are sparser.
-      const now   = new Date();
-      const start = new Date(now.getTime() - 3 * 86400000);
-      const end   = new Date(now.getTime() + 7 * 86400000);
-      const url   = `https://site.api.espn.com/apis/site/v2/sports/${sportPath}/scoreboard?dates=${ymd(start)}-${ymd(end)}`;
-
-      const scoreRes = await fetchWithTimeout(url, 12000);
-      if (!scoreRes.ok) throw new Error('HTTP ' + scoreRes.status);
-      const scoreData = await scoreRes.json();
-      const allEvents = (scoreData.events || []).filter(e => e.date);
+      // ESPN rejects multi-day ranges (?dates=A-B answers HTTP 400), so ask
+      // for one day at a time: two days back through four ahead covers the
+      // Perth day plus a next/last game fallback. A day that fails is skipped;
+      // only every day failing counts as a failed fetch.
+      const now = new Date();
+      const days = await Promise.allSettled([-2, -1, 0, 1, 2, 3, 4].map(async offset => {
+        const url = `https://site.api.espn.com/apis/site/v2/sports/${sportPath}/scoreboard?dates=${ymd(new Date(now.getTime() + offset * 86400000))}`;
+        const res = await fetchWithTimeout(url, 12000);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return (await res.json()).events || [];
+      }));
+      if (days.every(d => d.status === 'rejected')) throw days[0].reason;
+      const byId = new Map();
+      for (const d of days) {
+        if (d.status !== 'fulfilled') continue;
+        for (const e of d.value) if (e.date) byId.set(e.id || e.uid || e.date + e.shortName, e);
+      }
+      const allEvents = [...byId.values()];
 
       const todayKey  = perthDateKey(new Date());
       const todayGames = allEvents.filter(e => perthDateKey(new Date(e.date)) === todayKey);
